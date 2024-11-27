@@ -1,15 +1,18 @@
-#pragma once
+#ifndef SERIAL_STATISTICS_H
+#define SERIAL_STATISTICS_H
 
 // Includes
 #include <iostream>
 #include <string>
 #include <vector>
 
+using namespace std;
+
 // Sort Type ENUM
-typedef enum SORT
+typedef enum SORT_ORDER
 {
 	ASCENDING,
-	DECENDING
+	DESCENDING
 };
 
 class SerialStatistics
@@ -19,22 +22,23 @@ public:
 	SerialStatistics();
 	~SerialStatistics();
 
-	// Sorts a input vector using the bubble sort algorithm
-	std::vector<float> &SerialStatistics::Sort(std::vector<float> &Values, SORT Mode);
-	// Finds the sum of an input vector
-	float SerialStatistics::Sum(std::vector<float> &Values);
-	// Finds the Min or Max of an input vector
-	float SerialStatistics::MinMax(std::vector<float> &Values, bool MinMax);
-	// Displays a vector
-	void SerialStatistics::Display(std::vector<float> &Values);
-	// Gets the median value from an input vector
-	float SerialStatistics::GetMedianValue(std::vector<float> &Values);
-	// Gets the mean value from an input vector
-	float SerialStatistics::Mean(std::vector<float> &Values);
-	// Gets the Standard Deviation value from an input vector
-	float SerialStatistics::StandardDeviation(std::vector<float> &Values);
-	// Gets the First Quartile value from an input vector
-	float SerialStatistics::FirstQuartile(std::vector<float> &Values);
-	// Gets the Third Quartile value from an input vector
-	float SerialStatistics::ThirdQuartile(std::vector<float> &Values);
+	// Function Declarations
+	// Sort Functions
+	void SerialStatistics::bubbleSort(vector<float> &values, SORT_ORDER mode);
+	void SerialStatistics::selectionSort(vector<float> &values, SORT_ORDER mode);
+	void SerialStatistics::mergeSort(vector<float> &values, SORT_ORDER mode);
+	void SerialStatistics::merge(vector<float> &values, const vector<float> &left, const vector<float> &right, SORT_ORDER mode);
+
+	void SerialStatistics::Display(vector<float> &values); // Displays a vector
+
+	// Statistics Functions
+	float SerialStatistics::getSum(vector<float> &values);
+	float SerialStatistics::getMinMax(vector<float> &values, bool getMin);
+	float SerialStatistics::getMedian(vector<float> &values);
+	float SerialStatistics::getMean(vector<float> &values);
+	float SerialStatistics::getSDeviation(vector<float> &values);
+	float SerialStatistics::getQ1(vector<float> &values);
+	float SerialStatistics::getQ3(vector<float> &values);
 };
+
+#endif // SERIAL_STATISTICS_H

@@ -179,6 +179,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="ParallelOperation.h" />
+    <ClInclude Include="ParallelStatistics.h" />
+    <ClInclude Include="SerialOperation.h" />
     <ClInclude Include="SerialStatistics.h" />
     <ClInclude Include="Sort.h" />
     <ClInclude Include="StationData.h" />
@@ -188,6 +191,7 @@
     <Intel_OpenCL_Build_Rules Include="my_kernels.cl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ParallelStatistics.cpp" />
     <ClCompile Include="SerialStatistics.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="StationData.cpp" />

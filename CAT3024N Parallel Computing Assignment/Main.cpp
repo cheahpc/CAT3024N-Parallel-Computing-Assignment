@@ -1,16 +1,17 @@
 #define __CL_ENABLE_EXCEPTIONS
 
+// Includes
 #include <CL/openCL.hpp>
 #include <iostream>
 #include <vector>
 #include <ctime>
 #include <algorithm>
-
-#include "Menu.h"
+// Custom Includes
+#include "Display.h"
 #include "OpenCLUtils.h"
 #include "Sort.h"
 #include "StationData.h"
-#include "SerialStatistics.h"
+#include "SerialOperation.h"
 
 // Function Declaration
 float SumVec(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
@@ -19,23 +20,19 @@ void Sort(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue,
 int AddPadding(std::vector<float> &temp, size_t LocalSize, float PadVal);
 void KernelExec(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
 float KernelExecRet(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
-void selectionSort(std::vector<float> &Values);
-
-void Serial(std::vector<float> &Values);
-void Serial_Summary(std::vector<float> &temp, std::vector<string> &stationName, std::vector<int> &month);
-void Parallel(std::vector<float> &Values, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
-void Parallel_Summary(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, std::vector<string> &stationName, std::vector<int> &month);
 
 vector<float> updateHistogramData(StationData data);
 void Histogram_Serial(std::vector<float> &temperature, float minimum, float maximum);
 void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, float minimum, float maximum);
 
-// global control variables
+// Global control variables
 bool serial_displayOverall = true;
 bool parallel_displayOverall = true;
-const string dataset_path = "china_temp_short.txt";
+const string DATASET_PATH = "china_temp_short.txt";
+// const string DATASET_PATH = "china_temp_large.txt";
+const string KERNEL_PATH = "my_kernels.cl";
 const string stationsList[5] = {"Taiyuan", "Chongqing", "Beijing", "Lanzhou", "Urumqi"};
-const string monthsList[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
 int histogram_bin_no = 15; // number of bins
 vector<int> histogram_result = vector<int>(histogram_bin_no);
 vector<int> output = vector<int>(histogram_result.size());
@@ -44,8 +41,6 @@ size_t output_size = output.size() * sizeof(float);
 // Global histogram variables
 vector<float> upperLimits; // upper limit for each bins
 vector<int> frequencies;   // store frequency of each bins
-
-SerialStatistics SStats = SerialStatistics();
 
 // Main method
 int main(int argc, char *argv[])
@@ -85,24 +80,21 @@ int main(int argc, char *argv[])
 	} while (true);
 
 	// Step 2. Load the data
-	// string datafile = "china_temp_short1.txt"; // Invalid file
-	string datafile = "china_temp_short.txt";
-	// string datafile = "china_temp_large.txt";
 	StationData data = StationData();
 
 	refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
-	println("Loading data from file: " + datafile);
-	if (!data.Load(datafile))
+	println("Loading data from file: " + DATASET_PATH);
+	if (!data.Load(DATASET_PATH))
 	{
-		println("Error: Unable to load the data. Please check the file path '" + datafile + "' and try again...");
-		println("");
+		println("Error: Unable to load the data. Please check the file path '" + DATASET_PATH + "' and try again...");
+		println();
 		pause();
 		return 0;
 	}
 	else
 	{
 		println("Data loaded successfully...");
-		println("");
+		println();
 		pause();
 	}
 
@@ -115,8 +107,6 @@ int main(int argc, char *argv[])
 	try
 	{
 		// Setup the OpenCL environment
-		// string kernelPath = "my_kernelss.cl"; // Invalid file
-		string kernelPath = "my_kernels.cl";
 		cl::Context context = GetContext(platform_id, device_id);	// Get the context
 		cl::CommandQueue queue(context, CL_QUEUE_PROFILING_ENABLE); // Get the queue
 		cl::Event prof_event;										// Setup the event profiling
@@ -124,18 +114,18 @@ int main(int argc, char *argv[])
 
 		// Load the kernel file
 		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
-		println("Loading the kernel file: " + kernelPath);
-		if (!AddSources(sources, kernelPath)) // Add the sources to the program
+		println("Loading the kernel file: " + KERNEL_PATH);
+		if (!AddSources(sources, KERNEL_PATH)) // Add the sources to the program
 		{
-			println("Error: Unable to load the " + kernelPath + " file. Please check the file path and try again...");
-			println("");
+			println("Error: Unable to load the " + KERNEL_PATH + " file. Please check the file path and try again...");
+			println();
 			pause();
 			return 0;
 		}
 		else
 		{
 			println("Kernel file loaded successfully...");
-			println("");
+			println();
 			pause();
 		}
 		cl::Program program(context, sources); // Define the program with the context and sources
@@ -150,20 +140,20 @@ int main(int argc, char *argv[])
 		{
 			println("Error: Failed to build the program. Please check the build log for more information...");
 			println("\tBuild Status    \t: " + program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(context.getInfo<CL_CONTEXT_DEVICES>()[0]));
-			println("\tBuild Options   \t:" + program.getBuildInfo<CL_PROGRAM_BUILD_OPTIONS>(context.getInfo<CL_CONTEXT_DEVICES>()[0]));
+			println("\tBuild Options   \t: " + program.getBuildInfo<CL_PROGRAM_BUILD_OPTIONS>(context.getInfo<CL_CONTEXT_DEVICES>()[0]));
 			println("\tBuild Log       \t: " + program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(context.getInfo<CL_CONTEXT_DEVICES>()[0]));
 			throw err;
 			return 0;
 		}
 		println("Program built successfully...");
-		println("");
+		println();
 		println("OpenCL environment setup successfully...");
-		println("");
+		println();
 		pause();
 
 		// Clock variable declaration
-		float startTime = 0;
-		float endTime = 0;
+		clock_t startTime = 0;
+		clock_t endTime = 0;
 
 		// Step 4. Main Program Loop
 		while (true)
@@ -173,17 +163,20 @@ int main(int argc, char *argv[])
 			displayMenu_Main();
 			int mainMenuChoice = getMenuChoice();
 
+			// Initialize Screen
+			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+			displayHeader_Operation(mainMenuChoice);
+
 			// TODO: Rework menu
 			switch (mainMenuChoice)
 			{
-			case 1:
-				refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
-				displayHeader_Operation(mainMenuChoice);
-
-				Serial(temps);
-				Serial_Summary(temps, stationName, months);
+			case 1:							   // Serial Overall Summary
+				serial_Calculate(temps); // Calculate all and display
 				break;
-			case 2:
+			case 2: // Serial By Month Summary
+				serial_by_month_summary(temps, months);
+				break;
+			case 22:
 				std::cout << "NOTE: RUNNING ON SERIAL MODE" << endl
 						  << endl;
 				startTime = clock();
@@ -199,35 +192,32 @@ int main(int argc, char *argv[])
 
 				break;
 			case 3:
-				std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
-						  << endl;
-				Parallel(temps, context, queue, program, prof_event);
-				Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
+				// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
+				//   << endl;
+				// Parallel(temps, context, queue, program, prof_event);
+				// Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
 				break;
 			case 4:
-				std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
-						  << endl;
-				startTime = clock();
-				partTemp = updateHistogramData(data);
-				Sort(partTemp, context, queue, program, prof_event);
-				std::cout << "----------------- OVERALL PARALLEL HISTOGRAM -----------------" << std::endl;
-				Histogram_Parallel(partTemp, context, queue, program, prof_event, partTemp[0], partTemp[partTemp.size() - 1]);
-				endTime = clock();
-				std::cout << "--------------------------------------------------------------" << std::endl;
-				std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl;
-				system("python DrawHisto.py"); // run DrawHisto.py file
+				// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
+				// 		  << endl;
+				// startTime = clock();
+				// partTemp = updateHistogramData(data);
+				// Sort(partTemp, context, queue, program, prof_event);
+				// std::cout << "----------------- OVERALL PARALLEL HISTOGRAM -----------------" << std::endl;
+				// Histogram_Parallel(partTemp, context, queue, program, prof_event, partTemp[0], partTemp[partTemp.size() - 1]);
+				// endTime = clock();
+				// cout << "--------------------------------------------------------------" << std::endl;
+				// cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl;
+				// system("python DrawHisto.py"); // run DrawHisto.py file
 				break;
-			case 5:
-				cout << endl;
-				cout << "Exiting Program..." << std::endl;
-				system("pause");
+			case 11:
+				println();
+				println("Exiting Program...");
+				pause();
 				return 0;
 			default:
-				cout << "Invalid input. Please enter a valid command..." << std::endl;
+				println("Invalid input. Please enter a valid option...");
 			}
-
-			cout << endl;
-			system("pause");
 			pause();
 		}
 	}
@@ -236,8 +226,6 @@ int main(int argc, char *argv[])
 		cerr << "ERROR: " << err.what() << ", " << getErrorString(err.err());
 		pause();
 	}
-
-	pause();
 	return 0;
 }
 
@@ -254,302 +242,7 @@ vector<float> updateHistogramData(StationData data)
 	return temperatures;
 }
 
-void Display_Data(int size, float sum, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, bool displayType, float startTime, float endTime)
-{
-	// Display
-	if (displayType)
-	{ // if is summary data
-		std::cout << "==================================[OVERALL RESULT]==================================" << std::endl;
-		// Display in multiple rows
-		cout << "The Min: \t\t" << min << endl;
-		cout << "The Max: \t\t" << max << endl;
-		cout << "The Mean: \t\t" << mean << endl;
-		cout << "The SD: \t\t" << sDeviation << endl;
-		cout << "The MV: \t\t" << median << endl;
-		cout << "The Q1: \t\t" << Q1 << endl;
-		cout << "The Q3: \t\t" << Q3 << endl;
-		cout << endl;
-		cout << "Total Records: \t\t" << size << endl;
-		cout << "Time taken: \t\t" << (endTime - startTime) << " ms" << endl;
-		cout << endl
-			 << endl;
-	}
-	else
-	{
-		// Display data in single row
-		cout << min << "\t";
-		cout << max << "\t";
-		cout << mean << "\t";
-		cout << sDeviation << "\t";
-		cout << median << "\t";
-		cout << Q1 << "\t";
-		cout << Q3 << "\t";
-		cout << size << "\t";
-		cout << (endTime - startTime) << " ms" << endl;
-	}
-}
-
-void Serial(vector<float> &values)
-{
-	// Start Counting
-	float startTime = clock();
-
-	std::vector<float> temperature = values;
-
-	// Get the size of the vector
-	int Size = temperature.size();
-	// Perform selection sort
-	selectionSort(temperature);
-
-	// Calculate the Sum
-	float Sum = SStats.Sum(temperature);
-	// Calculate the mean
-	float Mean = Sum / (Size);
-	// Calculate the Standard Deviation
-	float sDeviation = SStats.StandardDeviation(temperature);
-	// Calculate the Min
-	float MIN = temperature[0];
-	// Calculate the Max
-	float MAX = temperature[Size - 1];
-	// Calculate the Median
-	float Median = SStats.GetMedianValue(temperature);
-	// Calculate the First Quartile
-	float Q1 = SStats.FirstQuartile(temperature);
-	// Calculate the Third Quartile
-	float Q3 = SStats.ThirdQuartile(temperature);
-
-	// End counting
-	float endTime = clock();
-
-	// Display Data
-	Display_Data(Size, Sum, Mean, sDeviation, MIN, MAX, Median, Q1, Q3, serial_displayOverall, startTime, endTime);
-}
-
-void Serial_Summary(vector<float> &temp, vector<string> &stationName, vector<int> &month)
-{
-	serial_displayOverall = false;
-
-	// Start counting for Station
-	float startTime = clock();
-
-	// Display results for stations
-	std::cout << "=================================[STATION RESULT]===================================" << std::endl;
-	std::cout << "STATION    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
-	std::cout << "====================================================================================" << std::endl;
-
-// Part of temperature belong to a specific station
-std:
-	vector<float> partTemp;
-	for (int i = 0; i < temp.size(); i++)
-	{
-		// Is an empty vector
-		if (partTemp.size() == 0)
-		{
-			partTemp.insert(partTemp.begin(), temp[i]);
-		}
-		else
-		{
-			// Check if the next station is matched with the current station
-			if ((i + 1) != temp.size())
-			{ // if not last data
-				// if matched, continue adding the temparature to partTemp
-				if (stationName[i] == stationName[i + 1])
-				{
-					partTemp.insert(partTemp.begin(), temp[i]);
-				}
-				else
-				{
-					partTemp.insert(partTemp.begin(), temp[i]);
-					std::cout << stationName[i] << "  \t";
-					Serial(partTemp);
-					partTemp.clear(); // Reset the partTemp
-				}
-			}
-			else
-			{
-				// Last temperature data
-				partTemp.insert(partTemp.begin(), temp[i]);
-				std::cout << stationName[i] << " \t\t";
-				Serial(partTemp);
-				partTemp.clear(); // Reset the partTemp
-			}
-		}
-	}
-
-	// End Counting for Station
-	float endTime = clock();
-
-	std::cout << std::endl;
-	std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
-			  << std::endl
-			  << std::endl;
-	;
-
-	// Start Counting for Months
-	startTime = clock();
-
-	// Display the results for 12 months
-	std::cout << "=================================[MONTHS RESULT]====================================" << std::endl;
-	std::cout << "MONTH    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
-	std::cout << "====================================================================================" << std::endl;
-
-	// Part of temperature belong to a specific month
-	std::vector<std::vector<float>> temp2D(12);
-
-	// Loop through all the temperature data
-	for (int i = 0; i < temp.size(); i++)
-	{
-		temp2D[month[i] - 1].insert(temp2D[month[i] - 1].begin(), temp[i]);
-	}
-	// Loop through all the month vector
-	for (int i = 0; i < 12; i++)
-	{
-		std::cout << monthsList[i] << "\t\t";
-		// Trigger the serial function to display
-		Serial(temp2D[i]);
-	}
-
-	// End Counting
-	endTime = clock();
-
-	std::cout << std::endl;
-	std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
-			  << std::endl
-			  << std::endl;
-	;
-
-	serial_displayOverall = true;
-}
-
-void Parallel(std::vector<float> &Values, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
-{
-	// Start counting
-	float startTime = clock();
-	std::vector<float> temperature = Values;
-
-	// Get the size of the vector
-	int Size = temperature.size();
-	// Sort the vector into ascending
-	Sort(temperature, context, queue, program, prof_event);
-	// Calculate the Sum
-	float Sum = SumVec(temperature, context, queue, program, prof_event);
-	// Calculate the mean
-	float Mean = Sum / (Size);
-	// Calculate the standard deviation
-	float sDeviation = STDVec(temperature, Mean, context, queue, program, prof_event);
-	// Calculate the Min
-	float MIN = temperature[0];
-	// Calculate the Max
-	float MAX = temperature[Size - 1];
-	// Calculate the Median
-	float Median = SStats.GetMedianValue(temperature);
-	// Calculate the 1st Quartile
-	float Q1 = SStats.FirstQuartile(temperature);
-	// Calculate the 3rd Quartile
-	float Q3 = SStats.ThirdQuartile(temperature);
-
-	// End Counting
-	float endTime = clock();
-
-	// Display Data
-	Display_Data(Size, Sum, Mean, sDeviation, MIN, MAX, Median, Q1, Q3, parallel_displayOverall, startTime, endTime);
-}
-
-void Parallel_Summary(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, std::vector<string> &stationName, std::vector<int> &month)
-{
-	parallel_displayOverall = false; // Set global parallel display type
-
-	// Start Counting for Station
-	float startTime = clock();
-
-	// Display results for stations
-	std::cout << "==================================[STATION RESULT]==================================" << std::endl;
-	std::cout << "STATION    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
-	std::cout << "====================================================================================" << std::endl;
-
-// Part of temperatures belong to a specific station
-std:
-	vector<float> partTemp;
-	for (int i = 0; i < temp.size(); i++)
-	{
-		if (partTemp.size() == 0)
-		{
-			partTemp.insert(partTemp.begin(), temp[i]);
-		}
-		else
-		{
-			// Check if the next station is matched with the current station
-			if ((i + 1) != temp.size())
-			{ // if not last data
-				// if matched, continue adding the temparature to partTemp
-				if (stationName[i] == stationName[i + 1])
-				{
-					partTemp.insert(partTemp.begin(), temp[i]);
-				}
-				else
-				{
-					partTemp.insert(partTemp.begin(), temp[i]);
-					std::cout << stationName[i] << "  \t";
-					Parallel(partTemp, context, queue, program, prof_event);
-					partTemp.clear(); // Reset the partTemp
-				}
-			}
-			else
-			{
-				// Last temperature data
-				partTemp.insert(partTemp.begin(), temp[i]);
-				std::cout << stationName[i] << " \t\t";
-				Parallel(partTemp, context, queue, program, prof_event);
-				partTemp.clear(); // Reset the partTemp
-			}
-		}
-	}
-
-	// End Counting for Station
-	float endTime = clock();
-
-	std::cout << std::endl;
-	std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
-			  << std::endl
-			  << std::endl;
-	;
-
-	// Start Counting Months
-	startTime = clock();
-
-	// Display the results for 12 months
-	cout << "==================================[MONTHS RESULT]===================================" << std::endl;
-	cout << "MONTH    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
-	cout << "====================================================================================" << std::endl;
-
-	// Part of temperature belong to a specific month
-	std::vector<std::vector<float>> temp2D(12);
-
-	// Loop through all the temperature data
-	for (int i = 0; i < temp.size(); i++)
-	{
-		temp2D[month[i] - 1].insert(temp2D[month[i] - 1].begin(), temp[i]);
-	}
-	// Loop through all the month vector
-	for (int i = 0; i < 12; i++)
-	{
-		std::cout << monthsList[i] << "\t\t";
-		// Trigger the paralllel function to display
-		Parallel(temp2D[i], context, queue, program, prof_event);
-	}
-
-	// End Counting
-	endTime = clock();
-
-	std::cout << std::endl;
-	std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
-			  << std::endl
-			  << std::endl;
-	;
-
-	parallel_displayOverall = true; // Set global parallel display type
-}
-
+// ++++++++++++++++++++++++++++++++++++++++ Parallel functions
 // Sum Vector function
 float SumVec(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
@@ -587,7 +280,7 @@ float STDVec(std::vector<float> &temp, float Mean, cl::Context context, cl::Comm
 }
 
 // Sort function
-void Sort(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void Sort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
 	// Set local size to 32
 	size_t local_size = (32);
@@ -773,87 +466,6 @@ void Histogram_Serial(std::vector<float> &temperature, float minimum, float maxi
 	}
 	// Close the file
 	outputFile.close();
-	// last element is the total number of frequencies
-	frequencies.push_back(max_freq);
-}
-
-void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, float minimum, float maximum)
-{
-	cl::Kernel kernel(program, "hist_simple");
-
-	// the following part adjusts the length of the input vector so it can be run for a specific workgroup size
-	// if the total input length is divisible by the workgroup size
-	// this makes the code more efficient
-	size_t local_size = 256; // 1024; //work group size - higher work group size can reduce
-	size_t padding_size = temperature.size() % local_size;
-
-	// if the input vector is not a multiple of the local_size
-	// insert additional neutral elements (0 for addition) so that the total will not be affected (make work for my working set of data)
-	if (padding_size)
-	{
-		// create an extra vector with neutral values
-		std::vector<int> temperature_ext(local_size - padding_size, 1000);
-		// append that extra vector to our input
-		temperature.insert(temperature.end(), temperature_ext.begin(), temperature_ext.end());
-	}
-
-	size_t vector_elements = temperature.size();		   // number of elements
-	size_t vector_size = temperature.size() * sizeof(int); // size in bytes
-
-	// Create output vector
-	vector<int> histogram_vector(histogram_bin_no); // histogram results
-	vector<int> output(histogram_vector.size());
-	size_t output_size = output.size() * sizeof(float);
-
-	// Create buffers
-	cl::Buffer input_buffer(context, CL_MEM_READ_WRITE, vector_size);
-	cl::Buffer output_buffer(context, CL_MEM_READ_WRITE, output_size);
-
-	// Create queue and copy vectors to device memory
-	queue.enqueueWriteBuffer(input_buffer, CL_TRUE, 0, vector_size, &temperature[0]);
-	queue.enqueueFillBuffer(output_buffer, 0, 0, output_size); // zero B buffer on device memory
-
-	// Set the arguments 0 and 3 to be the buffers
-	kernel.setArg(0, input_buffer);
-	kernel.setArg(1, output_buffer);
-	kernel.setArg(2, histogram_bin_no);
-	kernel.setArg(3, minimum);
-	kernel.setArg(4, maximum);
-
-	// Execute kernel
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(vector_elements), cl::NDRange(local_size));
-
-	// Copy the result from device to host
-	queue.enqueueReadBuffer(output_buffer, CL_TRUE, 0, output_size, &histogram_vector[0]);
-
-	unsigned long HistogramExecution = prof_event.getProfilingInfo<CL_PROFILING_COMMAND_END>() - prof_event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
-
-	// display bins and frequency
-	std::cout << "Minimum: " << minimum << ", Maximum: " << maximum << std::endl;
-	std::cout << "Number of Bins: " << histogram_bin_no << ", Bin Size: " << (maximum - minimum) / histogram_bin_no << std::endl;
-	float binSize = (maximum - minimum) / histogram_bin_no;
-	std::printf("%s %d ns\n", "Histogram Execution Time:", HistogramExecution);
-	int max_freq = 0;
-
-	// clear vectors
-	upperLimits.clear();
-	frequencies.clear();
-
-	// first element is the minimum of elements
-	upperLimits.push_back(minimum);
-
-	for (int i = 1; i < histogram_bin_no + 1; i++)
-	{
-		float binStart = minimum + (i - 1) * binSize;
-		float binEnd = minimum + i * binSize;
-		int frequency = (histogram_vector[i - 1]);
-		std::cout << "Bin Range: >" << binStart << " to <=" << binEnd << ", Frequency: " << frequency << std::endl;
-
-		max_freq = (frequency > max_freq) ? frequency : max_freq;
-		frequencies.push_back(frequency);
-		upperLimits.push_back(binEnd);
-	}
-
 	// last element is the total number of frequencies
 	frequencies.push_back(max_freq);
 }

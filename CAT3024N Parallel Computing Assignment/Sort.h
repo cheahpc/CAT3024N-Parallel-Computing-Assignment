@@ -8,30 +8,28 @@
 using namespace std;
 
 // Function to perform selection sort on a vector of float elements
-// This is intended to be used in serial execution
-// This sorting algorithm processes the elements one after another, in sequence
 void selectionSort(vector<float> &Values)
 {
-    int min_id_x;
+    int min_index;
     // One by one move boundary of unsorted array
     for (int i = 0; i < Values.size() - 1; i++)
     {
-        min_id_x = i;
+        min_index = i;
         for (int j = i + 1; j < Values.size(); j++)
         {
             // Store the index of minimum element in unsorted array
-            if (Values[j] < Values[min_id_x])
+            if (Values[j] < Values[min_index])
             {
-                min_id_x = j;
+                min_index = j;
             }
         }
         // Swap the found min element with the bigger element
-        if (min_id_x != i)
+        if (min_index != i)
         {
             // Sorting or Swapping elements
-            float temp = Values[min_id_x]; // Put the min value into temporary var
-            Values[min_id_x] = Values[i];  // Put the bigger element to the min value's element array
-            Values[i] = temp;              // Put the min element to go into the bigger element array
+            float temp = Values[min_index]; // Put the min value into temporary var
+            Values[min_index] = Values[i];  // Put the bigger element to the min value's element array
+            Values[i] = temp;               // Put the min element to go into the bigger element array
         }
     }
     return;
