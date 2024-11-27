@@ -99,13 +99,12 @@ void displayInfo_Overall(int size, float mean, float sDeviation, float min, floa
     println("================================================[END]================================================");
 }
 
-void displayInfo_By_Month(bool header = true, )
+void displayInfo_By_Month(bool header = true)
 {
     // Header
     println("==============================================[By Month]===============================================");
     println("| Month | Min \t| Max \t| Mean \t| SD \t| Median \t| 1Q \t| 3Q \t| Size \t| Time\t|");
-    println("|-------|--------|-------|-------|-------|-----------|-------|-------|-------|-------|"); 
-
+    println("|-------|--------|-------|-------|-------|-----------|-------|-------|-------|-------|");
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Platform and Device Selection
