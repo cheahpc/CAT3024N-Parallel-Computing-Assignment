@@ -10,11 +10,11 @@ SerialStatistics::~SerialStatistics()
 {
 }
 
-std::vector<myType>& SerialStatistics::Sort(std::vector<myType>& Values, SORT Mode)
+std::vector<float>& SerialStatistics::Sort(std::vector<float>& Values, SORT Mode)
 {
 	//Get the size of the input vector
 	int Size = Values.size();
-	myType temp;
+	float temp;
 
 	//Loop through performing bubble sort
 	for (int i = 0; i < Size; i++)
@@ -43,10 +43,10 @@ std::vector<myType>& SerialStatistics::Sort(std::vector<myType>& Values, SORT Mo
 	return Values;
 }
 
-myType SerialStatistics::Sum(std::vector<myType>& Values)
+float SerialStatistics::Sum(std::vector<float>& Values)
 {
 	//Init the sum holder
-	myType Sum = 0;
+	float Sum = 0;
 	//Get the size of the input vector
 	int Size = Values.size();
 	//Loop through the vector
@@ -59,11 +59,11 @@ myType SerialStatistics::Sum(std::vector<myType>& Values)
 	return Sum;
 }
 
-myType SerialStatistics::MinMax(std::vector<myType>& Values, bool MinMax)
+float SerialStatistics::MinMax(std::vector<float>& Values, bool MinMax)
 {
 	//TRUE = MIN:::::FALSE = MAX
 	//Init the min or max variable used to store either the current min or max value
-	myType MiMx = 0;
+	float MiMx = 0;
 	//Bool to check first set
 	bool FirstSet = false;
 	//Get the size of the input vector
@@ -92,7 +92,7 @@ myType SerialStatistics::MinMax(std::vector<myType>& Values, bool MinMax)
 	return MiMx;
 }
 
-void SerialStatistics::Display(std::vector<myType>& Values)
+void SerialStatistics::Display(std::vector<float>& Values)
 {
 	//Get the size of the input vector
 	int Size = Values.size();
@@ -106,22 +106,22 @@ void SerialStatistics::Display(std::vector<myType>& Values)
 	std::cout << std::endl;
 }
 
-myType SerialStatistics::Mean(std::vector<myType>& Values)
+float SerialStatistics::Mean(std::vector<float>& Values)
 {
 	//Get the sum of the input vector
-	myType sum = Sum(Values);
+	float sum = Sum(Values);
 	//Get the size of the input vector
 	int Size = Values.size();
 	//Divide the sum of the vector by its size to get the mean
-	myType Mean = sum / Size;
+	float Mean = sum / Size;
 	//Return the mean value
 	return Mean;
 }
 
-myType SerialStatistics::StandardDeviation(std::vector<myType>& Values)
+float SerialStatistics::StandardDeviation(std::vector<float>& Values)
 {
 	//Define three variables to hold values
-	myType sum = 0, mean, standardDeviation = 0.0;
+	float sum = 0, mean, standardDeviation = 0.0;
 	//Calculate the mean of the vector
 	mean = Mean(Values);
 	//Get the size of the input vector
@@ -138,17 +138,17 @@ myType SerialStatistics::StandardDeviation(std::vector<myType>& Values)
 	return sqrt(standardDeviation);
 }
 
-myType SerialStatistics::GetMedianValue(std::vector<myType>& Values)
+float SerialStatistics::GetMedianValue(std::vector<float>& Values)
 {
 	//Get the size of the input vector
 	int Size = Values.size();
 	//Variable to hold middle value
-	myType Middle;
+	float Middle;
 	//Check if size is an even number
 	if (Size % 2 == 0)
 	{
 		//Calculate the difference between the two middle values
-		myType Difference = Values[(Size / 2) - 1] - Values[(Size / 2)];
+		float Difference = Values[(Size / 2) - 1] - Values[(Size / 2)];
 		//Account for difference to find the true median value
 		Middle = Values[(Size / 2) - 1] - Difference / 2;
 	}
@@ -161,17 +161,17 @@ myType SerialStatistics::GetMedianValue(std::vector<myType>& Values)
 	return Middle;
 }
 
-myType SerialStatistics::FirstQuartile(std::vector<myType>& Values)
+float SerialStatistics::FirstQuartile(std::vector<float>& Values)
 {
 	//Get the size of the input vector
 	int Size = Values.size();
 	//Variable to hold the first quartile value
-	myType First;
+	float First;
 	//Check if size is an even number
 	if (Size % 2 == 0)
 	{
 		//Calculate the difference between the two first quartile values
-		myType Difference = Values[(Size / 4) - 1] - Values[(Size / 4)];
+		float Difference = Values[(Size / 4) - 1] - Values[(Size / 4)];
 		//Account for difference to find the true first quartile value
 		First = Values[(Size / 4) - 1] - Difference / 2;
 	}
@@ -184,19 +184,19 @@ myType SerialStatistics::FirstQuartile(std::vector<myType>& Values)
 	return First;
 }
 
-myType SerialStatistics::ThirdQuartile(std::vector<myType>& Values)
+float SerialStatistics::ThirdQuartile(std::vector<float>& Values)
 {
 	//Get the size of the input vector
 	int Size = Values.size();
 	//Variable to hold the third quartile value
-	myType Third;
+	float Third;
 	//Set pos to the position of the third quartile
 	int Pos = Size - (Size / 4);
 	//Check if size is an even number
 	if (Size % 2 == 0)
 	{
 		//Calculate the difference between the two third quartile values
-		myType Difference = Values[Pos - 1] - Values[Pos];
+		float Difference = Values[Pos - 1] - Values[Pos];
 		//Account for difference to find the true third quartile value
 		Third = Values[Pos - 1] - Difference / 2;
 	}

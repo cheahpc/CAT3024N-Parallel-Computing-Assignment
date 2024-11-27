@@ -8,22 +8,20 @@
 
 #include "Menu.h"
 #include "OpenCLUtils.h"
+#include "Sort.h"
 #include "StationData.h"
 #include "SerialStatistics.h"
 
-// Define myType
-typedef float myType;
-
 // Function Declaration
-myType SumVec(std::vector<myType> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
-myType STDVec(std::vector<myType> &temp, myType Mean, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
-void Sort(std::vector<myType> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
-int AddPadding(std::vector<myType> &temp, size_t LocalSize, float PadVal);
-void KernelExec(cl::Kernel kernel, std::vector<myType> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
-float KernelExecRet(cl::Kernel kernel, std::vector<myType> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
-void selectionSort(std::vector<myType> &Values);
+float SumVec(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
+float STDVec(std::vector<float> &temp, float Mean, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
+void Sort(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
+int AddPadding(std::vector<float> &temp, size_t LocalSize, float PadVal);
+void KernelExec(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
+float KernelExecRet(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
+void selectionSort(std::vector<float> &Values);
 
-void Serial(std::vector<myType> &Values);
+void Serial(std::vector<float> &Values);
 void Serial_Summary(std::vector<float> &temp, std::vector<string> &stationName, std::vector<int> &month);
 void Parallel(std::vector<float> &Values, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
 void Parallel_Summary(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, std::vector<string> &stationName, std::vector<int> &month);
@@ -163,7 +161,6 @@ int main(int argc, char *argv[])
 		println("");
 		pause();
 
-		
 		// Clock variable declaration
 		float startTime = 0;
 		float endTime = 0;
@@ -172,7 +169,6 @@ int main(int argc, char *argv[])
 		while (true)
 		{
 			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
-
 			// Display Main Menu
 			displayMenu_Main();
 			int mainMenuChoice = getMenuChoice();
@@ -181,8 +177,9 @@ int main(int argc, char *argv[])
 			switch (mainMenuChoice)
 			{
 			case 1:
-				std::cout << "NOTE: RUNNING ON SERIAL MODE" << endl
-						  << endl;
+				refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+				displayHeader_Operation(mainMenuChoice);
+
 				Serial(temps);
 				Serial_Summary(temps, stationName, months);
 				break;
@@ -257,35 +254,6 @@ vector<float> updateHistogramData(StationData data)
 	return temperatures;
 }
 
-// Function to perform selection sort on a vector of myType elements
-// This is intended to be used in serial execution
-// This sorting algorithm processes the elements one after another, in sequence
-void selectionSort(vector<myType> &Values)
-{
-	int min_id_x;
-	// One by one move boundary of unsorted array
-	for (int i = 0; i < Values.size() - 1; i++)
-	{
-		min_id_x = i;
-		for (int j = i + 1; j < Values.size(); j++)
-		{
-			// Store the index of minimum element in unsorted array
-			if (Values[j] < Values[min_id_x])
-			{
-				min_id_x = j;
-			}
-		}
-		// Swap the found min element with the bigger element
-		if (min_id_x != i)
-		{
-			// Sorting or Swapping elements
-			myType temp = Values[min_id_x]; // Put the min value into temporary var
-			Values[min_id_x] = Values[i];	// Put the bigger element to the min value's element array
-			Values[i] = temp;				// Put the min element to go into the bigger element array
-		}
-	}
-}
-
 void Display_Data(int size, float sum, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, bool displayType, float startTime, float endTime)
 {
 	// Display
@@ -321,12 +289,12 @@ void Display_Data(int size, float sum, float mean, float sDeviation, float min, 
 	}
 }
 
-void Serial(std::vector<myType> &values)
+void Serial(vector<float> &values)
 {
 	// Start Counting
 	float startTime = clock();
 
-	std::vector<myType> temperature = values;
+	std::vector<float> temperature = values;
 
 	// Get the size of the vector
 	int Size = temperature.size();
@@ -357,7 +325,7 @@ void Serial(std::vector<myType> &values)
 	Display_Data(Size, Sum, Mean, sDeviation, MIN, MAX, Median, Q1, Q3, serial_displayOverall, startTime, endTime);
 }
 
-void Serial_Summary(std::vector<float> &temp, std::vector<string> &stationName, std::vector<int> &month)
+void Serial_Summary(vector<float> &temp, vector<string> &stationName, vector<int> &month)
 {
 	serial_displayOverall = false;
 
@@ -583,7 +551,7 @@ std:
 }
 
 // Sum Vector function
-myType SumVec(std::vector<myType> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+float SumVec(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
 	// Set local size to 2
 	size_t local_size = 2;
@@ -598,7 +566,7 @@ myType SumVec(std::vector<myType> &temp, cl::Context context, cl::CommandQueue q
 }
 
 // Standard deviation function
-myType STDVec(std::vector<myType> &temp, myType Mean, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+float STDVec(std::vector<float> &temp, float Mean, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
 	// Get the size of the vector
 	double Size = temp.size();
@@ -619,7 +587,7 @@ myType STDVec(std::vector<myType> &temp, myType Mean, cl::Context context, cl::C
 }
 
 // Sort function
-void Sort(std::vector<myType> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void Sort(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
 	// Set local size to 32
 	size_t local_size = (32);
@@ -634,7 +602,7 @@ void Sort(std::vector<myType> &temp, cl::Context context, cl::CommandQueue queue
 }
 
 // Function to add padding to an array
-int AddPadding(std::vector<myType> &temp, size_t LocalSize, float PadVal)
+int AddPadding(std::vector<float> &temp, size_t LocalSize, float PadVal)
 {
 	// Set the local size
 	size_t local_size = LocalSize;
@@ -652,7 +620,7 @@ int AddPadding(std::vector<myType> &temp, size_t LocalSize, float PadVal)
 	return padding_size;
 }
 
-void KernelExec(cl::Kernel kernel, std::vector<myType> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
+void KernelExec(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
 {
 	// Get the size of the vector
 	double Size = temp.size();
@@ -660,12 +628,12 @@ void KernelExec(cl::Kernel kernel, std::vector<myType> &temp, size_t Local_Size,
 	// Get the number of input elements
 	size_t input_elements = temp.size();
 	// Size in bytes of the input vector
-	size_t input_size = temp.size() * sizeof(myType);
+	size_t input_size = temp.size() * sizeof(float);
 
 	// Define Output vector B
-	std::vector<myType> B(input_elements);
+	std::vector<float> B(input_elements);
 	// Get the size in bytes of the output vector
-	size_t output_size = B.size() * sizeof(myType);
+	size_t output_size = B.size() * sizeof(float);
 
 	// Setup device buffer
 	cl::Buffer buffer_A(context, CL_MEM_READ_ONLY, input_size);
@@ -681,7 +649,7 @@ void KernelExec(cl::Kernel kernel, std::vector<myType> &temp, size_t Local_Size,
 
 	// If two is true then set argument two to the local memory size
 	if (Two == true)
-		kernel.setArg(2, cl::Local(Local_Size * sizeof(myType))); // Local memory size
+		kernel.setArg(2, cl::Local(Local_Size * sizeof(float))); // Local memory size
 	// If three is true then set argument three to the float value passed into the function
 	if (Three == true)
 		kernel.setArg(3, FThree);
@@ -698,7 +666,7 @@ void KernelExec(cl::Kernel kernel, std::vector<myType> &temp, size_t Local_Size,
 	queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, output_size, &temp[0], NULL, &prof_event2);
 }
 
-float KernelExecRet(cl::Kernel kernel, std::vector<myType> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
+float KernelExecRet(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
 {
 	// Get the size of the vector
 	double Size = temp.size();
@@ -706,12 +674,12 @@ float KernelExecRet(cl::Kernel kernel, std::vector<myType> &temp, size_t Local_S
 	// Get the number of input elements
 	size_t input_elements = temp.size();
 	// Size in bytes of the input vector
-	size_t input_size = temp.size() * sizeof(myType);
+	size_t input_size = temp.size() * sizeof(float);
 
 	// Define Output vector B
-	std::vector<myType> B(input_elements);
+	std::vector<float> B(input_elements);
 	// Get the size in bytes of the output vector
-	size_t output_size = B.size() * sizeof(myType);
+	size_t output_size = B.size() * sizeof(float);
 
 	// Setup device buffer
 	cl::Buffer buffer_A(context, CL_MEM_READ_ONLY, input_size);
@@ -732,7 +700,7 @@ float KernelExecRet(cl::Kernel kernel, std::vector<myType> &temp, size_t Local_S
 
 	// If two is true then set argument two to the local memory size
 	if (Two == true)
-		kernel.setArg(2, cl::Local(Local_Size * sizeof(myType))); // Local memory size
+		kernel.setArg(2, cl::Local(Local_Size * sizeof(float))); // Local memory size
 	// If three is true then set argument three to the float value passed into the function
 	if (Three == true)
 		kernel.setArg(3, FThree);

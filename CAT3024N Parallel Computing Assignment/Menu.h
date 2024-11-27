@@ -26,9 +26,9 @@ void displayInfo_Student()
 
 void displayHeader()
 {
-    println("==================================================");
-    println("     CAT3024N Parallel Computing - Assignment     ");
-    println("==================================================");
+    println("====================================================================================================");
+    println("|                             CAT3024N Parallel Computing - Assignment                             |");
+    println("====================================================================================================");
     println("");
 }
 
@@ -36,16 +36,41 @@ void displayHeader()
 void displayMenu_Main()
 {
     println("++++++++++++++++++++++++++++++++++++++++++++++++++ Main Menu");
-    println("SERIAL mode: ");
-    println("1. Statistic Summary");
-    println("2. Histogram Summary");
+    println("Option.");
+    println("      0. Display Stations Name");
+    println("      1. Statistic Summary - Serial Operation");
+    println("      2. Histogram Summary - Serial Operation");
+    println("      3. Statistic Summary - - Parallel Operation");
+    println("      4. Histogram Summary - - Parallel Operation");
     println("");
-    println("PARALLEL mode: ");
-    println("3. Statistic Summary");
-    println("4. Histogram Summary");
+    println("      5. Quit Program");
     println("");
-    println("5. Quit Program");
     println("++++++++++++++++++++++++++++++++++++++++++++++++++");
+}
+
+void displayHeader_Operation(int operation)
+{
+    println("");
+    switch (operation)
+    {
+    case 1:
+        println("================================================== [Option 1: Statistic Summary - Serial Operation]");
+        break;
+    case 2:
+        println("================================================== [Option 2: Histogram Summary - Serial Operation]");
+        break;
+    case 3:
+        println("================================================== [Option 3: Statistic Summary - Parallel Operation]");
+        break;
+    case 4:
+        println("================================================== [Option 4: Histogram Summary - Parallel Operation]");
+        break;
+
+    default:
+        break;
+    }
+    println("");
+    println("");
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Platform and Device Selection
