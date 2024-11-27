@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "Menu.h"
-#include "Utils.h"
+#include "OpenCLUtils.h"
 #include "StationData.h"
 #include "SerialStatistics.h"
 
@@ -28,11 +28,9 @@ void Serial_Summary(std::vector<float> &temp, std::vector<string> &stationName, 
 void Parallel(std::vector<float> &Values, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
 void Parallel_Summary(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, std::vector<string> &stationName, std::vector<int> &month);
 
-std::vector<float> updateHistogramData(StationData data);
+vector<float> updateHistogramData(StationData data);
 void Histogram_Serial(std::vector<float> &temperature, float minimum, float maximum);
 void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, float minimum, float maximum);
-
-void displayMenu();
 
 // global control variables
 bool serial_displayOverall = true;
@@ -41,115 +39,132 @@ const string dataset_path = "china_temp_short.txt";
 const string stationsList[5] = {"Taiyuan", "Chongqing", "Beijing", "Lanzhou", "Urumqi"};
 const string monthsList[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 int histogram_bin_no = 15; // number of bins
-std::vector<int> histogram_result = std::vector<int>(histogram_bin_no);
-std::vector<int> output = std::vector<int>(histogram_result.size());
+vector<int> histogram_result = vector<int>(histogram_bin_no);
+vector<int> output = vector<int>(histogram_result.size());
 size_t output_size = output.size() * sizeof(float);
 
 // Global histogram variables
-std::vector<float> upperLimits; // upper limit for each bins
-std::vector<int> frequencies;	// store frequency of each bins
+vector<float> upperLimits; // upper limit for each bins
+vector<int> frequencies;   // store frequency of each bins
 
 SerialStatistics SStats = SerialStatistics();
 
-// Print help function
-void print_help()
-{
-	// Display help message
-	std::cout << "Application usage:" << std::endl;
-	std::cout << "  -p : select platform " << std::endl;
-	std::cout << "  -d : select device" << std::endl;
-	std::cout << "  -l : list all platforms and devices" << std::endl;
-	std::cout << "  -h : print this message" << std::endl;
-}
-
 // Main method
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-	// Load Temperature Data
+
+	// Step 1. Platform Selection
+	int platform_id = 1;
+	int device_id = 0;
+	do
+	{
+		refreshHeader("N/a", "N/a");
+
+		displayMenu_PlatformAndDeviceSelection(ListPlatformsDevices());
+		pair<int, int> platform_device = getPlatformAndDeviceSelection();
+		platform_id = platform_device.first;
+		device_id = platform_device.second;
+		// Check if platform size and device size is valid
+		if (platform_id >= getPlatformSize() || device_id >= getDeviceSize(platform_id))
+		{
+			println("Error: Invalid Platform or Device ID. Please enter a valid Platform and Device ID...");
+			println("");
+			pause();
+		}
+		else if (platform_id < 0 || device_id < 0)
+		{
+			// Use Default 0 0
+			platform_id = 0;
+			device_id = 0;
+			println("Using Default Platform and Device ID...");
+			pause();
+			break;
+		}
+		else
+		{
+			break;
+		}
+	} while (true);
+
+	// Step 2. Load the data
+	// string datafile = "china_temp_short1.txt"; // Invalid file
+	string datafile = "china_temp_short.txt";
+	// string datafile = "china_temp_large.txt";
 	StationData data = StationData();
-	data.Load("china_temp_short.txt");
-	// Get the temperature data (degree celcius) from the temperature
+
+	refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+	println("Loading data from file: " + datafile);
+	if (!data.Load(datafile))
+	{
+		println("Error: Unable to load the data. Please check the file path '" + datafile + "' and try again...");
+		println("");
+		pause();
+		return 0;
+	}
+	else
+	{
+		println("Data loaded successfully...");
+		println("");
+		pause();
+	}
+
 	vector<float> &temps = data.GetTemp();
-	// Get the station name from the temperature data
 	vector<string> &stationName = data.GetStationName();
-	// Get month from temperature data
 	vector<int> &months = data.GetMonth();
 	vector<float> partTemp;
 
-	// Handle command line options such as device selection, verbosity, etc.
-	int platform_id = 1;
-	int device_id = 0;
-	// Loop over arguments and perform functions
-	for (int i = 1; i < argc; i++)
-	{
-		if ((strcmp(argv[i], "-p") == 0) && (i < (argc - 1)))
-		{
-			platform_id = atoi(argv[++i]);
-		}
-		else if ((strcmp(argv[i], "-d") == 0) && (i < (argc - 1)))
-		{
-			device_id = atoi(argv[++i]);
-		}
-		else if (strcmp(argv[i], "-l") == 0)
-		{
-			std::cout << ListPlatformsDevices() << std::endl;
-		}
-		else if (strcmp(argv[i], "-h") == 0)
-		{
-			print_help();
-		}
-	}
-	// Try to get all the relevant information ready
+	// Step 3. Setup OpenCL environment
 	try
 	{
-		// Get the context
-		cl::Context context = GetContext(platform_id, device_id);
-		// Display what platform and device the code is running on
-		std::cout << "Running on " << GetPlatformName(platform_id) << ", " << GetDeviceName(platform_id, device_id) << std::endl;
-		// Get the queue
-		cl::CommandQueue queue(context, CL_QUEUE_PROFILING_ENABLE);
-		// Setup the sources
-		cl::Program::Sources sources;
-		// Link to the kernels.cl document
-		AddSources(sources, "my_kernels.cl");
-		// Define the program with the context and sources
-		cl::Program program(context, sources);
-		// Setup prof Event
-		cl::Event prof_event;
+		// Setup the OpenCL environment
+		// string kernelPath = "my_kernelss.cl"; // Invalid file
+		string kernelPath = "my_kernels.cl";
+		cl::Context context = GetContext(platform_id, device_id);	// Get the context
+		cl::CommandQueue queue(context, CL_QUEUE_PROFILING_ENABLE); // Get the queue
+		cl::Event prof_event;										// Setup the event profiling
+		cl::Program::Sources sources;								// Setup the sources
 
-		// Try to build the program
+		// Load the kernel file
+		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+		println("Loading the kernel file: " + kernelPath);
+		if (!AddSources(sources, kernelPath)) // Add the sources to the program
+		{
+			println("Error: Unable to load the " + kernelPath + " file. Please check the file path and try again...");
+			println("");
+			pause();
+			return 0;
+		}
+		cl::Program program(context, sources); // Define the program with the context and sources
+
 		try
 		{
-			program.build();
+			program.build(); // Try to build the program
 		}
 		catch (const cl::Error &err)
 		{
-			// Else display error messages
-			cout << "Build Status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(context.getInfo<CL_CONTEXT_DEVICES>()[0]) << std::endl;
-			cout << "Build Options:\t" << program.getBuildInfo<CL_PROGRAM_BUILD_OPTIONS>(context.getInfo<CL_CONTEXT_DEVICES>()[0]) << std::endl;
-			cout << "Build Log:\t " << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(context.getInfo<CL_CONTEXT_DEVICES>()[0]) << std::endl;
+			println("Error: Failed to build the program. Please check the build log for more information...");
+			println("\tBuild Status    \t: " + program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(context.getInfo<CL_CONTEXT_DEVICES>()[0]));
+			println("\tBuild Options   \t:" + program.getBuildInfo<CL_PROGRAM_BUILD_OPTIONS>(context.getInfo<CL_CONTEXT_DEVICES>()[0]));
+			println("\tBuild Log       \t: " + program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(context.getInfo<CL_CONTEXT_DEVICES>()[0]));
 			throw err;
+			return 0;
 		}
 
 		// Clock variable declaration
 		float startTime = 0;
 		float endTime = 0;
 
+		// Step 4. Main Program Loop
 		while (true)
 		{
-			system("cls");
-			displayMenu();
-			int choice;
-			std::cout << "Enter option: ";
-			std::cin >> choice;
+			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
 
-			if (choice > 0 && choice < 5)
-			{
-				system("cls");
-				std::cout << "Loading..." << endl;
-			}
+			// Display Main Menu
+			displayMenu_Main();
+			int mainMenuChoice = getMenuChoice();
 
-			switch (choice)
+			// TODO: Rework menu
+			switch (mainMenuChoice)
 			{
 			case 1:
 				std::cout << "NOTE: RUNNING ON SERIAL MODE" << endl
@@ -192,44 +207,38 @@ int main(int argc, char **argv)
 				system("python DrawHisto.py"); // run DrawHisto.py file
 				break;
 			case 5:
-				std::cout << endl;
-				std::cout << "Exiting Program..." << std::endl;
+				cout << endl;
+				cout << "Exiting Program..." << std::endl;
 				system("pause");
 				return 0;
 			default:
-				std::cout << "Invalid input. Please enter a valid command..." << std::endl;
+				cout << "Invalid input. Please enter a valid command..." << std::endl;
 			}
 
-			std::cout << endl;
+			cout << endl;
 			system("pause");
+			pause();
 		}
 	}
 	catch (cl::Error err)
 	{
-		std::cerr << "ERROR: " << err.what() << ", " << getErrorString(err.err()) << std::endl;
+		cerr << "ERROR: " << err.what() << ", " << getErrorString(err.err());
+		pause();
 	}
 
-	system("pause");
+	pause();
 	return 0;
 }
 
-// Main Menu
-void displayMenu()
-{
-	// Header Information (Console)
-	displayHeader();
-	displayMainMenu();
-}
-
 // Function to update histogram data based on temperature information
-std::vector<float> updateHistogramData(StationData data)
+vector<float> updateHistogramData(StationData data)
 {
-	std::vector<float> temperatures;
-	std::vector<float> t = data.GetTemp();
-	std::vector<string> s = data.GetStationName();
-	std::vector<int> m = data.GetMonth();
+	vector<float> temperatures;
+	vector<float> t = data.GetTemp();
+	vector<string> s = data.GetStationName();
+	vector<int> m = data.GetMonth();
 
-	temperatures = t;
+	temperatures = t; // copy the temperature data
 
 	return temperatures;
 }
@@ -237,7 +246,7 @@ std::vector<float> updateHistogramData(StationData data)
 // Function to perform selection sort on a vector of myType elements
 // This is intended to be used in serial execution
 // This sorting algorithm processes the elements one after another, in sequence
-void selectionSort(std::vector<myType> &Values)
+void selectionSort(vector<myType> &Values)
 {
 	int min_id_x;
 	// One by one move boundary of unsorted array
@@ -270,31 +279,31 @@ void Display_Data(int size, float sum, float mean, float sDeviation, float min, 
 	{ // if is summary data
 		std::cout << "==================================[OVERALL RESULT]==================================" << std::endl;
 		// Display in multiple rows
-		std::cout << "The Min: \t\t" << min << std::endl;
-		std::cout << "The Max: \t\t" << max << std::endl;
-		std::cout << "The Mean: \t\t" << mean << std::endl;
-		std::cout << "The SD: \t\t" << sDeviation << std::endl;
-		std::cout << "The MV: \t\t" << median << std::endl;
-		std::cout << "The Q1: \t\t" << Q1 << std::endl;
-		std::cout << "The Q3: \t\t" << Q3 << std::endl;
-		std::cout << std::endl;
-		std::cout << "Total Records: \t\t" << size << std::endl;
-		std::cout << "Time taken: \t\t" << (endTime - startTime) << " ms" << std::endl;
-		std::cout << std::endl
-				  << std::endl;
+		cout << "The Min: \t\t" << min << endl;
+		cout << "The Max: \t\t" << max << endl;
+		cout << "The Mean: \t\t" << mean << endl;
+		cout << "The SD: \t\t" << sDeviation << endl;
+		cout << "The MV: \t\t" << median << endl;
+		cout << "The Q1: \t\t" << Q1 << endl;
+		cout << "The Q3: \t\t" << Q3 << endl;
+		cout << endl;
+		cout << "Total Records: \t\t" << size << endl;
+		cout << "Time taken: \t\t" << (endTime - startTime) << " ms" << endl;
+		cout << endl
+			 << endl;
 	}
 	else
 	{
 		// Display data in single row
-		std::cout << min << "\t";
-		std::cout << max << "\t";
-		std::cout << mean << "\t";
-		std::cout << sDeviation << "\t";
-		std::cout << median << "\t";
-		std::cout << Q1 << "\t";
-		std::cout << Q3 << "\t";
-		std::cout << size << "\t";
-		std::cout << (endTime - startTime) << " ms" << std::endl;
+		cout << min << "\t";
+		cout << max << "\t";
+		cout << mean << "\t";
+		cout << sDeviation << "\t";
+		cout << median << "\t";
+		cout << Q1 << "\t";
+		cout << Q3 << "\t";
+		cout << size << "\t";
+		cout << (endTime - startTime) << " ms" << endl;
 	}
 }
 
@@ -346,7 +355,7 @@ void Serial_Summary(std::vector<float> &temp, std::vector<string> &stationName, 
 	std::cout << "STATION    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
 	std::cout << "====================================================================================" << std::endl;
 
-// Part of temparatures belong to a specific station
+// Part of temperature belong to a specific station
 std:
 	vector<float> partTemp;
 	for (int i = 0; i < temp.size(); i++)
@@ -527,9 +536,9 @@ std:
 	startTime = clock();
 
 	// Display the results for 12 months
-	std::cout << "==================================[MONTHS RESULT]===================================" << std::endl;
-	std::cout << "MONTH    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
-	std::cout << "====================================================================================" << std::endl;
+	cout << "==================================[MONTHS RESULT]===================================" << std::endl;
+	cout << "MONTH    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
+	cout << "====================================================================================" << std::endl;
 
 	// Part of temperature belong to a specific month
 	std::vector<std::vector<float>> temp2D(12);

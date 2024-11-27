@@ -29,10 +29,10 @@ public:
 	vector<string> &GetStationName() { return m_StationName; }
 
 private:
-	// Vector to hold integer temperature values
-	vector<int> m_TempI;
 	// Vector to hold float temperature values
 	vector<float> m_Temp;
+	// Vector to hold integer temperature values
+	vector<int> m_TempI;
 	// Vectors to hold days, years, months, time
 	vector<int> m_Day;
 	vector<int> m_Year;
@@ -40,6 +40,7 @@ private:
 	vector<int> m_Time;
 	// Vector to hold names
 	vector<string> m_StationName;
+
 };
 
 #endif // STATIONDATA_H

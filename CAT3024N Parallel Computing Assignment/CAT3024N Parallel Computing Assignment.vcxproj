@@ -181,7 +181,7 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="SerialStatistics.h" />
     <ClInclude Include="StationData.h" />
-    <ClInclude Include="Utils.h" />
+    <ClInclude Include="OpenCLUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Intel_OpenCL_Build_Rules Include="my_kernels.cl" />
