@@ -134,8 +134,16 @@ int main(int argc, char *argv[])
 			pause();
 			return 0;
 		}
+		else
+		{
+			println("Kernel file loaded successfully...");
+			println("");
+			pause();
+		}
 		cl::Program program(context, sources); // Define the program with the context and sources
 
+		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+		println("Building the program...");
 		try
 		{
 			program.build(); // Try to build the program
@@ -149,7 +157,13 @@ int main(int argc, char *argv[])
 			throw err;
 			return 0;
 		}
+		println("Program built successfully...");
+		println("");
+		println("OpenCL environment setup successfully...");
+		println("");
+		pause();
 
+		
 		// Clock variable declaration
 		float startTime = 0;
 		float endTime = 0;
