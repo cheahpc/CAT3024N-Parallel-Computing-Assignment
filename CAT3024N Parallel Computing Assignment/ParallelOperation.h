@@ -2,64 +2,62 @@
 #define PARA_OPERATION_H
 
 // Includes
-
 #include <vector>
 #include <iostream>
 #include <ctime>
 #include <algorithm>
+#include <cmath>
+#include <map>
+#include <unordered_set>
 // Custom Includes
 #include "ParallelStatistics.h"
+#include "Display.h"
+#include "Global.h"
 
 using namespace std;
 
-void Parallel(vector<float> &Values, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Calculate(vector<float> &values, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
+    // Create an instance of the ParallelStatistics
+    ParallelStatistics pStats = ParallelStatistics();
+
     // Start counting
-    float startTime = clock();
-    std::vector<float> temperature = Values;
+    clock_t startTime = clock();
+
+    vector<float> temperature = values; // Copy the values to vector
+
+    // Sorting
+    pStats.selectionSort(temperature, context, queue, program, prof_event, SORT_ORDER::ASCENDING); // Perform selection sort
+                                                                                                   // TODO Implement merge sort and bubble sort
 
     // Get the size of the vector
-    int Size = temperature.size();
-    // Sort the vector into ascending
-    Sort(temperature, context, queue, program, prof_event);
-    // Calculate the Sum
-    float Sum = SumVec(temperature, context, queue, program, prof_event);
-    // Calculate the mean
-    float Mean = Sum / (Size);
-    // Calculate the standard deviation
-    float sDeviation = STDVec(temperature, Mean, context, queue, program, prof_event);
-    // Calculate the Min
-    float MIN = temperature[0];
-    // Calculate the Max
-    float MAX = temperature[Size - 1];
-    // Calculate the Median
-    float Median = SStats.getMedian(temperature);
-    // Calculate the 1st Quartile
-    float Q1 = SStats.getQ1(temperature);
-    // Calculate the 3rd Quartile
-    float Q3 = SStats.getQ3(temperature);
+    int size = temperature.size();
+    float sum = pStats.getSum(temperature, context, queue, program, prof_event);
 
-    // End Counting
-    float endTime = clock();
+    float mean = sum / (size);
+    float sDeviation = pStats.getSDeviation(temperature, mean, context, queue, program, prof_event);
+    float min = temperature[0];
+    float max = temperature[size - 1];
+    float median = pStats.getMedian(temperature);
+    float q1 = pStats.getQ1(temperature);
+    float q3 = pStats.getQ3(temperature);
+
+    // End counting
+    clock_t endTime = clock();
 
     // Display Data
-    displayInfo_Result(Size, Sum, Mean, sDeviation, MIN, MAX, Median, Q1, Q3, parallel_displayOverall, startTime, endTime);
+    displayInfo_Summary(size, mean, sDeviation, min, max, median, q1, q3, startTime, endTime);
 }
 
-void Parallel_Summary(bool displayOverall = false, vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, vector<string> &stationName, vector<int> &month)
+void Parallel_Summary(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, vector<string> &stationName, vector<int> &month)
 {
-    displayOverall = false; // Set global parallel display type
-
     // Start Counting for Station
-    float startTime = clock();
+    clock_t startTime = clock();
 
     // Display results for stations
-    std::cout << "==================================[STATION RESULT]==================================" << std::endl;
-    std::cout << "STATION    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
-    std::cout << "====================================================================================" << std::endl;
+    // TODO Display Header
 
-// Part of temperatures belong to a specific station
-std:
+    // Part of temperatures belong to a specific station
     vector<float> partTemp;
     for (int i = 0; i < temp.size(); i++)
     {
@@ -80,8 +78,8 @@ std:
                 else
                 {
                     partTemp.insert(partTemp.begin(), temp[i]);
-                    std::cout << stationName[i] << "  \t";
-                    Parallel(partTemp, context, queue, program, prof_event);
+                    cout << stationName[i] << "  \t";
+                    parallel_Calculate(partTemp, context, queue, program, prof_event);
                     partTemp.clear(); // Reset the partTemp
                 }
             }
@@ -90,19 +88,19 @@ std:
                 // Last temperature data
                 partTemp.insert(partTemp.begin(), temp[i]);
                 std::cout << stationName[i] << " \t\t";
-                Parallel(partTemp, context, queue, program, prof_event);
+                parallel_Calculate(partTemp, context, queue, program, prof_event);
                 partTemp.clear(); // Reset the partTemp
             }
         }
     }
 
     // End Counting for Station
-    float endTime = clock();
+    clock_t endTime = clock();
 
-    std::cout << std::endl;
-    std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
-              << std::endl
-              << std::endl;
+    cout << std::endl;
+    cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
+         << std::endl
+         << std::endl;
     ;
 
     // Start Counting Months
@@ -124,26 +122,27 @@ std:
     // Loop through all the month vector
     for (int i = 0; i < 12; i++)
     {
-        std::cout << monthsList[i] << "\t\t";
+        std::cout << MONTH_LIST[i] << "\t\t";
         // Trigger the paralllel function to display
-        Parallel(temp2D[i], context, queue, program, prof_event);
+        parallel_Calculate(temp2D[i], context, queue, program, prof_event);
     }
 
     // End Counting
     endTime = clock();
 
-    std::cout << std::endl;
-    std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
-              << std::endl
-              << std::endl;
+    cout << endl;
+    cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
+         << endl
+         << endl;
     ;
-
-    parallel_displayOverall = true; // Set global parallel display type
 }
 
-void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, float minimum, float maximum)
+void Histogram_Parallel(vector<float> &temperature, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, float minimum, float maximum)
 {
     cl::Kernel kernel(program, "hist_simple");
+
+    vector<float> upper_Limits; // upper limit for each bins
+    vector<int> frequencies;    // store frequency of each bins
 
     // the following part adjusts the length of the input vector so it can be run for a specific workgroup size
     // if the total input length is divisible by the workgroup size
@@ -156,7 +155,7 @@ void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl
     if (padding_size)
     {
         // create an extra vector with neutral values
-        std::vector<int> temperature_ext(local_size - padding_size, 1000);
+        vector<int> temperature_ext(local_size - padding_size, 1000);
         // append that extra vector to our input
         temperature.insert(temperature.end(), temperature_ext.begin(), temperature_ext.end());
     }
@@ -165,7 +164,7 @@ void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl
     size_t vector_size = temperature.size() * sizeof(int); // size in bytes
 
     // Create output vector
-    vector<int> histogram_vector(histogram_bin_no); // histogram results
+    vector<int> histogram_vector(HISTOGRAM_BIN_NO); // histogram results
     vector<int> output(histogram_vector.size());
     size_t output_size = output.size() * sizeof(float);
 
@@ -180,7 +179,7 @@ void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl
     // Set the arguments 0 and 3 to be the buffers
     kernel.setArg(0, input_buffer);
     kernel.setArg(1, output_buffer);
-    kernel.setArg(2, histogram_bin_no);
+    kernel.setArg(2, HISTOGRAM_BIN_NO);
     kernel.setArg(3, minimum);
     kernel.setArg(4, maximum);
 
@@ -193,20 +192,20 @@ void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl
     unsigned long HistogramExecution = prof_event.getProfilingInfo<CL_PROFILING_COMMAND_END>() - prof_event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
 
     // display bins and frequency
-    std::cout << "Minimum: " << minimum << ", Maximum: " << maximum << std::endl;
-    std::cout << "Number of Bins: " << histogram_bin_no << ", Bin Size: " << (maximum - minimum) / histogram_bin_no << std::endl;
-    float binSize = (maximum - minimum) / histogram_bin_no;
-    std::printf("%s %d ns\n", "Histogram Execution Time:", HistogramExecution);
+    cout << "Minimum: " << minimum << ", Maximum: " << maximum << std::endl;
+    cout << "Number of Bins: " << HISTOGRAM_BIN_NO << ", Bin Size: " << (maximum - minimum) / HISTOGRAM_BIN_NO << std::endl;
+    float binSize = (maximum - minimum) / HISTOGRAM_BIN_NO;
+    printf("%s %d ns\n", "Histogram Execution Time:", HistogramExecution);
     int max_freq = 0;
 
     // clear vectors
-    upperLimits.clear();
+    upper_Limits.clear();
     frequencies.clear();
 
     // first element is the minimum of elements
-    upperLimits.push_back(minimum);
+    upper_Limits.push_back(minimum);
 
-    for (int i = 1; i < histogram_bin_no + 1; i++)
+    for (int i = 1; i < HISTOGRAM_BIN_NO + 1; i++)
     {
         float binStart = minimum + (i - 1) * binSize;
         float binEnd = minimum + i * binSize;
@@ -215,7 +214,7 @@ void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl
 
         max_freq = (frequency > max_freq) ? frequency : max_freq;
         frequencies.push_back(frequency);
-        upperLimits.push_back(binEnd);
+        upper_Limits.push_back(binEnd);
     }
 
     // last element is the total number of frequencies

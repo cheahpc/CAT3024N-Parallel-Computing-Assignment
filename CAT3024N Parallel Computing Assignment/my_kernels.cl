@@ -87,7 +87,7 @@ __kernel void reduce_STD_4(__global const float* A, __global float* B, __local f
 }
 
 //Selection sort kernal
-__kernel void ParallelSelection(__global const float* A, __global float* B)
+__kernel void p_SelectionSort(__global const float* A, __global float* B)
 {
 	//Get global ID
 	int i = get_global_id(0);

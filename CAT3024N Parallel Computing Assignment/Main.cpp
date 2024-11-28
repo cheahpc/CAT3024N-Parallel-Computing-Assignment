@@ -13,25 +13,13 @@
 #include "Sort.h"
 #include "StationData.h"
 #include "SerialOperation.h"
-// #include "ParallelOperation.h"
+#include "ParallelOperation.h"
 
-// Function Declaration
-float SumVec(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
-float STDVec(std::vector<float> &temp, float Mean, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
-void Sort(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
-int AddPadding(std::vector<float> &temp, size_t LocalSize, float PadVal);
-void KernelExec(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
-float KernelExecRet(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
+#include "Global.h"
 
-// Global control variables
-// const string DATASET_PATH = "china_temp_debug.txt"; // Debug
-const string DATASET_PATH = "china_temp_short.txt"; // Development
-// const string DATASET_PATH = "china_temp_large.txt"; // Final
-const string KERNEL_PATH = "my_kernels.cl";
 const char *PYTHON_PLOT_CMD = "python histPlot.py";
 
-const int window_width = 1920;
-const int window_height = 1080;
+// Global control variables
 
 vector<int> histogram_result = vector<int>(HISTOGRAM_BIN_NO);
 vector<int> output = vector<int>(histogram_result.size());
@@ -189,19 +177,18 @@ int main(int argc, char *argv[])
 				serial_By_Station_All_Month(temps, stationName, months);
 				break;
 			case 7: // Serial Histogram Summary
-					// TODO: Rework menu
+
 				serial_Histogram(temps);
 				system(PYTHON_PLOT_CMD); // run python plot file
 
 				break;
-			case 8:
-				// cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
-				// 	 << endl;
-				// Parallel(temps, context, queue, program, prof_event);
-				// Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
+			case 8: // Parallel Overall Summary
+				// TODO: Parallels
+				parallel_Calculate(temps, context, queue, program, prof_event);
 				break;
-			// case 4:
-			// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
+				// case 4:
+				// Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
+			// cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
 			// 		  << endl;
 			// startTime = clock();
 			// partTemp = updateHistogramData(data);
@@ -231,179 +218,4 @@ int main(int argc, char *argv[])
 		pause();
 	}
 	return 0;
-}
-
-// ++++++++++++++++++++++++++++++++++++++++ Parallel functions
-// Sum Vector function
-float SumVec(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
-{
-	// Set local size to 2
-	size_t local_size = 2;
-	// Add padding to the vector
-	int padding_size = AddPadding(temp, local_size, 0.0f);
-	// Set kernel to the reduce addition kernel
-	cl::Kernel kernel = cl::Kernel(program, "reduce_add_4");
-	// Set return to the output from kernel execution
-	float Return = KernelExecRet(kernel, temp, local_size, context, queue, true, false, false, 0.0f, 0, prof_event, "Sum Vector");
-	// Return value
-	return Return;
-}
-
-// Standard deviation function
-float STDVec(std::vector<float> &temp, float Mean, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
-{
-	// Get the size of the vector
-	double Size = temp.size();
-	// Set local size to 2
-	size_t local_size = 2;
-	// Add padding to the vector
-	int padding_size = AddPadding(temp, local_size, 0.0f);
-	// Set kernel to the reduce standard deviation kernel
-	cl::Kernel kernel = cl::Kernel(program, "reduce_STD_4");
-	// Set return to the output from kernel execution
-	float Return = KernelExecRet(kernel, temp, local_size, context, queue, true, true, true, Mean, padding_size, prof_event, "Standard Deviation");
-	// Divide the result by the size
-	Return = (Return / (Size));
-	// Square root the result
-	Return = sqrt(Return);
-	// Return the value
-	return Return;
-}
-
-// Sort function
-void Sort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
-{
-	// Set local size to 32
-	size_t local_size = (32);
-	// Add padding to the vector
-	int padding_size = AddPadding(temp, local_size, -1000000.0f);
-	// Set kernel to the parallel selection kernel
-	cl::Kernel kernel = cl::Kernel(program, "ParallelSelection");
-	// Perform the kernel
-	KernelExec(kernel, temp, local_size, context, queue, false, false, false, 0.0f, 0, prof_event, "Parallel Selection Sort");
-	// Erase the padded elements at the start of the vector
-	temp.erase(temp.begin(), temp.begin() + (local_size - padding_size));
-}
-
-// Function to add padding to an array
-int AddPadding(std::vector<float> &temp, size_t LocalSize, float PadVal)
-{
-	// Set the local size
-	size_t local_size = LocalSize;
-	// Find the padding size
-	int padding_size = temp.size() % local_size;
-	// If there is padding size then
-	if (padding_size)
-	{
-		// Create an extra vector with PadVal values
-		std::vector<float> A_ext(local_size - padding_size, PadVal);
-		// Append that extra vector to the input
-		temp.insert(temp.end(), A_ext.begin(), A_ext.end());
-	}
-	// Return padding_size
-	return padding_size;
-}
-
-void KernelExec(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
-{
-	// Get the size of the vector
-	double Size = temp.size();
-
-	// Get the number of input elements
-	size_t input_elements = temp.size();
-	// Size in bytes of the input vector
-	size_t input_size = temp.size() * sizeof(float);
-
-	// Define Output vector B
-	std::vector<float> B(input_elements);
-	// Get the size in bytes of the output vector
-	size_t output_size = B.size() * sizeof(float);
-
-	// Setup device buffer
-	cl::Buffer buffer_A(context, CL_MEM_READ_ONLY, input_size);
-	cl::Buffer buffer_B(context, CL_MEM_READ_WRITE, output_size);
-
-	// Write all the values from temp into buffer
-	queue.enqueueWriteBuffer(buffer_A, CL_TRUE, 0, input_size, &temp[0], NULL, &prof_event);
-	queue.enqueueFillBuffer(buffer_B, 0, 0, output_size);
-
-	// Set the arguments 0 and 1 to be the buffers
-	kernel.setArg(0, buffer_A);
-	kernel.setArg(1, buffer_B);
-
-	// If two is true then set argument two to the local memory size
-	if (Two == true)
-		kernel.setArg(2, cl::Local(Local_Size * sizeof(float))); // Local memory size
-	// If three is true then set argument three to the float value passed into the function
-	if (Three == true)
-		kernel.setArg(3, FThree);
-	// If four is true then set argument three to the int value passed into the function
-	if (Four == true)
-		kernel.setArg(4, IFour);
-
-	// Run the kernel
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(input_elements), cl::NDRange(Local_Size), NULL, &prof_event);
-
-	// Copy the result from device to host
-	// Setup prof Event
-	cl::Event prof_event2;
-	queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, output_size, &temp[0], NULL, &prof_event2);
-}
-
-float KernelExecRet(cl::Kernel kernel, vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
-{
-	// Get the size of the vector
-	double Size = temp.size();
-
-	// Get the number of input elements
-	size_t input_elements = temp.size();
-	// Size in bytes of the input vector
-	size_t input_size = temp.size() * sizeof(float);
-
-	// Define Output vector B
-	std::vector<float> B(input_elements);
-	// Get the size in bytes of the output vector
-	size_t output_size = B.size() * sizeof(float);
-
-	// Setup device buffer
-	cl::Buffer buffer_A(context, CL_MEM_READ_ONLY, input_size);
-	cl::Buffer buffer_B(context, CL_MEM_READ_WRITE, output_size);
-
-	// Set the arguments 0 and 1 to be the buffers
-	queue.enqueueWriteBuffer(buffer_A, CL_TRUE, 0, input_size, &temp[0], NULL, &prof_event);
-
-	// Display kernel memory write time
-	// std::cout << Name << " Kernel memory write time [ns]:" << prof_event.getProfilingInfo<CL_PROFILING_COMMAND_END>() - prof_event.getProfilingInfo<CL_PROFILING_COMMAND_START>() << std::endl;
-	// std::cout << GetFullProfilingInfo(prof_event, ProfilingResolution::PROF_US) << std::endl << std::endl;
-
-	queue.enqueueFillBuffer(buffer_B, 0, 0, output_size);
-
-	// Set the arguments 0 and 1 to be the buffers
-	kernel.setArg(0, buffer_A);
-	kernel.setArg(1, buffer_B);
-
-	// If two is true then set argument two to the local memory size
-	if (Two == true)
-		kernel.setArg(2, cl::Local(Local_Size * sizeof(float))); // Local memory size
-	// If three is true then set argument three to the float value passed into the function
-	if (Three == true)
-		kernel.setArg(3, FThree);
-	// If four is true then set argument three to the int value passed into the function
-	if (Four == true)
-		kernel.setArg(4, IFour);
-
-	// Run the kernel
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(input_elements), cl::NDRange(Local_Size), NULL, &prof_event);
-
-	// Copy the result from device to host
-	// Setup prof Event
-	cl::Event prof_event2;
-	queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, output_size, &B[0], NULL, &prof_event2);
-
-	// Display kernel memory read time
-	// std::cout << Name << " Kernel memory read time [ns]:" << prof_event2.getProfilingInfo<CL_PROFILING_COMMAND_END>() - prof_event2.getProfilingInfo<CL_PROFILING_COMMAND_START>() << std::endl;
-	// std::cout << GetFullProfilingInfo(prof_event2, ProfilingResolution::PROF_US) << std::endl << std::endl;
-
-	// Return the first element of the buffer Vector B
-	return B[0];
 }

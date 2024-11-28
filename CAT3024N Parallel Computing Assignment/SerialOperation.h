@@ -12,20 +12,16 @@
 // Custom Includes
 #include "SerialStatistics.h"
 #include "Display.h"
-#include "Sort.h"
+
+#include "Global.h"
 
 using namespace std;
-
-// Constant Variables
-const string MONTH_LIST[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-const int HISTOGRAM_BIN_NO = 15;
-const string SERIAL_HISTOGRAM_CSV = "histogram.csv";
 
 // Serial Function Implementation
 void serial_Calculate(vector<float> &values)
 {
     // Create an instance of the SerialStatistics
-    SerialStatistics SStats = SerialStatistics();
+    SerialStatistics sStats = SerialStatistics();
 
     // Check values size
     string message = "";
@@ -46,27 +42,27 @@ void serial_Calculate(vector<float> &values)
     vector<float> temperature = values; // Copy the values to vector
 
     // Sorting
-    SStats.mergeSort(temperature, SERIAL_SORT_ORDER::ASCENDING); // Perform merge sort - Fastest
-    // SStats.selectionSort(temperature, SORT_ORDER::ASCENDING); // Perform selection sort
-    // SStats.bubbleSort(temperature, SORT_ORDER::ASCENDING);    // Perform bubble sort - Slowest
+    sStats.mergeSort(temperature, SORT_ORDER::ASCENDING); // Perform merge sort - Fastest
+    // sStats.selectionSort(temperature, SORT_ORDER::ASCENDING); // Perform selection sort
+    // sStats.bubbleSort(temperature, SORT_ORDER::ASCENDING);    // Perform bubble sort - Slowest
 
     // Calculate the variables
     int size = temperature.size();
-    float sum = SStats.getSum(temperature);
+    float sum = sStats.getSum(temperature);
 
     float min = temperature[0];
     float max = temperature[size - 1];
     float mean = sum / (size);
-    float sDeviation = SStats.getSDeviation(temperature);
-    float median = SStats.getMedian(temperature);
-    float q1 = SStats.getQ1(temperature);
-    float q2 = SStats.getQ3(temperature);
+    float sDeviation = sStats.getSDeviation(temperature);
+    float median = sStats.getMedian(temperature);
+    float q1 = sStats.getQ1(temperature);
+    float q3 = sStats.getQ3(temperature);
 
     // End counting
     clock_t endTime = clock();
 
     // Display Data
-    displayInfo_Summary(size, mean, sDeviation, min, max, median, q1, q2, startTime, endTime);
+    displayInfo_Summary(size, mean, sDeviation, min, max, median, q1, q3, startTime, endTime);
 }
 
 // Summary Functions
@@ -300,7 +296,7 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
 
 void serial_Histogram(vector<float> &temperature)
 {
-    SerialStatistics SStats = SerialStatistics();
+    SerialStatistics sStats = SerialStatistics();
     // Step 1. Start Clock
     clock_t startTime = clock();
 
@@ -310,9 +306,9 @@ void serial_Histogram(vector<float> &temperature)
     vector<int> frequencies;    // store frequency of each bins
 
     // Step 3. Sort the temperature, get the minimum and maximum
-    SStats.mergeSort(temp, SERIAL_SORT_ORDER::ASCENDING);
-    // SStats.selectionSort(temp, SORT_ORDER::ASCENDING);
-    // SStats.bubbleSort(temp, SORT_ORDER::ASCENDING);
+    sStats.mergeSort(temp, SORT_ORDER::ASCENDING);
+    // sStats.selectionSort(temp, SORT_ORDER::ASCENDING);
+    // sStats.bubbleSort(temp, SORT_ORDER::ASCENDING);
     float minimum = temp[0];
     float maximum = temp[temp.size() - 1];
     float binSize = (maximum - minimum) / HISTOGRAM_BIN_NO;

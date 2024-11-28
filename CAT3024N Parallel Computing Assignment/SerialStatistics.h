@@ -6,15 +6,10 @@
 #include <string>
 #include <vector>
 
+// Custom Includes
+#include "Global.h"
+
 using namespace std;
-
-// Sort Type ENUM
-typedef enum SERIAL_SORT_ORDER
-{
-	ASCENDING,
-	DESCENDING
-};
-
 class SerialStatistics
 {
 public:
@@ -24,10 +19,10 @@ public:
 
 	// Function Declarations
 	// Sort Functions
-	void SerialStatistics::bubbleSort(vector<float> &values, SERIAL_SORT_ORDER mode);
-	void SerialStatistics::selectionSort(vector<float> &values, SERIAL_SORT_ORDER mode);
-	void SerialStatistics::mergeSort(vector<float> &values, SERIAL_SORT_ORDER mode);
-	void SerialStatistics::merge(vector<float> &values, const vector<float> &left, const vector<float> &right, SERIAL_SORT_ORDER mode);
+	void SerialStatistics::bubbleSort(vector<float> &values, SORT_ORDER mode);
+	void SerialStatistics::selectionSort(vector<float> &values, SORT_ORDER mode);
+	void SerialStatistics::mergeSort(vector<float> &values, SORT_ORDER mode);
+	void SerialStatistics::merge(vector<float> &values, const vector<float> &left, const vector<float> &right, SORT_ORDER mode);
 
 	void SerialStatistics::Display(vector<float> &values); // Displays a vector
 
