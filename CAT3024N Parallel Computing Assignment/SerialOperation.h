@@ -144,12 +144,28 @@ void serial_By_Station(vector<float> &temp, vector<string> &stationName)
 
 void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month)
 {
-    // TODO: Implement this function
     // Each month all station
     displayInfo_By_Station_Header();
 
     // Start Counting
     clock_t overallStartTime = clock();
+
+    vector<vector<float>> monthData(12); // For each month, store the temperature data for each station
+    vector<vector<int>> indexMonthData(12);
+    vector<vector<vector<float>>> station;
+
+    int currentStation = 0;
+
+    vector<float> currentMonthData;
+
+    // Step 1. create a list of all months regardless station with index
+    for (int i = 0; i < temp.size(); i++)
+    {
+        monthData[month[i] - 1].push_back(temp[i]); // Get Temperature Value
+        indexMonthData[month[i] - 1].push_back(i);  // Get Index Value
+    }
+
+    cout << "Checkpoint: ";
 
     // End Counting
     clock_t overallEndTime = clock();
@@ -206,7 +222,6 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
         cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[j];
         serial_Calculate(tempData[j], false);
     }
-    cout << "|" << internal << setfill('-') << setw(160) << "|" << endl; // Padding end
 
     // End Counting
     clock_t overallEndTime = clock();

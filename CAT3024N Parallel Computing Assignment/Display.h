@@ -85,22 +85,10 @@ void displayInfo_Operation(int operation)
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Data Summary
-void displayInfo_Footer(clock_t startTime, clock_t endTime, bool simple = true)
+void displayInfo_Footer(clock_t startTime, clock_t endTime)
 {
-    if (!simple)
-        cout << left << setfill('_')
-             << setw(16) << "|"
-             << setw(16) << "|"
-             << setw(16) << "|"
-             << setw(16) << "|"
-             << setw(16) << "|"
-             << setw(16) << "|"
-             << setw(16) << "|"
-             << setw(16) << "|"
-             << setw(16) << "|"
-             << setw(16) << "|"
-             << "|" << endl;
 
+    cout << "|" << internal << setfill('-') << setw(160) << "|" << endl; // Padding end
     cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
     cout << "| Total time taken (ms): " << left << setw(135) << setfill(' ') << long(endTime - startTime) << "|" << endl;
     cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;

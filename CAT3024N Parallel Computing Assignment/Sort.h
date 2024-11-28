@@ -35,75 +35,81 @@ void selectionSort(vector<float> &Values)
     return;
 }
 
-void merge(vector<float> &Values, int left, int mid, int right)
+void merge(vector<int> &arr, vector<int> &indices, int left, int mid, int right)
 {
     int n1 = mid - left + 1;
     int n2 = right - mid;
 
-    // Create temporary arrays
-    vector<float> Left(n1), Right(n2);
+    vector<int> L(n1), R(n2);
+    vector<int> L_indices(n1), R_indices(n2);
 
-    // Copy data to temporary arrays Left[] and Right[]
-    for (int i = 0; i < n1; i++)
-        Left[i] = Values[left + i];
-    for (int j = 0; j < n2; j++)
-        Right[j] = Values[mid + 1 + j];
+    for (int i = 0; i < n1; ++i)
+    {
+        L[i] = arr[left + i];
+        L_indices[i] = indices[left + i];
+    }
 
-    // Merge the temporary arrays back into arr[left..right]
+    for (int j = 0; j < n2; ++j)
+    {
+        R[j] = arr[mid + 1 + j];
+        R_indices[j] = indices[mid + 1 + j];
+    }
+
     int i = 0, j = 0, k = left;
     while (i < n1 && j < n2)
     {
-        if (Left[i] <= Right[j])
+        if (L[i] <= R[j])
         {
-            Values[k] = Left[i];
+            arr[k] = L[i];
+            indices[k] = L_indices[i];
             i++;
         }
         else
         {
-            Values[k] = Right[j];
+            arr[k] = R[j];
+            indices[k] = R_indices[j];
             j++;
         }
         k++;
     }
 
-    // Copy the remaining elements of Left[], if there are any
     while (i < n1)
     {
-        Values[k] = Left[i];
+        arr[k] = L[i];
+        indices[k] = L_indices[i];
         i++;
         k++;
     }
 
-    // Copy the remaining elements of Right[], if there are any
     while (j < n2)
     {
-        Values[k] = Right[j];
+        arr[k] = R[j];
+        indices[k] = R_indices[j];
         j++;
         k++;
     }
 }
 
-// Recursive function to implement merge sort
-void mergeSort(vector<float> &Values, int left, int right)
+void mergeSortHelper(vector<int> &arr, vector<int> &indices, int left, int right)
 {
     if (left < right)
     {
-        // Find the middle point
         int mid = left + (right - left) / 2;
-
-        // Sort first and second halves
-        mergeSort(Values, left, mid);
-        mergeSort(Values, mid + 1, right);
-
-        // Merge the sorted halves
-        merge(Values, left, mid, right);
+        mergeSortHelper(arr, indices, left, mid);
+        mergeSortHelper(arr, indices, mid + 1, right);
+        merge(arr, indices, left, mid, right);
     }
 }
 
-// Function to call the mergeSort function
-void mergeSort(vector<float> &Values)
+vector<int> mergeSortIndices(vector<int> &arr)
 {
-    mergeSort(Values, 0, Values.size() - 1);
+    int n = arr.size();
+    vector<int> indices(n);
+    for (int i = 0; i < n; ++i)
+        indices[i] = i;
+
+    mergeSortHelper(arr, indices, 0, n - 1);
+    return indices;
 }
 
 #endif // SORT_H
