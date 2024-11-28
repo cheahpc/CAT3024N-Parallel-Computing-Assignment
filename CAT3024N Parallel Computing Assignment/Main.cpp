@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 				serial_By_Station_All_Month(temps, stationName, months);
 				break;
 
-			case 22:
+				// case 22:
 				// std::cout << "NOTE: RUNNING ON SERIAL MODE" << endl
 				// 		  << endl;
 				// startTime = clock();
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
 
 				// system("python DrawHisto.py"); // run DrawHisto.py file
 
-				break;
+				// break;
 			// case 3:
 			// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
 			//   << endl;
@@ -229,8 +229,10 @@ int main(int argc, char *argv[])
 				println("Exiting Program...");
 				pause();
 				return 0;
+
 			default:
 				println("Invalid input. Please enter a valid option...");
+				break;
 			}
 			pause();
 		}

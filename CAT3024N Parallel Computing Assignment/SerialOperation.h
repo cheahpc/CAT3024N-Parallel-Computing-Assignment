@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <unordered_set>
 // Custom Includes
 #include "SerialStatistics.h"
 #include "Display.h"
@@ -150,22 +151,71 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
     // Start Counting
     clock_t overallStartTime = clock();
 
-    vector<vector<float>> monthData(12); // For each month, store the temperature data for each station
-    vector<vector<int>> indexMonthData(12);
-    vector<vector<vector<float>>> station;
+    // Create array of unique station
+    unordered_set<string> uniqueStation(stationName.begin(), stationName.end());
 
-    int currentStation = 0;
+    vector<vector<float>> monthData(12);    // For each month, store the temperature data for each station
+    vector<vector<int>> indexMonthData(12); // For each month, store the index of the temperature data
+    vector<float> tempData;                 // Store the temperature data for each station
 
-    vector<float> currentMonthData;
+    string currentStation;
 
-    // Step 1. create a list of all months regardless station with index
+    // Step 1. Create a list of all months regardless station with index
     for (int i = 0; i < temp.size(); i++)
     {
         monthData[month[i] - 1].push_back(temp[i]); // Get Temperature Value
         indexMonthData[month[i] - 1].push_back(i);  // Get Index Value
     }
 
-    cout << "Checkpoint: ";
+    // Step 2. For each month, collect all data for each station
+    for (int i = 0; i < monthData.size(); i++)
+    {
+        cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;               // Padding
+        cout << "| " << left << setfill(' ') << setw(158) << MONTH_LIST[i] << "|" << endl; // Display the month name
+        cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
+
+        unordered_set<string> copiedUniqueStation = uniqueStation; // Copy the unique station
+        if (monthData[i].size() > 0)
+        {
+            currentStation = stationName[indexMonthData[i][0]]; // Initialize with the first station name
+            tempData.clear();
+
+            for (int j = 0; j < indexMonthData[i].size(); j++)
+            {
+                if (stationName[indexMonthData[i][j]] == currentStation)
+                {
+                    tempData.push_back(temp[indexMonthData[i][j]]);
+                }
+                else
+                {
+                    // Print and process the current station's data
+                    cout << "| " << left << setfill(' ') << setw(14) << currentStation;
+                    serial_Calculate(tempData, false);
+                    tempData.clear();
+                    copiedUniqueStation.erase(currentStation);
+
+                    // Update the current station and add the new temperature
+                    currentStation = stationName[indexMonthData[i][j]];
+                    tempData.push_back(temp[indexMonthData[i][j]]);
+                }
+            }
+
+            // Process the last station's data
+            cout << "| " << left << setfill(' ') << setw(14) << currentStation;
+            serial_Calculate(tempData, false);
+            tempData.clear();
+            copiedUniqueStation.erase(currentStation);
+        }
+
+        for (auto it = copiedUniqueStation.begin(); it != copiedUniqueStation.end(); it++)
+        {
+            currentStation = *it; // Get the current station name
+            cout << "| " << left << setfill(' ') << setw(14) << currentStation;
+            serial_Calculate(tempData, false);
+        }
+        if (i != monthData.size() - 1)
+            cout << "|" << internal << setfill('-') << setw(160) << "|" << endl; // Padding end
+    }
 
     // End Counting
     clock_t overallEndTime = clock();
@@ -214,7 +264,7 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
         }
     }
 
-    // Process the last station's data
+    cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;                // Padding// Process the last station's data
     cout << "| " << left << setfill(' ') << setw(158) << currentStation << "|" << endl; // Display the station name
     cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
     for (int j = 0; j < tempData.size(); j++)
