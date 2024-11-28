@@ -7,12 +7,11 @@
 #include <ctime>
 #include <algorithm>
 #include <cmath>
+#include <map>
 // Custom Includes
 #include "SerialStatistics.h"
 #include "Display.h"
 #include "Sort.h"
-
-// Global control variables
 
 using namespace std;
 
@@ -51,141 +50,144 @@ void serial_Calculate(vector<float> &values, bool isOverall = true)
     clock_t endTime = clock();
 
     // Display Data
-    if (isOverall)
-        displayInfo_Overall(size, mean, sDeviation, min, max, median, q1, q2, startTime, endTime);
-    else
-        displayInfo_Overall(size, mean, sDeviation, min, max, median, q1, q2, startTime, endTime);
+    displayInfo_Summary(isOverall, size, mean, sDeviation, min, max, median, q1, q2, startTime, endTime);
 }
 
-void serial_by_month_summary(vector<float> &temp, vector<int> &month)
+// Summary Functions
+void serial_By_Month(vector<float> &temp, vector<int> &month)
 {
-    // Create an instance of the SerialStatistics
-    SerialStatistics SStats = SerialStatistics();
+    // Display by month header
+    displayInfo_By_Month_Header();
 
     // Start Counting
-    clock_t startTime = clock();
+    clock_t overallStartTime = clock();
 
-    // Display the results for 12 months
-    cout << "=================================[MONTHS RESULT]====================================" << std::endl;
-    cout << "MONTH    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
-    cout << "====================================================================================" << std::endl;
+    // Create a 2D vector to store the temperature data by month
+    vector<vector<float>> tempVar(12);
 
-    // Prepare the 2D vector for the temperature
-    vector<vector<float>> temp2D(12);
-
-    // Loop through all the temperature data
+    // Step 1. Isolate Temperature data by month
     for (int i = 0; i < temp.size(); i++)
-    {
-        temp2D[month[i] - 1].insert(temp2D[month[i] - 1].begin(), temp[i]);
-    }
-    // Loop through all the month vector
+        tempVar[month[i] - 1].push_back(temp[i]); // Insert the temperature to the specific month. [[month][temperature]]
+
+    // Step 2. Calculate for each month
     for (int i = 0; i < 12; i++)
     {
-        cout << MONTH_LIST[i] << "\t\t";
-        // Trigger the serial function to display
-        serial_Calculate(temp2D[i]);
+        cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[i];
+        serial_Calculate(tempVar[i], false); // Calculate and display the temperature data
     }
 
     // End Counting
-    clock_t endTime = clock();
+    clock_t overallEndTime = clock();
 
-    cout << std::endl;
-    cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
-         << std::endl
-         << std::endl;
-    ;
+    // Display the footer
+    displayInfo_Footer(overallStartTime, overallEndTime);
+
+    return;
 }
 
-void Serial_Summary(vector<float> &temp, vector<string> &stationName, vector<int> &month)
+void serial_By_Station(vector<float> &temp, vector<string> &stationName)
 {
+    // Display by station header
+    displayInfo_By_Station_Header();
 
-    // Start counting for Station
-    float startTime = clock();
+    // Start Counting
+    clock_t overallStartTime = clock();
 
-    // Display results for stations
-    cout << "=================================[STATION RESULT]===================================" << std::endl;
-    cout << "STATION    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
-    cout << "====================================================================================" << std::endl;
+    // Create a 1D vector to store the temperature data by station
+    vector<float> tempVar;
+    string currentStation = stationName[0]; // Initialize with the first station name
 
-    // Part of temperature belong to a specific station
-    vector<float> partTemp;
     for (int i = 0; i < temp.size(); i++)
     {
-        // Is an empty vector
-        if (partTemp.size() == 0)
+        if (stationName[i] == currentStation)
         {
-            partTemp.insert(partTemp.begin(), temp[i]);
+            tempVar.push_back(temp[i]);
         }
         else
         {
-            // Check if the next station is matched with the current station
-            if ((i + 1) != temp.size())
-            { // if not last data
-                // if matched, continue adding the temperature to partTemp
-                if (stationName[i] == stationName[i + 1])
-                {
-                    partTemp.insert(partTemp.begin(), temp[i]);
-                }
-                else
-                {
-                    partTemp.insert(partTemp.begin(), temp[i]);
-                    cout << stationName[i] << "  \t";
-                    serial_Calculate(partTemp);
-                    partTemp.clear(); // Reset the partTemp
-                }
-            }
-            else
-            {
-                // Last temperature data
-                partTemp.insert(partTemp.begin(), temp[i]);
-                cout << stationName[i] << " \t\t";
-                serial_Calculate(partTemp);
-                partTemp.clear(); // Reset the partTemp
-            }
+            // Print and process the current station's data
+            cout << "| " << left << setfill(' ') << setw(14) << currentStation;
+            serial_Calculate(tempVar, false);
+            tempVar.clear();
+
+            // Update the current station and add the new temperature
+            currentStation = stationName[i];
+            tempVar.push_back(temp[i]);
         }
     }
 
-    // End Counting for Station
-    float endTime = clock();
-
-    cout << std::endl;
-    cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
-         << std::endl
-         << std::endl;
-    ;
-
-    // Start Counting for Months
-    startTime = clock();
-
-    // Display the results for 12 months
-    cout << "=================================[MONTHS RESULT]====================================" << std::endl;
-    cout << "MONTH    \tMIN \tMAX \tMEAN \tSD \tMEDIAN \t1Q \t3Q \tSIZE \tTIME" << std::endl;
-    cout << "====================================================================================" << std::endl;
-
-    // Part of temperature belong to a specific month
-    vector<vector<float>> temp2D(12);
-
-    // Loop through all the temperature data
-    for (int i = 0; i < temp.size(); i++)
-    {
-        temp2D[month[i] - 1].insert(temp2D[month[i] - 1].begin(), temp[i]);
-    }
-    // Loop through all the month vector
-    for (int i = 0; i < 12; i++)
-    {
-        cout << MONTH_LIST[i] << "\t\t";
-        // Trigger the serial function to display
-        serial_Calculate(temp2D[i]);
-    }
+    // Process the last station's data
+    cout << "| " << left << setfill(' ') << setw(14) << currentStation;
+    serial_Calculate(tempVar, false);
 
     // End Counting
-    endTime = clock();
+    clock_t overallEndTime = clock();
 
-    cout << std::endl;
-    cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl
-         << std::endl
-         << std::endl;
-    ;
+    // Display the footer
+    displayInfo_Footer(overallStartTime, overallEndTime);
+
+    return;
+}
+
+void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month)
+{
+    // TODO: Implement this function
+    // Each month all station
+    displayInfo_By_Station_Header();
+
+    // Start Counting
+    clock_t overallStartTime = clock();
+
+    // End Counting
+    clock_t overallEndTime = clock();
+
+    // Display the footer
+    displayInfo_Footer(overallStartTime, overallEndTime);
+}
+
+void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month)
+{
+    // Each station all month
+    displayInfo_By_Month_Header();
+
+    // Start Counting
+    clock_t overallStartTime = clock();
+
+    // Step 1. Collect data for each station
+    vector<vector<float>> tempData;         // For each station, store the temperature data for each month
+    string currentStation = stationName[0]; // Initialize with the first station name
+
+    // Each station
+    for (int i = 0; i < temp.size(); i++)
+    {
+        if (stationName[i] == currentStation)
+        {
+            tempData[month[i] - 1].insert(tempData[month[i] - 1].begin(), temp[i]);
+        }
+        else
+        {
+            // Print and process the current station's data
+            cout << "| " << left << setfill('*') << setw(50) << currentStation;
+            for (int j = 0; j < 12; j++)
+                serial_Calculate(tempData[j], false);
+
+            // Update the current station and add the new temperature
+            currentStation = stationName[i];
+            tempData.clear();
+            tempData[month[i] - 1].insert(tempData[month[i] - 1].begin(), temp[i]);
+        }
+    }
+
+    // Process the last station's data
+    cout << "| " << left << setfill('*') << setw(50) << currentStation;
+    for (int j = 0; j < 12; j++)
+        serial_Calculate(tempData[j], false);
+
+    // End Counting
+    clock_t overallEndTime = clock();
+
+    // Display the footer
+    displayInfo_Footer(overallStartTime, overallEndTime);
 }
 
 #endif // SERIAL_OPERATION_H

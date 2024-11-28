@@ -165,53 +165,63 @@ int main(int argc, char *argv[])
 
 			// Initialize Screen
 			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
-			displayHeader_Operation(mainMenuChoice);
+			displayInfo_Operation(mainMenuChoice);
 
 			// TODO: Rework menu
 			switch (mainMenuChoice)
 			{
-			case 1:							   // Serial Overall Summary
+			case 1:						 // Serial Overall Summary
 				serial_Calculate(temps); // Calculate all and display
 				break;
-			case 2: // Serial By Month Summary
-				serial_by_month_summary(temps, months);
+			case 2:								// Serial By Month Summary
+				serial_By_Month(temps, months); // Calculate by month and display
 				break;
+			case 3:									   // Serial By Station Summary
+				serial_By_Station(temps, stationName); // Calculate by station and display
+				break;
+			case 4: // Serial By Month All Station Summary
+				serial_By_Month_All_Station(temps, stationName, months);
+				break;
+
+			case 5: // Serial By Station All Month Summary
+				serial_By_Station_All_Month(temps, stationName, months);
+				break;
+
 			case 22:
-				std::cout << "NOTE: RUNNING ON SERIAL MODE" << endl
-						  << endl;
-				startTime = clock();
-				partTemp = updateHistogramData(data);
-				selectionSort(partTemp);
-				std::cout << "----------------- OVERALL SERIAL HISTOGRAM -----------------" << std::endl;
-				Histogram_Serial(partTemp, partTemp[0], partTemp[partTemp.size() - 1]);
-				endTime = clock();
-				std::cout << "------------------------------------------------------------" << std::endl;
-				std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl;
-
-				system("python DrawHisto.py"); // run DrawHisto.py file
-
-				break;
-			case 3:
-				// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
-				//   << endl;
-				// Parallel(temps, context, queue, program, prof_event);
-				// Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
-				break;
-			case 4:
-				// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
+				// std::cout << "NOTE: RUNNING ON SERIAL MODE" << endl
 				// 		  << endl;
 				// startTime = clock();
 				// partTemp = updateHistogramData(data);
-				// Sort(partTemp, context, queue, program, prof_event);
-				// std::cout << "----------------- OVERALL PARALLEL HISTOGRAM -----------------" << std::endl;
-				// Histogram_Parallel(partTemp, context, queue, program, prof_event, partTemp[0], partTemp[partTemp.size() - 1]);
+				// selectionSort(partTemp);
+				// std::cout << "----------------- OVERALL SERIAL HISTOGRAM -----------------" << std::endl;
+				// Histogram_Serial(partTemp, partTemp[0], partTemp[partTemp.size() - 1]);
 				// endTime = clock();
-				// cout << "--------------------------------------------------------------" << std::endl;
-				// cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl;
+				// std::cout << "------------------------------------------------------------" << std::endl;
+				// std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl;
+
 				// system("python DrawHisto.py"); // run DrawHisto.py file
+
 				break;
+			// case 3:
+			// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
+			//   << endl;
+			// Parallel(temps, context, queue, program, prof_event);
+			// Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
+			// break;
+			// case 4:
+			// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
+			// 		  << endl;
+			// startTime = clock();
+			// partTemp = updateHistogramData(data);
+			// Sort(partTemp, context, queue, program, prof_event);
+			// std::cout << "----------------- OVERALL PARALLEL HISTOGRAM -----------------" << std::endl;
+			// Histogram_Parallel(partTemp, context, queue, program, prof_event, partTemp[0], partTemp[partTemp.size() - 1]);
+			// endTime = clock();
+			// cout << "--------------------------------------------------------------" << std::endl;
+			// cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl;
+			// system("python DrawHisto.py"); // run DrawHisto.py file
+			// break;
 			case 11:
-				println();
 				println("Exiting Program...");
 				pause();
 				return 0;

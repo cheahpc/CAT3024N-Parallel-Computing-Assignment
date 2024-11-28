@@ -41,34 +41,40 @@ void displayMenu_Main()
     println("      0. Display Stations Name");
     println("");
     println("Serial Operation Option:");
+    println("");
     println("      1. Overall Summary");
     println("      2. By Month Summary");
     println("      3. By Station Summary");
-    println("      4. Complete Summary (by Station and Month)");
-    println("      5. Histogram Summary - Serial Operation");
+    println("      4. By Month All Station Summary");
+    println("      5. By Station All Month Summary");
+    println("      6. Full Summary");
+    println("      7. Histogram Summary");
     println("");
     println("Parallel Operation Option:");
-    println("      6. Overall Summary");
-    println("      7. By Month Summary");
-    println("      8. By Station Summary");
-    println("      9. Complete Summary (by Station and Month)");
-    println("      10. Histogram Summary - Serial Operation");
     println("");
-    println("      11. Quit Program");
+    println("      8. Overall Summary");
+    println("      9. By Month Summary");
+    println("     10. By Station Summary");
+    println("     11. By Month All Station Summary");
+    println("     12. By Station All Month Summary");
+    println("     13. Full Summary");
+    println("     14. Histogram Summary");
+    println("");
+    println("      15. Quit Program");
     println("");
     println("++++++++++++++++++++++++++++++++++++++++++++++++++");
 }
 
-void displayHeader_Operation(int operation)
+void displayInfo_Operation(int operation)
 {
     println();
     switch (operation)
     {
     case 1:
-        println("================================================== [Option 1 - Serial] Overall Summary");
+        println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [Option 1 - Serial] Overall Summary ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         break;
     case 2:
-        println("================================================== [Option 2 - Serial] By Month Summary");
+        println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [Option 2 - Serial] By Month Summary ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         break;
 
     default:
@@ -79,32 +85,76 @@ void displayHeader_Operation(int operation)
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Data Summary
-void displayInfo_Overall(int size, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, float startTime, float endTime)
+void displayInfo_Footer(clock_t startTime, clock_t endTime)
 {
-    println("===========================================[Overall Summary]===========================================");
+    cout << left << setfill('_')
+         << setw(16) << "|"
+         << setw(16) << "|"
+         << setw(16) << "|"
+         << setw(16) << "|"
+         << setw(16) << "|"
+         << setw(16) << "|"
+         << setw(16) << "|"
+         << setw(16) << "|"
+         << setw(16) << "|"
+         << setw(16) << "|"
+         << "|" << endl;
     println("|");
-    printf("|                Min: %.4f\n", min);
-    printf("|                Max: %.4f\n", max);
-    printf("|               Mean: %.4f\n", mean);
-    printf("| Standard Deviation: %.4f\n", sDeviation);
-    printf("|             Median: %.4f\n", median);
-    printf("|       1st Quartile: %.4f\n", Q1);
-    printf("|       3rd Quartile: %.4f\n", Q3);
+    println("| Time taken: " + to_string(long(endTime - startTime)) + " ms");
     println("|");
-    println("|-----------------------------------------------------------------------------------------------------");
-    printf("|               Size: %d\n", size);
-    printf("|               Time: %d ms\n", (endTime - startTime));
-    println("|_____________________________________________________________________________________________________");
-    println();
-    println("================================================[END]================================================");
+    println("_________________________________________________________________________________________________________________________________________________________________ END");
 }
 
-void displayInfo_By_Month(bool header = true)
+void displayInfo_Summary(bool isOverall, int size, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, clock_t startTime, clock_t endTime)
 {
-    // Header
-    println("==============================================[By Month]===============================================");
-    println("| Month | Min \t| Max \t| Mean \t| SD \t| Median \t| 1Q \t| 3Q \t| Size \t| Time\t|");
-    println("|-------|--------|-------|-------|-------|-----------|-------|-------|-------|-------|");
+    if (isOverall)
+    {
+        println("===========================================[Overall Summary]===========================================");
+        println("|");
+        printf("|                Min: %.4f\n", min);
+        printf("|                Max: %.4f\n", max);
+        printf("|               Mean: %.4f\n", mean);
+        printf("| Standard Deviation: %.4f\n", sDeviation);
+        printf("|             Median: %.4f\n", median);
+        printf("|       1st Quartile: %.4f\n", Q1);
+        printf("|       3rd Quartile: %.4f\n", Q3);
+        println("|");
+        println("-------------------------------------------------------------------------------------------------------");
+        println("|");
+        printf("|               Size: %d\n", size);
+        printf("|               Time: %ld ms\n", long(endTime - startTime));
+        println("|");
+        println("_______________________________________________________________________________________________________ END");
+    }
+    else
+    {
+        cout << left << setprecision(2) << fixed << setfill(' ')
+             << "| "
+             << setw(14) << min << "| "
+             << setw(14) << max << "| "
+             << setw(14) << mean << "| "
+             << setw(14) << sDeviation << "| "
+             << setw(14) << median << "| "
+             << setw(14) << Q1 << "| "
+             << setw(14) << Q3 << "| "
+             << setw(14) << size << "| "
+             << setw(14) << long(endTime - startTime) << "|"
+             << endl;
+    }
+}
+
+void displayInfo_By_Month_Header()
+{
+    println("=======================================================================[By Month Summary]========================================================================");
+    println("|     Month     |      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |");
+    println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
+}
+
+void displayInfo_By_Station_Header()
+{
+    println("======================================================================[By Station Summary]=======================================================================");
+    println("|    Station    |      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |");
+    println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Platform and Device Selection
