@@ -27,8 +27,9 @@ void parallel_Calculate(vector<float> &values, cl::Context context, cl::CommandQ
     vector<float> temperature = values; // Copy the values to vector
 
     // Sorting
+    // pStats.mergeSort(temperature, context, queue, program, prof_event, SORT_ORDER::ASCENDING);     // Perform merge sort
     pStats.selectionSort(temperature, context, queue, program, prof_event, SORT_ORDER::ASCENDING); // Perform selection sort
-                                                                                                   // TODO Implement merge sort and bubble sort
+    // pStats.bubbleSort(temperature, context, queue, program, prof_event, SORT_ORDER::ASCENDING); // Perform bubble sort TODO
 
     // Get the size of the vector
     int size = temperature.size();
@@ -49,6 +50,28 @@ void parallel_Calculate(vector<float> &values, cl::Context context, cl::CommandQ
     displayInfo_Summary(size, mean, sDeviation, min, max, median, q1, q3, startTime, endTime);
 }
 
+void parallel_Overall(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Display overall header
+    displayInfo_Overall_Header();
+
+    // Start Counting
+    clock_t overallStartTime = clock();
+
+    // Calculate and display the temperature data
+    cout << "| " << left << setfill(' ') << setw(14) << "OVERALL";
+    parallel_Calculate(temp, context, queue, program, prof_event);
+
+    // End Counting
+    clock_t overallEndTime = clock();
+
+    // Display the footer
+    displayInfo_Footer(overallStartTime, overallEndTime);
+
+    return;
+}
+
+// TODO Split summary into sub functions
 void Parallel_Summary(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, vector<string> &stationName, vector<int> &month)
 {
     // Start Counting for Station
@@ -147,15 +170,15 @@ void Histogram_Parallel(vector<float> &temperature, cl::Context context, cl::Com
     // the following part adjusts the length of the input vector so it can be run for a specific workgroup size
     // if the total input length is divisible by the workgroup size
     // this makes the code more efficient
-    size_t local_size = 256; // 1024; //work group size - higher work group size can reduce
-    size_t padding_size = temperature.size() % local_size;
+
+    size_t padding_size = temperature.size() % LOCAL_SIZE;
 
     // if the input vector is not a multiple of the local_size
     // insert additional neutral elements (0 for addition) so that the total will not be affected (make work for my working set of data)
     if (padding_size)
     {
         // create an extra vector with neutral values
-        vector<int> temperature_ext(local_size - padding_size, 1000);
+        vector<int> temperature_ext(LOCAL_SIZE - padding_size, 1000);
         // append that extra vector to our input
         temperature.insert(temperature.end(), temperature_ext.begin(), temperature_ext.end());
     }
@@ -184,7 +207,7 @@ void Histogram_Parallel(vector<float> &temperature, cl::Context context, cl::Com
     kernel.setArg(4, maximum);
 
     // Execute kernel
-    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(vector_elements), cl::NDRange(local_size));
+    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(vector_elements), cl::NDRange(LOCAL_SIZE));
 
     // Copy the result from device to host
     queue.enqueueReadBuffer(output_buffer, CL_TRUE, 0, output_size, &histogram_vector[0]);

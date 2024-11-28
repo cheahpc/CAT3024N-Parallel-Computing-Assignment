@@ -29,10 +29,9 @@ public:
 
     // Function Declarations
     // Sort Functions
-    void ParallelStatistics::bubbleSort(vector<float> &values, SORT_ORDER mode);
+    void ParallelStatistics::bubbleSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
     void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
-    void ParallelStatistics::mergeSort(vector<float> &values, SORT_ORDER mode);
-    void ParallelStatistics::merge(vector<float> &values, const vector<float> &left, const vector<float> &right, SORT_ORDER mode);
+    void ParallelStatistics::mergeSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
 
     void ParallelStatistics::Display(vector<float> &values); // Displays a vector
 

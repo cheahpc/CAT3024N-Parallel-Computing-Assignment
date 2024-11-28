@@ -14,7 +14,7 @@ ParallelStatistics::~ParallelStatistics()
 
 // TODO Refactor Kernel Execs
 // Kernel Execution function
-void ParallelStatistics::KernelExec(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
+void ParallelStatistics::KernelExec(cl::Kernel kernel, vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, string Name)
 {
     // Get the size of the vector
     double Size = temp.size();
@@ -38,10 +38,10 @@ void ParallelStatistics::KernelExec(cl::Kernel kernel, std::vector<float> &temp,
     queue.enqueueFillBuffer(buffer_B, 0, 0, output_size);
 
     // Set the arguments 0 and 1 to be the buffers
-    kernel.setArg(0, buffer_A);
-    kernel.setArg(1, buffer_B);
+    kernel.setArg(0, buffer_A); // Buffer A is the input vector
+    kernel.setArg(1, buffer_B); // Buffer B is the output vector
 
-    // If two is true then set argument two to the local memory size
+    // If two is true then set argument two to the local memory size, providing each workgroup with local memory
     if (Two == true)
         kernel.setArg(2, cl::Local(Local_Size * sizeof(float))); // Local memory size
     // If three is true then set argument three to the float value passed into the function
@@ -57,10 +57,10 @@ void ParallelStatistics::KernelExec(cl::Kernel kernel, std::vector<float> &temp,
     // Copy the result from device to host
     // Setup prof Event
     cl::Event prof_event2;
-    queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, output_size, &temp[0], NULL, &prof_event2);
+    queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, output_size, &temp[0], NULL, &prof_event2); // Copy the result from device to host
 }
 
-float ParallelStatistics::KernelExecRet(cl::Kernel kernel, vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
+float ParallelStatistics::KernelExecRet(cl::Kernel kernel, vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, string Name)
 {
     // Get the size of the vector
     double Size = temp.size();
@@ -86,7 +86,7 @@ float ParallelStatistics::KernelExecRet(cl::Kernel kernel, vector<float> &temp, 
     // std::cout << Name << " Kernel memory write time [ns]:" << prof_event.getProfilingInfo<CL_PROFILING_COMMAND_END>() - prof_event.getProfilingInfo<CL_PROFILING_COMMAND_START>() << std::endl;
     // std::cout << GetFullProfilingInfo(prof_event, ProfilingResolution::PROF_US) << std::endl << std::endl;
 
-    queue.enqueueFillBuffer(buffer_B, 0, 0, output_size);
+    queue.enqueueFillBuffer(buffer_B, 0, 0, output_size); // zero B buffer on device memory
 
     // Set the arguments 0 and 1 to be the buffers
     kernel.setArg(0, buffer_A);
@@ -102,12 +102,13 @@ float ParallelStatistics::KernelExecRet(cl::Kernel kernel, vector<float> &temp, 
     if (Four == true)
         kernel.setArg(4, IFour);
 
-    // Run the kernel
+    // Run the kernel [Kernel, Offset, GlobalSize, LocalSize, Event]
     queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(input_elements), cl::NDRange(Local_Size), NULL, &prof_event);
 
     // Copy the result from device to host
     // Setup prof Event
     cl::Event prof_event2;
+    // Copy the result from device to host [Buffer, Blocking, Offset, Size, HostPtr, Event]
     queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, output_size, &B[0], NULL, &prof_event2);
 
     // Display kernel memory read time
@@ -121,15 +122,13 @@ float ParallelStatistics::KernelExecRet(cl::Kernel kernel, vector<float> &temp, 
 // Add Padding function
 int ParallelStatistics::AddPadding(vector<float> &temp, size_t LocalSize, float PadVal)
 {
-    // Set the local size
-    size_t local_size = LocalSize;
     // Find the padding size
-    int padding_size = temp.size() % local_size;
+    int padding_size = temp.size() % LOCAL_SIZE;
     // If there is padding size then
     if (padding_size)
     {
         // Create an extra vector with PadVal values
-        vector<float> A_ext(local_size - padding_size, PadVal);
+        vector<float> A_ext(LOCAL_SIZE - padding_size, PadVal);
         // Append that extra vector to the input
         temp.insert(temp.end(), A_ext.begin(), A_ext.end());
     }
@@ -137,33 +136,45 @@ int ParallelStatistics::AddPadding(vector<float> &temp, size_t LocalSize, float 
     return padding_size;
 }
 
-// TODO Implement Parallel Sorts
 // Sort function
+void ParallelStatistics::bubbleSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
+{
+    // TODO Implement Parallel Bubble Sort
+}
+
 void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
-    // Set local size to 32
-    size_t local_size = (32);
+    int padding_size = AddPadding(temp, LOCAL_SIZE, -1000000.0f); // Add padding to the vector
+
+    cl::Kernel kernel = cl::Kernel(program, "p_SelectionSort"); // Set kernel to the parallel selection kernel
+
+    KernelExec(kernel, temp, LOCAL_SIZE, context, queue, true, false, false, 0.0f, 0, prof_event, "Parallel Selection Sort"); // Perform the kernel
+
+    temp.erase(temp.begin(), temp.begin() + (LOCAL_SIZE - padding_size)); // Erase the padded elements at the start of the vector
+}
+
+void ParallelStatistics::mergeSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
+{
     // Add padding to the vector
-    int padding_size = AddPadding(temp, local_size, -1000000.0f);
-    // Set kernel to the parallel selection kernel
-    cl::Kernel kernel = cl::Kernel(program, "ParallelSelection");
-    // Perform the kernel
-    KernelExec(kernel, temp, local_size, context, queue, false, false, false, 0.0f, 0, prof_event, "Parallel Selection Sort");
-    // Erase the padded elements at the start of the vector
-    temp.erase(temp.begin(), temp.begin() + (local_size - padding_size));
+    int padding_size = AddPadding(temp, LOCAL_SIZE, 0.0f);
+
+    cl::Kernel kernel = cl::Kernel(program, "p_MergeSort"); // Set kernel to the parallel merge sort kernel
+
+    KernelExec(kernel, temp, LOCAL_SIZE, context, queue, true, false, false, 0.0f, 0, prof_event, "Parallel Merge Sort"); // Perform the kernel
+
+    temp.erase(temp.begin(), temp.begin() + (LOCAL_SIZE - padding_size)); // Erase the padded elements at the start of the vector
 }
 
 // Statistics Functions
 float ParallelStatistics::getSum(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
-    // Set local size to 2
-    size_t local_size = 2;
+
     // Add padding to the vector
-    int padding_size = AddPadding(temp, local_size, 0.0f);
+    int padding_size = AddPadding(temp, LOCAL_SIZE, 0.0f);
     // Set kernel to the reduce addition kernel
-    cl::Kernel kernel = cl::Kernel(program, "reduce_add_4");
+    cl::Kernel kernel = cl::Kernel(program, "reduce_Sum");
     // Set return to the output from kernel execution
-    float Return = KernelExecRet(kernel, temp, local_size, context, queue, true, false, false, 0.0f, 0, prof_event, "Sum Vector");
+    float Return = KernelExecRet(kernel, temp, LOCAL_SIZE, context, queue, true, false, false, 0.0f, 0, prof_event, "Sum Vector");
     // Return value
     return Return;
 }
@@ -201,19 +212,17 @@ float ParallelStatistics::getSDeviation(vector<float> &temp, float Mean, cl::Con
 {
     // Get the size of the vector
     double Size = temp.size();
-    // Set local size to 2
-    size_t local_size = 2;
     // Add padding to the vector
-    int padding_size = AddPadding(temp, local_size, 0.0f);
+    int padding_size = AddPadding(temp, LOCAL_SIZE, 0.0f);
     // Set kernel to the reduce standard deviation kernel
     cl::Kernel kernel = cl::Kernel(program, "reduce_STD_4");
     // Set return to the output from kernel execution
-    float Return = KernelExecRet(kernel, temp, local_size, context, queue, true, true, true, Mean, padding_size, prof_event, "Standard Deviation");
+    float Return = KernelExecRet(kernel, temp, LOCAL_SIZE, context, queue, true, true, true, Mean, padding_size, prof_event, "Standard Deviation");
     // Divide the result by the size
     Return = (Return / (Size));
     // Square root the result
     Return = sqrt(Return);
-    // Return the value
+
     return Return;
 }
 

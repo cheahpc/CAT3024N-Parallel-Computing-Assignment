@@ -129,7 +129,7 @@ void displayInfo_Overall_Header()
     println("|                                                                      [Overall Summary]                                                                        |");
     println("|                                                                                                                                                               |");
     println("=================================================================================================================================================================");
-    println("|      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |               |");
+    println("|               |      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |");
     println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
 }
 

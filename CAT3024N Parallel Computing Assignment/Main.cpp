@@ -19,8 +19,6 @@
 
 const char *PYTHON_PLOT_CMD = "python histPlot.py";
 
-// Global control variables
-
 vector<int> histogram_result = vector<int>(HISTOGRAM_BIN_NO);
 vector<int> output = vector<int>(histogram_result.size());
 size_t output_size = output.size() * sizeof(float);
@@ -183,9 +181,9 @@ int main(int argc, char *argv[])
 
 				break;
 			case 8: // Parallel Overall Summary
-				// TODO: Parallels
-				parallel_Calculate(temps, context, queue, program, prof_event);
+				parallel_Overall(temps, context, queue, program, prof_event);
 				break;
+				// TODO: Parallels
 				// case 4:
 				// Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
 			// cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
@@ -200,7 +198,7 @@ int main(int argc, char *argv[])
 			// cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl;
 			// system("python DrawHisto.py"); // run DrawHisto.py file
 			// break;
-			case 11:
+			case 15:
 				println("Exiting Program...");
 				pause();
 				return 0;
