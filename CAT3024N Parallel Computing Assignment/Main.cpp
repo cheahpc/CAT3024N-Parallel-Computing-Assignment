@@ -22,27 +22,20 @@ int AddPadding(std::vector<float> &temp, size_t LocalSize, float PadVal);
 void KernelExec(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
 float KernelExecRet(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name);
 
-vector<float> updateHistogramData(StationData data);
-void Histogram_Serial(std::vector<float> &temperature, float minimum, float maximum);
-void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, float minimum, float maximum);
-
 // Global control variables
-const string DATASET_PATH = "china_temp_debug.txt"; // Debug
-// const string DATASET_PATH = "china_temp_short.txt"; // Development
+// const string DATASET_PATH = "china_temp_debug.txt"; // Debug
+const string DATASET_PATH = "china_temp_short.txt"; // Development
 // const string DATASET_PATH = "china_temp_large.txt"; // Final
 const string KERNEL_PATH = "my_kernels.cl";
 
 const int window_width = 1920;
 const int window_height = 1080;
 
-int histogram_bin_no = 15; // number of bins
-vector<int> histogram_result = vector<int>(histogram_bin_no);
+vector<int> histogram_result = vector<int>(HISTOGRAM_BIN_NO);
 vector<int> output = vector<int>(histogram_result.size());
 size_t output_size = output.size() * sizeof(float);
 
 // Global histogram variables
-vector<float> upperLimits; // upper limit for each bins
-vector<int> frequencies;   // store frequency of each bins
 
 // Main method
 int main(int argc, char *argv[])
@@ -105,7 +98,7 @@ int main(int argc, char *argv[])
 	vector<float> &temps = data.GetTemp();
 	vector<string> &stationName = data.GetStationName();
 	vector<int> &months = data.GetMonth();
-	vector<float> partTemp;
+	vector<float> tempCopy;
 
 	// Step 3. Setup OpenCL environment
 	try
@@ -190,22 +183,28 @@ int main(int argc, char *argv[])
 			case 5: // Serial By Station All Month Summary
 				serial_By_Station_All_Month(temps, stationName, months);
 				break;
+			case 6: // Serial Full Summary
+				serial_Calculate(temps);
+				serial_By_Month(temps, months);
+				serial_By_Station(temps, stationName);
+				serial_By_Month_All_Station(temps, stationName, months);
+				serial_By_Station_All_Month(temps, stationName, months);
+				break;
+			case 7: // Serial Histogram Summary
 
-				// case 22:
-				// std::cout << "NOTE: RUNNING ON SERIAL MODE" << endl
-				// 		  << endl;
-				// startTime = clock();
-				// partTemp = updateHistogramData(data);
-				// selectionSort(partTemp);
-				// std::cout << "----------------- OVERALL SERIAL HISTOGRAM -----------------" << std::endl;
-				// Histogram_Serial(partTemp, partTemp[0], partTemp[partTemp.size() - 1]);
-				// endTime = clock();
-				// std::cout << "------------------------------------------------------------" << std::endl;
-				// std::cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl;
+				startTime = clock();
+				tempCopy = temps;
+				selectionSort(tempCopy);
+				cout << "----------------- OVERALL SERIAL HISTOGRAM -----------------" << endl;
+				serial_Histogram(tempCopy, tempCopy[0], tempCopy[tempCopy.size() - 1]);
+				endTime = clock();
 
-				// system("python DrawHisto.py"); // run DrawHisto.py file
+				cout << "------------------------------------------------------------" << endl;
+				cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << endl;
 
-				// break;
+				system("python DrawHisto.py"); // run DrawHisto.py file
+
+				break;
 			// case 3:
 			// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
 			//   << endl;
@@ -243,19 +242,6 @@ int main(int argc, char *argv[])
 		pause();
 	}
 	return 0;
-}
-
-// Function to update histogram data based on temperature information
-vector<float> updateHistogramData(StationData data)
-{
-	vector<float> temperatures;
-	vector<float> t = data.GetTemp();
-	vector<string> s = data.GetStationName();
-	vector<int> m = data.GetMonth();
-
-	temperatures = t; // copy the temperature data
-
-	return temperatures;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++ Parallel functions
@@ -375,7 +361,7 @@ void KernelExec(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, 
 	queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, output_size, &temp[0], NULL, &prof_event2);
 }
 
-float KernelExecRet(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
+float KernelExecRet(cl::Kernel kernel, vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, std::string Name)
 {
 	// Get the size of the vector
 	double Size = temp.size();
@@ -431,57 +417,4 @@ float KernelExecRet(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Si
 
 	// Return the first element of the buffer Vector B
 	return B[0];
-}
-
-void Histogram_Serial(std::vector<float> &temperature, float minimum, float maximum)
-{
-	// Create output vector
-	std::vector<int> histogram_vector(histogram_bin_no); // histogram results
-
-	// display bins and frequency
-	std::cout << "Minimum: " << minimum << ", Maximum: " << maximum << std::endl;
-	std::cout << "Number of Bins: " << histogram_bin_no << ", Bin Size: " << (maximum - minimum) / histogram_bin_no << std::endl;
-	float binSize = (maximum - minimum) / histogram_bin_no;
-	int max_freq = 0;
-
-	// clear vectors
-	upperLimits.clear();
-	frequencies.clear();
-
-	// first element is the minimum of elements
-	upperLimits.push_back(minimum);
-
-	for (int i = 0; i < temperature.size(); i++)
-	{
-		float compareVal = minimum + binSize;
-		int idx = 0;
-		while (temperature[i] > compareVal)
-		{
-			compareVal += binSize; // check next range
-			idx++;
-		}
-		if (idx == histogram_bin_no)
-		{
-			idx--;
-		}
-		histogram_vector[idx] += 1;
-	}
-	// save the result
-	std::ofstream outputFile("histogram.txt");
-	for (int i = 1; i < histogram_bin_no + 1; i++)
-	{
-		float binStart = minimum + ((i - 1) * binSize);
-		float binEnd = minimum + (i * binSize);
-		int frequency = (histogram_vector[i - 1]);
-		std::cout << "Bin Range: >" << binStart << " to <=" << binEnd << ", Frequency: " << frequency << std::endl;
-		outputFile << binStart << " " << binEnd << " " << frequency << " " << std::endl;
-
-		max_freq = (frequency > max_freq) ? frequency : max_freq;
-		frequencies.push_back(frequency);
-		upperLimits.push_back(binEnd);
-	}
-	// Close the file
-	outputFile.close();
-	// last element is the total number of frequencies
-	frequencies.push_back(max_freq);
 }

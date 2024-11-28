@@ -18,7 +18,11 @@ using namespace std;
 
 // Constant Variables
 const string MONTH_LIST[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+const int HISTOGRAM_BIN_NO = 15;
+const string SERIAL_HISTOGRAM_FILE = "serial histogram.txt";
 
+vector<float> serial_UpperLimits; // upper limit for each bins
+vector<int> serial_Frequencies;   // store frequency of each bins
 // Serial Function Implementation
 void serial_Calculate(vector<float> &values, bool isOverall = true)
 {
@@ -273,6 +277,59 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
 
     // Display the footer
     displayInfo_Footer(overallStartTime, overallEndTime);
+}
+
+void serial_Histogram(vector<float> &temperature, float minimum, float maximum)
+{
+    // Create output vector
+    vector<int> histogram_vector(HISTOGRAM_BIN_NO); // histogram results
+
+    // display bins and frequency
+    cout << "Minimum: " << minimum << ", Maximum: " << maximum << endl;
+    cout << "Number of Bins: " << HISTOGRAM_BIN_NO << ", Bin Size: " << (maximum - minimum) / HISTOGRAM_BIN_NO << endl;
+    float binSize = (maximum - minimum) / HISTOGRAM_BIN_NO;
+    int max_freq = 0;
+
+    // clear vectors
+    serial_UpperLimits.clear();
+    serial_Frequencies.clear();
+
+    // first element is the minimum of elements
+    serial_UpperLimits.push_back(minimum);
+
+    for (int i = 0; i < temperature.size(); i++)
+    {
+        float compareVal = minimum + binSize;
+        int idx = 0;
+        while (temperature[i] > compareVal)
+        {
+            compareVal += binSize; // check next range
+            idx++;
+        }
+        if (idx == HISTOGRAM_BIN_NO)
+        {
+            idx--;
+        }
+        histogram_vector[idx] += 1;
+    }
+    // save the result
+    ofstream outputFile(SERIAL_HISTOGRAM_FILE);
+    for (int i = 1; i < HISTOGRAM_BIN_NO + 1; i++)
+    {
+        float binStart = minimum + ((i - 1) * binSize);
+        float binEnd = minimum + (i * binSize);
+        int frequency = (histogram_vector[i - 1]);
+        cout << "Bin Range: >" << binStart << " to <=" << binEnd << ", Frequency: " << frequency << std::endl;
+        outputFile << binStart << " " << binEnd << " " << frequency << " " << endl;
+
+        max_freq = (frequency > max_freq) ? frequency : max_freq;
+        serial_Frequencies.push_back(frequency);
+        serial_UpperLimits.push_back(binEnd);
+    }
+    // Close the file
+    outputFile.close();
+    // last element is the total number of frequencies
+    serial_Frequencies.push_back(max_freq);
 }
 
 #endif // SERIAL_OPERATION_H
