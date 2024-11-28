@@ -200,6 +200,7 @@
     <None Include="my_kernels.cl" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="china_temp_debug.txt" />
     <Text Include="china_temp_large.txt" />
     <Text Include="china_temp_short.txt" />
   </ItemGroup>

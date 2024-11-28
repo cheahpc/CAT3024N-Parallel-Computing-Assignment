@@ -85,31 +85,35 @@ void displayInfo_Operation(int operation)
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Data Summary
-void displayInfo_Footer(clock_t startTime, clock_t endTime)
+void displayInfo_Footer(clock_t startTime, clock_t endTime, bool simple = true)
 {
-    cout << left << setfill('_')
-         << setw(16) << "|"
-         << setw(16) << "|"
-         << setw(16) << "|"
-         << setw(16) << "|"
-         << setw(16) << "|"
-         << setw(16) << "|"
-         << setw(16) << "|"
-         << setw(16) << "|"
-         << setw(16) << "|"
-         << setw(16) << "|"
-         << "|" << endl;
-    println("|");
-    println("| Time taken: " + to_string(long(endTime - startTime)) + " ms");
-    println("|");
-    println("_________________________________________________________________________________________________________________________________________________________________ END");
+    if (!simple)
+        cout << left << setfill('_')
+             << setw(16) << "|"
+             << setw(16) << "|"
+             << setw(16) << "|"
+             << setw(16) << "|"
+             << setw(16) << "|"
+             << setw(16) << "|"
+             << setw(16) << "|"
+             << setw(16) << "|"
+             << setw(16) << "|"
+             << setw(16) << "|"
+             << "|" << endl;
+
+    cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
+    cout << "| Total time taken (ms): " << left << setw(135) << setfill(' ') << long(endTime - startTime) << "|" << endl;
+    cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
+    println("|_______________________________________________________________________________________________________________________________________________________________| END");
 }
 
-void displayInfo_Summary(bool isOverall, int size, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, clock_t startTime, clock_t endTime)
+void displayInfo_Summary(bool isOverall, int size, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, clock_t startTime, clock_t endTime, string message = "")
 {
     if (isOverall)
     {
-        println("===========================================[Overall Summary]===========================================");
+        println("=======================================================================================================");
+        println("|                                          [Overall Summary]                                           |");
+        println("=======================================================================================================");
         println("|");
         printf("|                Min: %.4f\n", min);
         printf("|                Max: %.4f\n", max);
@@ -138,21 +142,29 @@ void displayInfo_Summary(bool isOverall, int size, float mean, float sDeviation,
              << setw(14) << Q1 << "| "
              << setw(14) << Q3 << "| "
              << setw(14) << size << "| "
-             << setw(14) << long(endTime - startTime) << "|"
-             << endl;
+             << setw(14) << long(endTime - startTime) << "|";
+        message == "" ? cout << endl : cout << " Note:" << message << endl;
     }
 }
 
 void displayInfo_By_Month_Header()
 {
-    println("=======================================================================[By Month Summary]========================================================================");
+    println("=================================================================================================================================================================");
+    println("|                                                                                                                                                               |");
+    println("|                                                                      [By Month Summary]                                                                       |");
+    println("|                                                                                                                                                               |");
+    println("=================================================================================================================================================================");
     println("|     Month     |      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |");
     println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
 }
 
 void displayInfo_By_Station_Header()
 {
-    println("======================================================================[By Station Summary]=======================================================================");
+    println("=================================================================================================================================================================");
+    println("|                                                                                                                                                               |");
+    println("|                                                                     [By Station Summary]                                                                      |");
+    println("|                                                                                                                                                               |");
+    println("=================================================================================================================================================================");
     println("|    Station    |      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |");
     println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
 }

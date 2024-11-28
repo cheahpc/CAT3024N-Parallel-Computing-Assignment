@@ -6,6 +6,7 @@
 #include <vector>
 #include <ctime>
 #include <algorithm>
+#include <windows.h>
 // Custom Includes
 #include "Display.h"
 #include "OpenCLUtils.h"
@@ -26,12 +27,13 @@ void Histogram_Serial(std::vector<float> &temperature, float minimum, float maxi
 void Histogram_Parallel(std::vector<float> &temperature, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, float minimum, float maximum);
 
 // Global control variables
-bool serial_displayOverall = true;
-bool parallel_displayOverall = true;
-const string DATASET_PATH = "china_temp_short.txt";
-// const string DATASET_PATH = "china_temp_large.txt";
+const string DATASET_PATH = "china_temp_debug.txt"; // Debug
+// const string DATASET_PATH = "china_temp_short.txt"; // Development
+// const string DATASET_PATH = "china_temp_large.txt"; // Final
 const string KERNEL_PATH = "my_kernels.cl";
-const string stationsList[5] = {"Taiyuan", "Chongqing", "Beijing", "Lanzhou", "Urumqi"};
+
+const int window_width = 1920;
+const int window_height = 1080;
 
 int histogram_bin_no = 15; // number of bins
 vector<int> histogram_result = vector<int>(histogram_bin_no);
@@ -45,6 +47,8 @@ vector<int> frequencies;   // store frequency of each bins
 // Main method
 int main(int argc, char *argv[])
 {
+	// Step 0. Setup Console title
+	SetConsoleTitle(L"CAT3024N Parallel Computing - Assignment | Developed by Cheah Pin Chee (0197637)");
 
 	// Step 1. Platform Selection
 	int platform_id = 1;
