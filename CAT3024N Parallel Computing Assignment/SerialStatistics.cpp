@@ -11,7 +11,7 @@ SerialStatistics::~SerialStatistics()
 {
 }
 
-void SerialStatistics::bubbleSort(vector<float> &values, SORT_ORDER mode)
+void SerialStatistics::bubbleSort(vector<float> &values, SERIAL_SORT_ORDER mode)
 {
 	// Get the size of the input vector
 	int Size = values.size();
@@ -54,10 +54,10 @@ void SerialStatistics::bubbleSort(vector<float> &values, SORT_ORDER mode)
 	return;
 }
 
-void SerialStatistics::selectionSort(vector<float> &values, SORT_ORDER mode)
+void SerialStatistics::selectionSort(vector<float> &values, SERIAL_SORT_ORDER mode)
 {
 	int min_index;
-	if (SORT_ORDER::ASCENDING)
+	if (SERIAL_SORT_ORDER::ASCENDING)
 	{
 		// One by one move boundary of unsorted array
 		for (int i = 0; i < values.size() - 1; i++)
@@ -81,7 +81,7 @@ void SerialStatistics::selectionSort(vector<float> &values, SORT_ORDER mode)
 			}
 		}
 	}
-	else if (SORT_ORDER::DESCENDING)
+	else if (SERIAL_SORT_ORDER::DESCENDING)
 	{
 		// One by one move boundary of unsorted array
 		for (int i = 0; i < values.size() - 1; i++)
@@ -109,7 +109,7 @@ void SerialStatistics::selectionSort(vector<float> &values, SORT_ORDER mode)
 	return;
 }
 
-void SerialStatistics::mergeSort(vector<float> &values, SORT_ORDER mode)
+void SerialStatistics::mergeSort(vector<float> &values, SERIAL_SORT_ORDER mode)
 {
 	// Base case: array of size 1 or less is already sorted
 	if (values.size() <= 1)
@@ -134,7 +134,7 @@ void SerialStatistics::mergeSort(vector<float> &values, SORT_ORDER mode)
 	return;
 }
 
-void SerialStatistics::merge(vector<float> &values, const vector<float> &left, const vector<float> &right, SORT_ORDER mode)
+void SerialStatistics::merge(vector<float> &values, const vector<float> &left, const vector<float> &right, SERIAL_SORT_ORDER mode)
 {
 	int i = 0, j = 0, k = 0; // i = left index, j = right index, k = merged index
 

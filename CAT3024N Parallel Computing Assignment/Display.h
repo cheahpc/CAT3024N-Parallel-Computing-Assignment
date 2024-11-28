@@ -96,44 +96,41 @@ void displayInfo_Footer(clock_t startTime, clock_t endTime)
     println("|_______________________________________________________________________________________________________________________________________________________________| END");
 }
 
-void displayInfo_Summary(bool isOverall, int size, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, clock_t startTime, clock_t endTime, string message = "")
+void displayInfo_Summary(int size, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, clock_t startTime, clock_t endTime, string message = "")
 {
-    if (isOverall)
-    {
-        println("=======================================================================================================");
-        println("|                                          [Overall Summary]                                           |");
-        println("=======================================================================================================");
-        println("|");
-        printf("|                Min: %.4f\n", min);
-        printf("|                Max: %.4f\n", max);
-        printf("|               Mean: %.4f\n", mean);
-        printf("| Standard Deviation: %.4f\n", sDeviation);
-        printf("|             Median: %.4f\n", median);
-        printf("|       1st Quartile: %.4f\n", Q1);
-        printf("|       3rd Quartile: %.4f\n", Q3);
-        println("|");
-        println("-------------------------------------------------------------------------------------------------------");
-        println("|");
-        printf("|               Size: %d\n", size);
-        printf("|               Time: %ld ms\n", long(endTime - startTime));
-        println("|");
-        println("_______________________________________________________________________________________________________ END");
-    }
-    else
-    {
-        cout << left << setprecision(2) << fixed << setfill(' ')
-             << "| "
-             << setw(14) << min << "| "
-             << setw(14) << max << "| "
-             << setw(14) << mean << "| "
-             << setw(14) << sDeviation << "| "
-             << setw(14) << median << "| "
-             << setw(14) << Q1 << "| "
-             << setw(14) << Q3 << "| "
-             << setw(14) << size << "| "
-             << setw(14) << long(endTime - startTime) << "|";
-        message == "" ? cout << endl : cout << " Note:" << message << endl;
-    }
+
+    cout << left << setprecision(2) << fixed << setfill(' ')
+         << "| "
+         << setw(14) << min << "| "
+         << setw(14) << max << "| "
+         << setw(14) << mean << "| "
+         << setw(14) << sDeviation << "| "
+         << setw(14) << median << "| "
+         << setw(14) << Q1 << "| "
+         << setw(14) << Q3 << "| "
+         << setw(14) << size << "| "
+         << setw(14) << long(endTime - startTime) << "|";
+    message == "" ? cout << endl : cout << " Note:" << message << endl;
+}
+
+void displayInfo_Histogram_Summary(float binStart, float binEnd, int frequency)
+{
+    cout << left << setfill(' ')
+         << "| " << setw(14) << binStart
+         << "| " << setw(14) << binEnd
+         << "| " << setw(14) << frequency
+         << "|" << internal << setfill(' ') << setw(112) << "|" << endl;
+}
+
+void displayInfo_Overall_Header()
+{
+    println("=================================================================================================================================================================");
+    println("|                                                                                                                                                               |");
+    println("|                                                                      [Overall Summary]                                                                        |");
+    println("|                                                                                                                                                               |");
+    println("=================================================================================================================================================================");
+    println("|      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |               |");
+    println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
 }
 
 void displayInfo_By_Month_Header()
@@ -156,6 +153,36 @@ void displayInfo_By_Station_Header()
     println("=================================================================================================================================================================");
     println("|    Station    |      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |");
     println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
+}
+
+void displayInfo_Histogram_Header(int binNum, float binSize, float min, float max)
+{
+    println("=================================================================================================================================================================");
+    println("|                                                                                                                                                               |");
+    println("|                                                                     [Histogram Summary]                                                                       |");
+    println("|                                                                                                                                                               |");
+    println("=================================================================================================================================================================");
+    println("|      Min      |      Max      |   Bin Number  |   Bin Size    |                                                                                               |");
+    println("|---------------|---------------|---------------|---------------|-----------------------------------------------------------------------------------------------|");
+    cout << left << setfill(' ')
+         << "| " << setw(14) << min
+         << "| " << setw(14) << max
+         << "| " << setw(14) << binNum
+         << "| " << setw(14) << binSize
+         << "| " << internal << setfill(' ') << setw(95) << "|" << endl;
+    println("|_______________________________________________________________________________________________________________________________________________________________|");
+    println("|                                                                                                                                                               |");
+    println("|                                                                                                                                                               |");
+    println("|                                                                                                                                                               |");
+    println("|---------------|---------------|---------------|---------------------------------------------------------------------------------------------------------------|");
+    println("| Bin Range Low | Bin Range Up  |   Frequency   |                                                                                                               |");
+    println("|---------------|---------------|---------------|---------------------------------------------------------------------------------------------------------------|");
+    // TODO cumulative frequency?
+}
+
+void displayInfo_TableDiv(char c)
+{
+    cout << "|" << internal << setfill(c) << setw(160) << "|" << endl; // Padding// Process the last station's data
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Platform and Device Selection

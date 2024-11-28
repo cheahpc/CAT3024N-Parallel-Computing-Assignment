@@ -1,25 +1,28 @@
+import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Load histogram data from file
-with open('histogram.txt', 'r') as file:
-    lines = file.readlines()
+# Data format [start, end, frequency], no header
 
-# Parse histogram data
-bins = []
-frequencies = []
-for line in lines:
-    start, end, freq = map(float, line.split())
-    frequencies.append(int(freq))
-    bins.append([start, end])
+# Load histogram data from file
+data = pd.read_csv('histogram.csv')
+
+# Check if histogram data is empty
+if data.empty:
+    print('No data in histogram.csv')
+    exit()
 
 # Generate histogram data
+data = data.to_numpy()
+bins = data[:, :2]
+frequencies = data[:, 2].astype(int)
+
 data = []
 for i, (start, end) in enumerate(bins):
     data.extend([np.random.uniform(start, end) for _ in range(frequencies[i])])
 
 # Plot histogram
-plt.hist(data, bins=len(bins), range=(bins[0][0], bins[-1][1]), edgecolor='black', color = 'red')
+plt.hist(data, bins=len(bins), range=(bins[0][0], bins[-1][1]), edgecolor='black', color='red')
 
 # Add value annotations to bars
 for i, freq in enumerate(frequencies):
@@ -29,6 +32,9 @@ for i, freq in enumerate(frequencies):
 plt.xlabel('Temperature')
 plt.ylabel('Frequency')
 plt.title('Histogram For Weather Index')
+
+# Save plot as image
+plt.savefig('histogram.png', dpi=1200)
 
 # Show plot
 plt.show()

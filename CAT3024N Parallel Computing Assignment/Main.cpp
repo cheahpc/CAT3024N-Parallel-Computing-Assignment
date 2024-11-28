@@ -13,6 +13,7 @@
 #include "Sort.h"
 #include "StationData.h"
 #include "SerialOperation.h"
+// #include "ParallelOperation.h"
 
 // Function Declaration
 float SumVec(std::vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event);
@@ -27,6 +28,7 @@ float KernelExecRet(cl::Kernel kernel, std::vector<float> &temp, size_t Local_Si
 const string DATASET_PATH = "china_temp_short.txt"; // Development
 // const string DATASET_PATH = "china_temp_large.txt"; // Final
 const string KERNEL_PATH = "my_kernels.cl";
+const char *PYTHON_PLOT_CMD = "python histPlot.py";
 
 const int window_width = 1920;
 const int window_height = 1080;
@@ -34,8 +36,6 @@ const int window_height = 1080;
 vector<int> histogram_result = vector<int>(HISTOGRAM_BIN_NO);
 vector<int> output = vector<int>(histogram_result.size());
 size_t output_size = output.size() * sizeof(float);
-
-// Global histogram variables
 
 // Main method
 int main(int argc, char *argv[])
@@ -98,7 +98,6 @@ int main(int argc, char *argv[])
 	vector<float> &temps = data.GetTemp();
 	vector<string> &stationName = data.GetStationName();
 	vector<int> &months = data.GetMonth();
-	vector<float> tempCopy;
 
 	// Step 3. Setup OpenCL environment
 	try
@@ -164,11 +163,10 @@ int main(int argc, char *argv[])
 			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
 			displayInfo_Operation(mainMenuChoice);
 
-			// TODO: Rework menu
 			switch (mainMenuChoice)
 			{
-			case 1:						 // Serial Overall Summary
-				serial_Calculate(temps); // Calculate all and display
+			case 1:					   // Serial Overall Summary
+				serial_Overall(temps); // Calculate and display
 				break;
 			case 2:								// Serial By Month Summary
 				serial_By_Month(temps, months); // Calculate by month and display
@@ -191,33 +189,24 @@ int main(int argc, char *argv[])
 				serial_By_Station_All_Month(temps, stationName, months);
 				break;
 			case 7: // Serial Histogram Summary
-
-				startTime = clock();
-				tempCopy = temps;
-				selectionSort(tempCopy);
-				cout << "----------------- OVERALL SERIAL HISTOGRAM -----------------" << endl;
-				serial_Histogram(tempCopy, tempCopy[0], tempCopy[tempCopy.size() - 1]);
-				endTime = clock();
-
-				cout << "------------------------------------------------------------" << endl;
-				cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << endl;
-
-				system("python DrawHisto.py"); // run DrawHisto.py file
+					// TODO: Rework menu
+				serial_Histogram(temps);
+				system(PYTHON_PLOT_CMD); // run python plot file
 
 				break;
-			// case 3:
-			// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
-			//   << endl;
-			// Parallel(temps, context, queue, program, prof_event);
-			// Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
-			// break;
+			case 8:
+				// cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
+				// 	 << endl;
+				// Parallel(temps, context, queue, program, prof_event);
+				// Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
+				break;
 			// case 4:
 			// std::cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
 			// 		  << endl;
 			// startTime = clock();
 			// partTemp = updateHistogramData(data);
 			// Sort(partTemp, context, queue, program, prof_event);
-			// std::cout << "----------------- OVERALL PARALLEL HISTOGRAM -----------------" << std::endl;
+			// cout << "----------------- OVERALL PARALLEL HISTOGRAM -----------------" << std::endl;
 			// Histogram_Parallel(partTemp, context, queue, program, prof_event, partTemp[0], partTemp[partTemp.size() - 1]);
 			// endTime = clock();
 			// cout << "--------------------------------------------------------------" << std::endl;

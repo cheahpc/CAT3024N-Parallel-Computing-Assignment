@@ -19,12 +19,10 @@ using namespace std;
 // Constant Variables
 const string MONTH_LIST[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 const int HISTOGRAM_BIN_NO = 15;
-const string SERIAL_HISTOGRAM_FILE = "serial histogram.txt";
+const string SERIAL_HISTOGRAM_CSV = "histogram.csv";
 
-vector<float> serial_UpperLimits; // upper limit for each bins
-vector<int> serial_Frequencies;   // store frequency of each bins
 // Serial Function Implementation
-void serial_Calculate(vector<float> &values, bool isOverall = true)
+void serial_Calculate(vector<float> &values)
 {
     // Create an instance of the SerialStatistics
     SerialStatistics SStats = SerialStatistics();
@@ -38,7 +36,7 @@ void serial_Calculate(vector<float> &values, bool isOverall = true)
 
     if (message != "")
     {
-        displayInfo_Summary(isOverall, values.size(), 0, 0, 0, 0, 0, 0, 0, 0, 0, message);
+        displayInfo_Summary(values.size(), 0, 0, 0, 0, 0, 0, 0, 0, 0, message);
         return;
     }
 
@@ -48,7 +46,7 @@ void serial_Calculate(vector<float> &values, bool isOverall = true)
     vector<float> temperature = values; // Copy the values to vector
 
     // Sorting
-    SStats.mergeSort(temperature, SORT_ORDER::ASCENDING); // Perform merge sort - Fastest
+    SStats.mergeSort(temperature, SERIAL_SORT_ORDER::ASCENDING); // Perform merge sort - Fastest
     // SStats.selectionSort(temperature, SORT_ORDER::ASCENDING); // Perform selection sort
     // SStats.bubbleSort(temperature, SORT_ORDER::ASCENDING);    // Perform bubble sort - Slowest
 
@@ -68,10 +66,31 @@ void serial_Calculate(vector<float> &values, bool isOverall = true)
     clock_t endTime = clock();
 
     // Display Data
-    displayInfo_Summary(isOverall, size, mean, sDeviation, min, max, median, q1, q2, startTime, endTime);
+    displayInfo_Summary(size, mean, sDeviation, min, max, median, q1, q2, startTime, endTime);
 }
 
 // Summary Functions
+void serial_Overall(vector<float> &temp)
+{
+    // Display overall header
+    displayInfo_Overall_Header();
+
+    // Start Counting
+    clock_t overallStartTime = clock();
+
+    // Calculate and display the temperature data
+    cout << "| " << left << setfill(' ') << setw(14) << "OVERALL";
+    serial_Calculate(temp);
+
+    // End Counting
+    clock_t overallEndTime = clock();
+
+    // Display the footer
+    displayInfo_Footer(overallStartTime, overallEndTime);
+
+    return;
+}
+
 void serial_By_Month(vector<float> &temp, vector<int> &month)
 {
     // Display by month header
@@ -91,7 +110,7 @@ void serial_By_Month(vector<float> &temp, vector<int> &month)
     for (int i = 0; i < tempVar.size(); i++)
     {
         cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[i];
-        serial_Calculate(tempVar[i], false); // Calculate and display the temperature data
+        serial_Calculate(tempVar[i]); // Calculate and display the temperature data
     }
 
     // End Counting
@@ -125,7 +144,7 @@ void serial_By_Station(vector<float> &temp, vector<string> &stationName)
         {
             // Print and process the current station's data
             cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-            serial_Calculate(tempVar, false);
+            serial_Calculate(tempVar);
             tempVar.clear();
 
             // Update the current station and add the new temperature
@@ -136,7 +155,7 @@ void serial_By_Station(vector<float> &temp, vector<string> &stationName)
 
     // Process the last station's data
     cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-    serial_Calculate(tempVar, false);
+    serial_Calculate(tempVar);
 
     // End Counting
     clock_t overallEndTime = clock();
@@ -171,9 +190,9 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
     // Step 2. For each month, collect all data for each station
     for (int i = 0; i < 12; i++)
     {
-        cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;               // Padding
+        displayInfo_TableDiv(' ');
         cout << "| " << left << setfill(' ') << setw(158) << MONTH_LIST[i] << "|" << endl; // Display the month name
-        cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
+        displayInfo_TableDiv(' ');
 
         unordered_set<string> copiedUniqueStation = uniqueStation; // Copy the unique station
         if (!monthData[i].empty())
@@ -191,7 +210,7 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
                 {
                     // Print and process the current station's data
                     cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-                    serial_Calculate(tempData, false);
+                    serial_Calculate(tempData);
                     tempData.clear();
                     copiedUniqueStation.erase(currentStation);
 
@@ -203,17 +222,17 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
 
             // Process the last station's data
             cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-            serial_Calculate(tempData, false);
+            serial_Calculate(tempData);
             copiedUniqueStation.erase(currentStation);
         }
 
         for (const auto &station : copiedUniqueStation)
         {
             cout << "| " << left << setfill(' ') << setw(14) << station;
-            serial_Calculate(tempData, false);
+            serial_Calculate(tempData);
         }
         if (i != 11)
-            cout << "|" << internal << setfill('-') << setw(160) << "|" << endl; // Padding end
+            displayInfo_TableDiv('-');
     }
 
     // End Counting
@@ -245,15 +264,15 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
         else
         {
             // Print and process the current station's data
-            cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;                // Padding
+            displayInfo_TableDiv(' ');
             cout << "| " << left << setfill(' ') << setw(158) << currentStation << "|" << endl; // Display the station name
-            cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;                // Padding
+            displayInfo_TableDiv(' ');
             for (int j = 0; j < tempData.size(); j++)
             {
                 cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[j];
-                serial_Calculate(tempData[j], false);
+                serial_Calculate(tempData[j]);
             }
-            cout << "|" << internal << setfill('-') << setw(160) << "|" << endl; // Padding end
+            displayInfo_TableDiv('-');
             tempData.clear();
             tempData.resize(12);
 
@@ -263,13 +282,13 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
         }
     }
 
-    cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;                // Padding// Process the last station's data
+    displayInfo_TableDiv(' ');
     cout << "| " << left << setfill(' ') << setw(158) << currentStation << "|" << endl; // Display the station name
-    cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
+    displayInfo_TableDiv(' ');
     for (int j = 0; j < tempData.size(); j++)
     {
         cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[j];
-        serial_Calculate(tempData[j], false);
+        serial_Calculate(tempData[j]);
     }
 
     // End Counting
@@ -279,24 +298,40 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
     displayInfo_Footer(overallStartTime, overallEndTime);
 }
 
-void serial_Histogram(vector<float> &temperature, float minimum, float maximum)
+void serial_Histogram(vector<float> &temperature)
 {
-    // Create output vector
+    SerialStatistics SStats = SerialStatistics();
+    // Step 1. Start Clock
+    clock_t startTime = clock();
+
+    // Step 2. Create a copy of sorted temperature and create a vector to store the frequency of each bins
+    vector<float> temp = temperature;
+    vector<float> upper_Limits; // upper limit for each bins
+    vector<int> frequencies;    // store frequency of each bins
+
+    // Step 3. Sort the temperature, get the minimum and maximum
+    SStats.mergeSort(temp, SERIAL_SORT_ORDER::ASCENDING);
+    // SStats.selectionSort(temp, SORT_ORDER::ASCENDING);
+    // SStats.bubbleSort(temp, SORT_ORDER::ASCENDING);
+    float minimum = temp[0];
+    float maximum = temp[temp.size() - 1];
+    float binSize = (maximum - minimum) / HISTOGRAM_BIN_NO;
+
+    // Step 4. Create output vector
     vector<int> histogram_vector(HISTOGRAM_BIN_NO); // histogram results
 
-    // display bins and frequency
-    cout << "Minimum: " << minimum << ", Maximum: " << maximum << endl;
-    cout << "Number of Bins: " << HISTOGRAM_BIN_NO << ", Bin Size: " << (maximum - minimum) / HISTOGRAM_BIN_NO << endl;
-    float binSize = (maximum - minimum) / HISTOGRAM_BIN_NO;
+    // Step 5. Display Header
+    displayInfo_Histogram_Header(HISTOGRAM_BIN_NO, binSize, minimum, maximum);
+
+    // Step 6. Calculate the histogram
+    // Clear the vector and max frequency
     int max_freq = 0;
+    upper_Limits.clear();
+    frequencies.clear();
+    // Add the first minimum value
+    upper_Limits.push_back(minimum);
 
-    // clear vectors
-    serial_UpperLimits.clear();
-    serial_Frequencies.clear();
-
-    // first element is the minimum of elements
-    serial_UpperLimits.push_back(minimum);
-
+    // For each temperature, calculate the frequency
     for (int i = 0; i < temperature.size(); i++)
     {
         float compareVal = minimum + binSize;
@@ -312,24 +347,29 @@ void serial_Histogram(vector<float> &temperature, float minimum, float maximum)
         }
         histogram_vector[idx] += 1;
     }
-    // save the result
-    ofstream outputFile(SERIAL_HISTOGRAM_FILE);
-    for (int i = 1; i < HISTOGRAM_BIN_NO + 1; i++)
+    // Step 7. Save the result
+    ofstream outputFile(SERIAL_HISTOGRAM_CSV);     // Open the file
+    for (int i = 1; i < HISTOGRAM_BIN_NO + 1; i++) // Display the histogram
     {
         float binStart = minimum + ((i - 1) * binSize);
         float binEnd = minimum + (i * binSize);
         int frequency = (histogram_vector[i - 1]);
-        cout << "Bin Range: >" << binStart << " to <=" << binEnd << ", Frequency: " << frequency << std::endl;
-        outputFile << binStart << " " << binEnd << " " << frequency << " " << endl;
 
-        max_freq = (frequency > max_freq) ? frequency : max_freq;
-        serial_Frequencies.push_back(frequency);
-        serial_UpperLimits.push_back(binEnd);
+        displayInfo_Histogram_Summary(binStart, binEnd, frequency);          // Print histogram summary
+        outputFile << binStart << ',' << binEnd << ',' << frequency << endl; // Save to file
+
+        max_freq = (frequency > max_freq) ? frequency : max_freq; // Get the maximum frequency
+        frequencies.push_back(frequency);
+        upper_Limits.push_back(binEnd);
     }
-    // Close the file
-    outputFile.close();
-    // last element is the total number of frequencies
-    serial_Frequencies.push_back(max_freq);
+    outputFile.close();              // Close the file
+    frequencies.push_back(max_freq); // Add the maximum frequency, last element
+
+    // Step 8. End Clock
+    clock_t endTime = clock();
+
+    // Step 9. Display Footer
+    displayInfo_Footer(startTime, endTime);
 }
 
 #endif // SERIAL_OPERATION_H
