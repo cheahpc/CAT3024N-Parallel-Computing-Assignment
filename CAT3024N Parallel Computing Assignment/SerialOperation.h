@@ -156,10 +156,7 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
 
     vector<vector<float>> monthData(12);    // For each month, store the temperature data for each station
     vector<vector<int>> indexMonthData(12); // For each month, store the index of the temperature data
-    vector<float> tempData;                 // Store the temperature data for each station
-
-    string currentStation;
-
+    vector<float> tempData;
     // Step 1. Create a list of all months regardless station with index
     for (int i = 0; i < temp.size(); i++)
     {
@@ -168,17 +165,17 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
     }
 
     // Step 2. For each month, collect all data for each station
-    for (int i = 0; i < monthData.size(); i++)
+    for (int i = 0; i < 12; i++)
     {
         cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;               // Padding
         cout << "| " << left << setfill(' ') << setw(158) << MONTH_LIST[i] << "|" << endl; // Display the month name
         cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
 
         unordered_set<string> copiedUniqueStation = uniqueStation; // Copy the unique station
-        if (monthData[i].size() > 0)
+        if (!monthData[i].empty())
         {
-            currentStation = stationName[indexMonthData[i][0]]; // Initialize with the first station name
-            tempData.clear();
+            string currentStation = stationName[indexMonthData[i][0]]; // Initialize with the first station name
+            vector<float> tempData;
 
             for (int j = 0; j < indexMonthData[i].size(); j++)
             {
@@ -203,17 +200,15 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
             // Process the last station's data
             cout << "| " << left << setfill(' ') << setw(14) << currentStation;
             serial_Calculate(tempData, false);
-            tempData.clear();
             copiedUniqueStation.erase(currentStation);
         }
 
-        for (auto it = copiedUniqueStation.begin(); it != copiedUniqueStation.end(); it++)
+        for (const auto &station : copiedUniqueStation)
         {
-            currentStation = *it; // Get the current station name
-            cout << "| " << left << setfill(' ') << setw(14) << currentStation;
+            cout << "| " << left << setfill(' ') << setw(14) << station;
             serial_Calculate(tempData, false);
         }
-        if (i != monthData.size() - 1)
+        if (i != 11)
             cout << "|" << internal << setfill('-') << setw(160) << "|" << endl; // Padding end
     }
 
