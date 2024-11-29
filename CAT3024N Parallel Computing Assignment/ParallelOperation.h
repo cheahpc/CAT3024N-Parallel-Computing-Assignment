@@ -388,4 +388,21 @@ void parallel_Histogram(vector<float> &temperature, cl::Context context, cl::Com
     displayInfo_Footer(startTime, endTime);
 }
 
+void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Create a 2D vector to store the temperature data by month
+    vector<vector<float>> tempVar(12);
+
+    // Step 1. Isolate Temperature data by month
+    for (int i = 0; i < temperature.size(); i++)
+        tempVar[month[i] - 1].push_back(temperature[i]); // Insert the temperature to the specific month. [[month][temperature]]
+
+    // Step 2. Calculate for each available month
+    for (int i = 0; i < tempVar.size(); i++)
+    {
+        cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[i];
+        parallel_Histogram(tempVar[i], context, queue, program, prof_event); // Calculate and display the temperature data
+    }
+}
+
 #endif // PARA_OPERATION_H

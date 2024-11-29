@@ -44,8 +44,8 @@ void displayMenu_Main()
     println("|               4              |             14               |   By Month All Station Summary                                                                  |");
     println("|               5              |             15               |   By Station All Month Summary                                                                  |");
     println("|               6              |             16               |   Full Summary                                                                                  |");
-    println("|               7              |             17               |   By Month Summary                                                                              |");
-    println("|               8              |             18               |   -                                                                                             |");
+    println("|               7              |             17               |   Histogram                                                                                     |");
+    println("|               8              |             18               |   Histogram By Month                                                                            |");
     println("|______________________________|______________________________|_________________________________________________________________________________________________|");
     println("|                                                                                                                                                               |");
     println("|                                                                     100  |  Exit Program                                                                      |");
@@ -79,6 +79,10 @@ void displayInfo_Operation(int operation)
     case 7:
         print(" [ Option 7 - Serial Operation ] By Month Summary");
         break;
+    case 8:
+        print(" [ Option 7 - Serial Operation ] By Month Summary");
+        break;
+
     case 11:
         print(" [ Option 11 - Parallel Operation ] Overall Summary");
         break;

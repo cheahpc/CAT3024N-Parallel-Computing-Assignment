@@ -294,14 +294,14 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
     displayInfo_Footer(overallStartTime, overallEndTime);
 }
 
-void serial_Histogram(vector<float> &temperature)
+void serial_Histogram(vector<float> &temp)
 {
     SerialStatistics sStats = SerialStatistics();
     // Step 1. Start Clock
     clock_t startTime = clock();
 
     // Step 2. Create a copy of sorted temperature and create a vector to store the frequency of each bins
-    vector<float> temp = temperature;
+    vector<float> temp = temp;
     vector<float> upper_Limits; // upper limit for each bins
     vector<int> frequencies;    // store frequency of each bins
 
@@ -326,11 +326,11 @@ void serial_Histogram(vector<float> &temperature)
     frequencies.clear();
 
     // For each temperature, calculate the frequency
-    for (int i = 0; i < temperature.size(); i++)
+    for (int i = 0; i < temp.size(); i++)
     {
         float compareVal = minimum + binSize;
         int idx = 0;
-        while (temperature[i] > compareVal)
+        while (temp[i] > compareVal)
         {
             compareVal += binSize; // check next range
             idx++;
@@ -368,6 +368,25 @@ void serial_Histogram(vector<float> &temperature)
 
     // Step 9. Display Footer
     displayInfo_Footer(startTime, endTime);
+}
+
+void serial_Histogram_By_Month(vector<float> &temp, vector<int> &month)
+{
+    // Create a 2D vector to store the temperature data by month
+    vector<vector<float>> tempVar(12);
+
+    // Step 1. Isolate Temperature data by month
+    for (int i = 0; i < temp.size(); i++)
+        tempVar[month[i] - 1].push_back(temp[i]); // Insert the temperature to the specific month. [[month][temperature]]
+
+    // Step 2. Calculate for each available month
+    for (int i = 0; i < tempVar.size(); i++)
+    {
+        cout << left << setfill('=') << setw(160) << " " << MONTH_LIST[i];
+        serial_Histogram(tempVar[i]); // Calculate and display the temperature data
+    }
+
+    return;
 }
 
 #endif // SERIAL_OPERATION_H
