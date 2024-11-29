@@ -99,7 +99,7 @@ void displayInfo_Footer(clock_t startTime, clock_t endTime)
 void displayInfo_Summary(int size, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, clock_t startTime, clock_t endTime, string message = "")
 {
 
-    cout << left << setprecision(2) << fixed << setfill(' ')
+    cout << left << setprecision(4) << fixed << setfill(' ')
          << "| "
          << setw(14) << min << "| "
          << setw(14) << max << "| "

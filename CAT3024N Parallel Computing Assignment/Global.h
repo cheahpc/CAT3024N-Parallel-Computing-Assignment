@@ -6,8 +6,8 @@ using namespace std;
 
 // Constants
 // const string DATASET_PATH = "china_temp_debug.txt"; // Debug
-// const string DATASET_PATH = "china_temp_short.txt"; // Development
-const string DATASET_PATH = "china_temp_large.txt"; // Final
+const string DATASET_PATH = "china_temp_short.txt"; // Development
+// const string DATASET_PATH = "china_temp_large.txt"; // Final
 const string KERNEL_PATH = "my_kernels.cl";
 
 // Months

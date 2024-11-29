@@ -16,11 +16,12 @@ class ParallelStatistics
 {
 private:
     // Kernel Executions
-    void ParallelStatistics::KernelExec(cl::Kernel kernel, vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, string Name);
-    float ParallelStatistics::KernelExecRet(cl::Kernel kernel, vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue, bool Two, bool Three, bool Four, float FThree, int IFour, cl::Event &prof_event, string Name);
+    float ParallelStatistics::kernelExecute(bool isReturn, cl::Kernel kernel, vector<float> &temp, size_t Local_Size, cl::Context context, cl::CommandQueue queue,
+                                            bool arg2, bool arg3, bool arg4, float float3, int int4,
+                                            cl::Event &prof_event, string Name);
 
     // Add Padding
-    int AddPadding(vector<float> &temp, size_t LocalSize, float PadVal);
+    int addPadding(vector<float> &temp, size_t LocalSize, float PadVal);
 
 public:
     // Empty Constructor and Destructor

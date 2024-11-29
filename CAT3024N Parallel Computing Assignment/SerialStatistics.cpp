@@ -262,18 +262,13 @@ float SerialStatistics::getSDeviation(vector<float> &values)
 	float sum = 0, mean, standardDeviation = 0.0;
 	// Calculate the mean of the vector
 	mean = getMean(values);
-	// Get the size of the input vector
-	int Size = values.size();
-	// Loop through the vector
-	for (int i = 0; i < Size; i++)
-	{
-		// Calculate the first part of standard deviation
+	// Loop through the vector, calculating the standard deviation
+	for (int i = 0; i < values.size(); i++)
 		standardDeviation += ((values[i] - mean) * (values[i] - mean));
-	}
 	// Divide the standard deviation by its size
-	standardDeviation = (standardDeviation / (Size));
+	standardDeviation = sqrt((standardDeviation / (values.size())));
 	// Return the square root of the current value stored
-	return sqrt(standardDeviation);
+	return standardDeviation;
 }
 
 float SerialStatistics::getMedian(vector<float> &values)

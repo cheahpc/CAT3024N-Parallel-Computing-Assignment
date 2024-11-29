@@ -21,15 +21,23 @@ void parallel_Calculate(vector<float> &values, cl::Context context, cl::CommandQ
     // Create an instance of the ParallelStatistics
     ParallelStatistics pStats = ParallelStatistics();
 
+    // Check if the values vector is empty
+    if (values.size() == 0)
+    {
+        println("Error: The size of the vector is zero. Please check the input vector and try again...");
+        pause();
+        return;
+    }
+
     // Start counting
     clock_t startTime = clock();
 
     vector<float> temperature = values; // Copy the values to vector
 
     // Sorting
-    // pStats.mergeSort(temperature, context, queue, program, prof_event, SORT_ORDER::ASCENDING);     // Perform merge sort
-    pStats.selectionSort(temperature, context, queue, program, prof_event, SORT_ORDER::ASCENDING); // Perform selection sort
-    // pStats.bubbleSort(temperature, context, queue, program, prof_event, SORT_ORDER::ASCENDING); // Perform bubble sort TODO
+    pStats.mergeSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+    // pStats.selectionSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform selection sort
+    // pStats.bubbleSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform bubble sort TODO
 
     // Get the size of the vector
     int size = temperature.size();
