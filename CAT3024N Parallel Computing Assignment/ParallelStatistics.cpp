@@ -100,10 +100,9 @@ void ParallelStatistics::bubbleSort(vector<float> &temp, cl::Context context, cl
 
 void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
-    int padding_size = addPadding(temp, LOCAL_SIZE, -1000000.0f); // Add padding to the vector
-    cl::Kernel kernel;
-    // Set kernel to the parallel selection kernel
-    kernel = cl::Kernel(program, "p_SelectionSort"); // Set kernel to the parallel selection kernel
+    int padding_size = addPadding(temp, LOCAL_SIZE, -1000000.0f); // Add padding to the vector for the parallel selection sort
+                                                                  // Set kernel to the parallel selection kernel
+    cl::Kernel kernel = cl::Kernel(program, "p_SelectionSort");   // Set kernel to the parallel selection kernel
 
     kernelExecute(false, kernel, temp, LOCAL_SIZE, context, queue,
                   false, false, false, 0.0f, 0,           // 2 for Local, 3 for Float (Mean), 4 for Int (padding size),
@@ -115,11 +114,12 @@ void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context,
 void ParallelStatistics::mergeSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
     // Add padding to the vector
-    int padding_size = addPadding(temp, LOCAL_SIZE, -1000000.0f); // Padding not needed for merge sort
+    int padding_size = addPadding(temp, LOCAL_SIZE, -1000000.0f); // Padding
+    // int padding_size = addPadding(temp, 64, -150.0f); // Padding
 
-    // cl::Kernel kernel = cl::Kernel(program, "p_MergeSort"); // Set kernel to the parallel merge sort kernel
     cl::Kernel kernel = cl::Kernel(program, "p_MergeSort"); // Set kernel to the parallel merge sort kernel
 
+    // kernelExecute(false, kernel, temp, 64, context, queue,
     kernelExecute(false, kernel, temp, LOCAL_SIZE, context, queue,
                   true, false, false, 0.0f, 0,        // 2 for Local, 3 for Float (Mean), 4 for Int (padding size)
                   prof_event, "Parallel Merge Sort"); // Perform the kernel
@@ -136,6 +136,7 @@ float ParallelStatistics::getSum(vector<float> &temp, cl::Context context, cl::C
     cl::Kernel kernel = cl::Kernel(program, "p_Sum");
     // Set return to the output from kernel execution
     float Return = kernelExecute(true, kernel, temp, LOCAL_SIZE, context, queue,
+                                 // float Return = kernelExecute(true, kernel, temp, LOCAL_SIZE, context, queue,
                                  true, false, false, 0.0f, 0, // 2 for Local, 3 for Float (Mean), 4 for Int (padding size)
                                  prof_event, "Sum Vector");
     // Return value
@@ -175,7 +176,8 @@ float ParallelStatistics::getSDeviation(vector<float> &temp, float Mean, cl::Con
     cl::Kernel kernel = cl::Kernel(program, "p_Standard_Deviation"); // Set kernel to the reduce standard deviation kernel
     // Set return to the output from kernel execution
     float result = kernelExecute(true, kernel, temp, LOCAL_SIZE, context, queue,
-                                 true, true, true, Mean, padding_size, // 2 for Local, 3 for Float (Mean), 4 for Int (padding size), 5 for int (Sort order)
+                                 // float result = kernelExecute(true, kernel, temp, LOCAL_SIZE, context, queue,
+                                 true, true, true, Mean, padding_size,
                                  prof_event, "Standard Deviation");
     // Square root the (result / size)
     result = sqrt((result / temp.size()));

@@ -28,6 +28,8 @@ int main(int argc, char *argv[])
 {
 	// Step 0. Setup Console title
 	SetConsoleTitle(L"CAT3024N Parallel Computing - Assignment | Developed by Cheah Pin Chee (0197637)");
+	// Set Console to full screen
+	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 
 	// Step 1. Platform Selection
 	int platform_id = 1;

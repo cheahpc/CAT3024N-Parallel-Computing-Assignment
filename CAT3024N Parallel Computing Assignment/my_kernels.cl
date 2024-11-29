@@ -22,6 +22,14 @@ inline void atomicAddFloat(volatile __global float *addr, float val)
 	} while (current.u32 != expected.u32);
 }
 
+inline void swap(float *a, float *b)
+{
+	float tmp;
+	tmp = *b;
+	*b = *a;
+	*a = tmp;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Selection sort kernel
@@ -64,21 +72,19 @@ __kernel void merge(__global float *A, __global float *B, int width, int size)
 
 	while (i < middle && j < end)
 	{
-		if (A[i] < A[j])
-		{
+		if (A[i] < A[j]) // Compare the two values, if the first is smaller then put it in the output
 			B[k++] = A[i++];
-		}
 		else
-		{
 			B[k++] = A[j++];
-		}
 	}
 
+	// Copy the remaining elements of the first half
 	while (i < middle)
 	{
 		B[k++] = A[i++];
 	}
 
+	// Copy the remaining elements of the second half
 	while (j < end)
 	{
 		B[k++] = A[j++];
@@ -89,23 +95,20 @@ __kernel void merge(__global float *A, __global float *B, int width, int size)
 __kernel void p_MergeSort(__global float *A, __global float *B)
 {
 	int size = get_global_size(0);
-	int width = 1; // Corrected initialization
+	int width = 1;
 	while (width < size)
 	{
-		int num_merges = (size + 2 * width - 1) / (2 * width);
+		int num_merges = (size + 2 * width - 1) / (2 * width); // Calculate the number of merges
 		for (int i = 0; i < num_merges; i++)
 		{
 			merge(A, B, width, size);
 		}
+		barrier(CLK_GLOBAL_MEM_FENCE);
+
 		width *= 2;
-		// Synchronize all work-items before swapping
-		barrier(CLK_GLOBAL_MEM_FENCE);
 		// Swap A and B
-		__global float *temp = A;
-		A = B;
-		B = temp;
+		swap(&A, &B);
 		// Synchronize all work-items after swapping
-		barrier(CLK_GLOBAL_MEM_FENCE);
 	}
 	// Ensure the final sorted array is in A
 	if (width / 2 % 2 == 1)

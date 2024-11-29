@@ -20,8 +20,6 @@ const string SERIAL_HISTOGRAM_CSV = "histogram.csv";
 // Parallel
 const size_t LOCAL_SIZE = 32;
 
-
-
 // Vectors
 
 // Sorting Enum
