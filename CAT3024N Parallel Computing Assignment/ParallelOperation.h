@@ -291,8 +291,19 @@ void parallel_By_Station_All_Month(vector<float> &temp, vector<string> &stationN
     displayInfo_Footer(overallStartTime, overallEndTime);
 }
 
-void parallel_Histogram(vector<float> &temperature, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Histogram(vector<float> &temperature, string outputFileName, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
+
+    // Step 0. Check if the temperature vector is empty
+    if (temperature.size() == 0)
+    {
+        displayInfo_Histogram_Header(HISTOGRAM_BIN_NO, 0, 0, 0);
+        displayInfo_Histogram_Summary(0, 0, 0);
+        cout << "| " << left << setw(158) << setfill(' ') << "No Data" << "|" << endl;
+        displayInfo_Footer(0, 0);
+        return;
+    }
+
     ParallelStatistics pStats = ParallelStatistics();
 
     // Step 1. Start Clock
@@ -364,7 +375,7 @@ void parallel_Histogram(vector<float> &temperature, cl::Context context, cl::Com
 
     // Step 14. Display the histogram summary, save to file
     upper_Limits.push_back(minimum);
-    ofstream outputFile(PARALLEL_HISTOGRAM_CSV); // Open the file
+    ofstream outputFile(outputFileName); // Open the file
     for (int i = 1; i < HISTOGRAM_BIN_NO + 1; i++)
     {
         float binStart = minimum + (i - 1) * binSize;
@@ -386,12 +397,20 @@ void parallel_Histogram(vector<float> &temperature, cl::Context context, cl::Com
 
     // Step 16. Display Footer
     displayInfo_Footer(startTime, endTime);
+
+    // Step 17. Call Python to plot the histogram
+    string command = "python histPlot.py " + outputFileName;
+    system(command.c_str());
+
+    return;
 }
 
 void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Create a 2D vector to store the temperature data by month
     vector<vector<float>> tempVar(12);
+
+    string outputFileName = "Parallel_Histogram_By_";
 
     // Step 1. Isolate Temperature data by month
     for (int i = 0; i < temperature.size(); i++)
@@ -400,9 +419,46 @@ void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month,
     // Step 2. Calculate for each available month
     for (int i = 0; i < tempVar.size(); i++)
     {
-        cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[i];
-        parallel_Histogram(tempVar[i], context, queue, program, prof_event); // Calculate and display the temperature data
+        cout << internal << setfill('=') << setw(162) << " " << MONTH_LIST[i] << endl;
+        outputFileName += MONTH_LIST[i] + ".csv ";
+        parallel_Histogram(tempVar[i], outputFileName, context, queue, program, prof_event);
     }
+    return;
+}
+
+void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationName, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Create a 1D vector to store the temperature data by station
+    vector<float> tempVar;
+    string currentStation = stationName[0]; // Initialize with the first station name
+
+    string outputFileName = "Parallel_Histogram_By_";
+    for (int i = 0; i < temp.size(); i++)
+    {
+        if (stationName[i] == currentStation)
+        {
+            tempVar.push_back(temp[i]);
+        }
+        else
+        {
+            // Print and process the current station's data
+            cout << internal << setfill('=') << setw(162) << " " << currentStation << endl;
+            outputFileName += currentStation + ".csv";
+            parallel_Histogram(tempVar, outputFileName, context, queue, program, prof_event);
+            tempVar.clear();
+
+            // Update the current station and add the new temperature
+            currentStation = stationName[i];
+            tempVar.push_back(temp[i]);
+        }
+    }
+
+    // Process the last station's data
+    cout << internal << setfill('=') << setw(162) << " " << currentStation << endl;
+    outputFileName += currentStation + ".csv";
+    parallel_Histogram(tempVar, outputFileName, context, queue, program, prof_event);
+
+    return;
 }
 
 #endif // PARA_OPERATION_H

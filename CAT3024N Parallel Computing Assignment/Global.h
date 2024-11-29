@@ -15,8 +15,6 @@ const string MONTH_LIST[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", 
 
 // Histograms
 const int HISTOGRAM_BIN_NO = 15;
-const string SERIAL_HISTOGRAM_CSV =   "Histogram_Serial.csv";
-const string PARALLEL_HISTOGRAM_CSV = "Histogram_Parallel.csv";
 
 // Sorting Enum
 typedef enum SORT_ORDER
