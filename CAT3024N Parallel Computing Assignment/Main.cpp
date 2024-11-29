@@ -20,17 +20,11 @@
 const char *SERIAL_PYTHON_PLOT_CMD = "python Serial_HistPlot.py";
 const char *PARALLEL_PYTHON_PLOT_CMD = "python Parallel_HistPlot.py";
 
-vector<int> histogram_result = vector<int>(HISTOGRAM_BIN_NO);
-vector<int> output = vector<int>(histogram_result.size());
-size_t output_size = output.size() * sizeof(float);
-
 // Main method
 int main(int argc, char *argv[])
 {
 	// Step 0. Setup Console title
 	SetConsoleTitle(L"CAT3024N Parallel Computing - Assignment | Developed by Cheah Pin Chee (0197637)");
-	// Set Console to full screen
-	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 
 	// Step 1. Platform Selection
 	int platform_id = 1;
@@ -147,71 +141,91 @@ int main(int argc, char *argv[])
 			// Display Main Menu
 			displayMenu_Main();
 			int mainMenuChoice = getMenuChoice();
-
-			// Initialize Screen
-			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
-			displayInfo_Operation(mainMenuChoice);
-
-			switch (mainMenuChoice)
+			if (mainMenuChoice == 15)
 			{
-			case 1:					   // Serial Overall Summary
-				serial_Overall(temps); // Calculate and display
-				break;
-			case 2:								// Serial By Month Summary
-				serial_By_Month(temps, months); // Calculate by month and display
-				break;
-			case 3:									   // Serial By Station Summary
-				serial_By_Station(temps, stationName); // Calculate by station and display
-				break;
-			case 4: // Serial By Month All Station Summary
-				serial_By_Month_All_Station(temps, stationName, months);
-				break;
-
-			case 5: // Serial By Station All Month Summary
-				serial_By_Station_All_Month(temps, stationName, months);
-				break;
-			case 6: // Serial Full Summary
-				serial_Calculate(temps);
-				serial_By_Month(temps, months);
-				serial_By_Station(temps, stationName);
-				serial_By_Month_All_Station(temps, stationName, months);
-				serial_By_Station_All_Month(temps, stationName, months);
-				break;
-			case 7: // Serial Histogram Summary
-
-				serial_Histogram(temps);
-				system(SERIAL_PYTHON_PLOT_CMD); // run python plot file
-				break;
-			case 8: // Parallel Overall Summary
-				parallel_Overall(temps, context, queue, program, prof_event);
-				break;
-			case 9: // Parallel By Month Summary
-				parallel_By_Month(temps, months, context, queue, program, prof_event);
-				break;
-			case 10: // Parallel By Station Summary
-				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
-				break;
-			case 11: // Parallel By Month All Station Summary
-				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
-				break;
-			case 12: // Parallel By Station All Month Summary
-				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
-				break;
-			case 13: // Parallel Full Summary
-				parallel_Overall(temps, context, queue, program, prof_event);
-				parallel_By_Month(temps, months, context, queue, program, prof_event);
-				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
-				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
-				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
-				break;
-			case 14: // Parallel Histogram Summary
-				parallel_Histogram(temps, context, queue, program, prof_event);
-				system(PARALLEL_PYTHON_PLOT_CMD); // run python plot file
-				break;
-			case 15:
 				println("Exiting Program...");
 				pause();
 				return 0;
+			}
+
+			// Initialize Screen
+			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+			switch (mainMenuChoice)
+			{
+			case 1: // Serial Overall Summary
+				displayInfo_Operation(mainMenuChoice);
+				serial_Overall(temps); // Calculate and display
+				break;
+			case 2: // Serial By Month Summary
+				displayInfo_Operation(mainMenuChoice);
+				serial_By_Month(temps, months); // Calculate by month and display
+				break;
+			case 3: // Serial By Station Summary
+				displayInfo_Operation(mainMenuChoice);
+				serial_By_Station(temps, stationName); // Calculate by station and display
+				break;
+			case 4: // Serial By Month All Station Summary
+				displayInfo_Operation(mainMenuChoice);
+				serial_By_Month_All_Station(temps, stationName, months);
+				break;
+			case 5: // Serial By Station All Month Summary
+				displayInfo_Operation(mainMenuChoice);
+				serial_By_Station_All_Month(temps, stationName, months);
+				break;
+			case 6: // Serial Full Summary
+				displayInfo_Operation(1);
+				serial_Overall(temps);
+				displayInfo_Operation(2);
+				serial_By_Month(temps, months);
+				displayInfo_Operation(3);
+				serial_By_Station(temps, stationName);
+				displayInfo_Operation(4);
+				serial_By_Month_All_Station(temps, stationName, months);
+				displayInfo_Operation(mainMenuChoice);
+				serial_By_Station_All_Month(temps, stationName, months);
+				break;
+			case 7: // Serial Histogram Summary
+				displayInfo_Operation(mainMenuChoice);
+				serial_Histogram(temps);
+				system(SERIAL_PYTHON_PLOT_CMD); // run python plot file
+				break;
+			case 11: // Parallel Overall Summary
+				displayInfo_Operation(mainMenuChoice);
+				parallel_Overall(temps, context, queue, program, prof_event);
+				break;
+			case 12: // Parallel By Month Summary
+				displayInfo_Operation(mainMenuChoice);
+				parallel_By_Month(temps, months, context, queue, program, prof_event);
+				break;
+			case 13: // Parallel By Station Summary
+				displayInfo_Operation(mainMenuChoice);
+				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
+				break;
+			case 14: // Parallel By Month All Station Summary
+				displayInfo_Operation(mainMenuChoice);
+				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 15: // Parallel By Station All Month Summary
+				displayInfo_Operation(mainMenuChoice);
+				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 16: // Parallel Full Summary
+				displayInfo_Operation(11);
+				parallel_Overall(temps, context, queue, program, prof_event);
+				displayInfo_Operation(12);
+				parallel_By_Month(temps, months, context, queue, program, prof_event);
+				displayInfo_Operation(13);
+				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
+				displayInfo_Operation(14);
+				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				displayInfo_Operation(15);
+				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 17: // Parallel Histogram Summary
+				displayInfo_Operation(mainMenuChoice);
+				parallel_Histogram(temps, context, queue, program, prof_event);
+				system(PARALLEL_PYTHON_PLOT_CMD); // run python plot file
+				break;
 
 			default:
 				println("Invalid input. Please enter a valid option...");

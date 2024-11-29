@@ -304,8 +304,8 @@ void parallel_Histogram(vector<float> &temperature, cl::Context context, cl::Com
     vector<int> frequencies;    // store frequency of each bins
 
     // Step 3. Sort the temperature
-    // pStats.mergeSort(temp, context, queue, program, prof_event, ASCENDING); // Perform merge sort
-    pStats.selectionSort(temp, context, queue, program, prof_event, ASCENDING); // Perform selection sort
+    pStats.mergeSort(temp, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+    // pStats.selectionSort(temp, context, queue, program, prof_event, ASCENDING); // Perform selection sort
     // pStats.bubbleSort(temp, context, queue, program, prof_event, ASCENDING); // Perform bubble sort
     float minimum = temp[0];
     float maximum = temp[temp.size() - 1];
@@ -319,7 +319,7 @@ void parallel_Histogram(vector<float> &temperature, cl::Context context, cl::Com
     size_t padding_size = temperature.size() % local_size; // 512 / 1024 / 2048 / 4096
     if (padding_size)
     {
-        vector<int> temperature_ext(local_size - padding_size, 1000);                                 // create an extra vector with neutral values
+        vector<int> temperature_ext(local_size - padding_size, 1000);                          // create an extra vector with neutral values
         temperature.insert(temperature.end(), temperature_ext.begin(), temperature_ext.end()); // append that extra vector to our input
     }
 
@@ -345,6 +345,7 @@ void parallel_Histogram(vector<float> &temperature, cl::Context context, cl::Com
     kernel.setArg(2, HISTOGRAM_BIN_NO);
     kernel.setArg(3, minimum);
     kernel.setArg(4, maximum);
+    kernel.setArg(5, binSize);
 
     // Step 10. Run the kernel
     queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(vector_elements), cl::NDRange(local_size));

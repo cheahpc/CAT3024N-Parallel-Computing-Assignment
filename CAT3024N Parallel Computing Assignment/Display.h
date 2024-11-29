@@ -18,80 +18,105 @@ void println(string str = "")
     cout << str << endl;
 }
 
-void displayInfo_Student()
-{
-    println("================================================== Student Information");
-    println("Student Name\t: Cheah Pin Chee");
-    println("Student ID\t: 0197637");
-    println();
-}
-
 void displayHeader()
 {
-    println("====================================================================================================");
-    println("|                             CAT3024N Parallel Computing - Assignment                             |");
-    println("====================================================================================================");
-    println();
+    println("=================================================================================================================================================================");
+    println("| Cheah Pin Chee 0197637 |                                                                                                                               Ver.01 |");
+    println("|-------------------------                                   CAT3024N Parallel Computing - Assignment                                                           |");
+    println("|                                                                                                                                                               |");
+    println("=================================================================================================================================================================");
+    println("");
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Main Menu
 void displayMenu_Main()
 {
-    println("++++++++++++++++++++++++++++++++++++++++++++++++++ Main Menu");
+    println();
+    println("=================================================================================================================================================================");
+    println("|                                                                           Main Menu                                                                           |");
+    println("=================================================================================================================================================================");
+    println("|     Serial Operations (x)    |   Parallel Operations (1x)   |   Description                                                                                   |");
+    println("|------------------------------|------------------------------|-------------------------------------------------------------------------------------------------|");
+    println("|                              |                              |                                                                                                 |");
+    println("|               1              |             11               |   Overall Summary                                                                               |");
+    println("|               2              |             12               |   By Month Summary                                                                              |");
+    println("|               3              |             13               |   By Station Summary                                                                            |");
+    println("|               4              |             14               |   By Month All Station Summary                                                                  |");
+    println("|               5              |             15               |   By Station All Month Summary                                                                  |");
+    println("|               6              |             16               |   Full Summary                                                                                  |");
+    println("|               7              |             17               |   By Month Summary                                                                              |");
+    println("|               8              |             18               |   -                                                                                             |");
+    println("|______________________________|______________________________|_________________________________________________________________________________________________|");
+    println("|                                                                                                                                                               |");
+    println("|                                                                     100  |  Exit Program                                                                      |");
+    println("|_______________________________________________________________________________________________________________________________________________________________|");
     println("");
-    println("Serial Operation Option:");
-    println("");
-    println("      1. Overall Summary");
-    println("      2. By Month Summary");
-    println("      3. By Station Summary");
-    println("      4. By Month All Station Summary");
-    println("      5. By Station All Month Summary");
-    println("      6. Full Summary");
-    println("      7. Histogram Summary");
-    println("");
-    println("Parallel Operation Option:");
-    println("");
-    println("      8. Overall Summary");
-    println("      9. By Month Summary");
-    println("     10. By Station Summary");
-    println("     11. By Month All Station Summary");
-    println("     12. By Station All Month Summary");
-    println("     13. Full Summary");
-    println("     14. Histogram Summary");
-    println("");
-    println("      15. Quit Program");
-    println("");
-    println("++++++++++++++++++++++++++++++++++++++++++++++++++");
 }
 
 void displayInfo_Operation(int operation)
 {
-    println();
+    print("=================================================================================================================================================================");
     switch (operation)
     {
     case 1:
-        println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [Option 1 - Serial] Overall Summary ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        print(" [ Option 1 - Serial Operation ] Overall Summary");
         break;
     case 2:
-        println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [Option 2 - Serial] By Month Summary ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        print(" [ Option 2 - Serial Operation ] By Month Summary");
         break;
-
+    case 3:
+        print(" [ Option 3 - Serial Operation ] By Station Summary");
+        break;
+    case 4:
+        print(" [ Option 4 - Serial Operation ] By Month All Station Summary");
+        break;
+    case 5:
+        print(" [ Option 5 - Serial Operation ] By Station All Month Summary");
+        break;
+    case 6:
+        print(" [ Option 6 - Serial Operation ] Full Summary");
+        break;
+    case 7:
+        print(" [ Option 7 - Serial Operation ] By Month Summary");
+        break;
+    case 11:
+        print(" [ Option 11 - Parallel Operation ] Overall Summary");
+        break;
+    case 12:
+        print(" [ Option 12 - Parallel Operation ] By Month Summary");
+        break;
+    case 13:
+        print(" [ Option 13 - Parallel Operation ] By Station Summary");
+        break;
+    case 14:
+        print(" [ Option 14 - Parallel Operation ] By Month All Station Summary");
+        break;
+    case 15:
+        print(" [ Option 15 - Parallel Operation ] By Station All Month Summary");
+        break;
+    case 16:
+        print(" [ Option 16 - Parallel Operation ] Full Summary");
+        break;
+    case 17:
+        print(" [ Option 17 - Parallel Operation ] By Month Summary");
+        break;
     default:
         break;
     }
-    println();
     println();
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Data Summary
 void displayInfo_Footer(clock_t startTime, clock_t endTime)
 {
-
     cout << "|" << internal << setfill('-') << setw(160) << "|" << endl; // Padding end
     cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
     cout << "| Total time taken (ms): " << left << setw(135) << setfill(' ') << long(endTime - startTime) << "|" << endl;
     cout << "|" << internal << setfill(' ') << setw(160) << "|" << endl;
     println("|_______________________________________________________________________________________________________________________________________________________________| END");
+    println("");
+    println("");
+    println("");
 }
 
 void displayInfo_Summary(int size, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, clock_t startTime, clock_t endTime, string message = "")
@@ -245,7 +270,6 @@ void refreshHeader(string platform_id, string device_name)
 {
     clearScreen();
     displayInfo_PlatformAndDevice(platform_id, device_name);
-    displayInfo_Student();
     displayHeader();
 }
 

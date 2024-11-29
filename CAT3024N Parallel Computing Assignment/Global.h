@@ -18,8 +18,6 @@ const int HISTOGRAM_BIN_NO = 15;
 const string SERIAL_HISTOGRAM_CSV =   "Histogram_Serial.csv";
 const string PARALLEL_HISTOGRAM_CSV = "Histogram_Parallel.csv";
 
-// Vectors
-
 // Sorting Enum
 typedef enum SORT_ORDER
 {
