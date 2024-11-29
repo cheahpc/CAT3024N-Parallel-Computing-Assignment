@@ -324,8 +324,6 @@ void serial_Histogram(vector<float> &temperature)
     int max_freq = 0;
     upper_Limits.clear();
     frequencies.clear();
-    // Add the first minimum value
-    upper_Limits.push_back(minimum);
 
     // For each temperature, calculate the frequency
     for (int i = 0; i < temperature.size(); i++)
@@ -343,6 +341,10 @@ void serial_Histogram(vector<float> &temperature)
         }
         histogram_vector[idx] += 1;
     }
+
+    // Add the first minimum value
+    upper_Limits.push_back(minimum);
+
     // Step 7. Save the result
     ofstream outputFile(SERIAL_HISTOGRAM_CSV);     // Open the file
     for (int i = 1; i < HISTOGRAM_BIN_NO + 1; i++) // Display the histogram

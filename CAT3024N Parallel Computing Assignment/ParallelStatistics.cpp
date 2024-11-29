@@ -78,13 +78,14 @@ float ParallelStatistics::kernelExecute(bool isReturn, // Should function return
 // Add Padding function
 int ParallelStatistics::addPadding(vector<float> &temp, size_t LocalSize, float PadVal)
 {
+    size_t local_size = LocalSize;
     // Find the padding size
-    int padding_size = temp.size() % LOCAL_SIZE;
+    int padding_size = temp.size() % local_size;
     // If there is padding size then
     if (padding_size)
     {
         // Create an extra vector with PadVal values
-        vector<float> A_ext(LOCAL_SIZE - padding_size, PadVal);
+        vector<float> A_ext(local_size - padding_size, PadVal);
         // Append that extra vector to the input
         temp.insert(temp.end(), A_ext.begin(), A_ext.end());
     }
@@ -100,47 +101,46 @@ void ParallelStatistics::bubbleSort(vector<float> &temp, cl::Context context, cl
 
 void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
-    int padding_size = addPadding(temp, LOCAL_SIZE, -1000000.0f); // Add padding to the vector for the parallel selection sort
-                                                                  // Set kernel to the parallel selection kernel
-    cl::Kernel kernel = cl::Kernel(program, "p_SelectionSort");   // Set kernel to the parallel selection kernel
+    int padding_size = addPadding(temp, 32, -1000000.0f);       // Add padding to the vector for the parallel selection sort
+                                                                // Set kernel to the parallel selection kernel
+    cl::Kernel kernel = cl::Kernel(program, "p_SelectionSort"); // Set kernel to the parallel selection kernel
 
-    kernelExecute(false, kernel, temp, LOCAL_SIZE, context, queue,
+    kernelExecute(false, kernel, temp, 32, context, queue,
                   false, false, false, 0.0f, 0,           // 2 for Local, 3 for Float (Mean), 4 for Int (padding size),
                   prof_event, "Parallel Selection Sort"); // Perform the kernel
 
-    temp.erase(temp.begin(), temp.begin() + (LOCAL_SIZE - padding_size)); // Erase the padded elements at the start of the vector
+    temp.erase(temp.begin(), temp.begin() + (32 - padding_size)); // Erase the padded elements at the start of the vector
 }
 
 void ParallelStatistics::mergeSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
     // Add padding to the vector
-    int padding_size = addPadding(temp, LOCAL_SIZE, -1000000.0f); // Padding
+    int padding_size = addPadding(temp, 32, -1000000.0f); // Padding
     // int padding_size = addPadding(temp, 64, -150.0f); // Padding
 
     cl::Kernel kernel = cl::Kernel(program, "p_MergeSort"); // Set kernel to the parallel merge sort kernel
 
     // kernelExecute(false, kernel, temp, 64, context, queue,
-    kernelExecute(false, kernel, temp, LOCAL_SIZE, context, queue,
+    kernelExecute(false, kernel, temp, 32, context, queue,
                   true, false, false, 0.0f, 0,        // 2 for Local, 3 for Float (Mean), 4 for Int (padding size)
                   prof_event, "Parallel Merge Sort"); // Perform the kernel
 
-    temp.erase(temp.begin(), temp.begin() + (LOCAL_SIZE - padding_size)); // Erase the padded elements at the start of the vector
+    temp.erase(temp.begin(), temp.begin() + (32 - padding_size)); // Erase the padded elements at the start of the vector
 }
 
 // Statistics Functions
 float ParallelStatistics::getSum(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Add padding to the vector
-    int padding_size = addPadding(temp, LOCAL_SIZE, 0.0f);
+    int padding_size = addPadding(temp, 2, 0.0f);
     // Set kernel to the reduce addition kernel
     cl::Kernel kernel = cl::Kernel(program, "p_Sum");
     // Set return to the output from kernel execution
-    float Return = kernelExecute(true, kernel, temp, LOCAL_SIZE, context, queue,
-                                 // float Return = kernelExecute(true, kernel, temp, LOCAL_SIZE, context, queue,
+    float result = kernelExecute(true, kernel, temp, 2, context, queue,
                                  true, false, false, 0.0f, 0, // 2 for Local, 3 for Float (Mean), 4 for Int (padding size)
                                  prof_event, "Sum Vector");
     // Return value
-    return Return;
+    return result;
 }
 
 float ParallelStatistics::getMinMax(vector<float> &values, bool getMin = true)
@@ -151,14 +151,18 @@ float ParallelStatistics::getMinMax(vector<float> &values, bool getMin = true)
 
 float ParallelStatistics::getMedian(vector<float> &values)
 {
-    int Size = values.size(); // Get the size of the input vector
+    // Get the size of the input vector
+    int Size = values.size();
+    // Variable to hold middle value
     float Middle;
 
     // Check if size is an even number
     if (Size % 2 == 0)
     {
-        float Difference = values[(Size / 2) - 1] - values[(Size / 2)]; // Calculate the difference between the two middle values
-        Middle = values[(Size / 2) - 1] - Difference / 2;               // Account for difference to find the true median value
+        // Calculate the difference between the two middle values
+        float Difference = values[(Size / 2) - 1] - values[(Size / 2)];
+        // Account for difference to find the true median value
+        Middle = values[(Size / 2) - 1] - Difference / 2;
     }
     else
     {
@@ -171,12 +175,11 @@ float ParallelStatistics::getMedian(vector<float> &values)
 float ParallelStatistics::getSDeviation(vector<float> &temp, float Mean, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Get the size of the vector, set padding
-    int padding_size = addPadding(temp, LOCAL_SIZE, 0.0f);
+    int padding_size = addPadding(temp, 2, 0.0f);
 
     cl::Kernel kernel = cl::Kernel(program, "p_Standard_Deviation"); // Set kernel to the reduce standard deviation kernel
     // Set return to the output from kernel execution
-    float result = kernelExecute(true, kernel, temp, LOCAL_SIZE, context, queue,
-                                 // float result = kernelExecute(true, kernel, temp, LOCAL_SIZE, context, queue,
+    float result = kernelExecute(true, kernel, temp, 2, context, queue,
                                  true, true, true, Mean, padding_size,
                                  prof_event, "Standard Deviation");
     // Square root the (result / size)
@@ -190,7 +193,6 @@ float ParallelStatistics::getQ1(vector<float> &values)
     // Get the size of the input vector
     int Size = values.size();
     float First;
-
     // Check if size is an even number
     if (Size % 2 == 0)
     {
@@ -209,21 +211,24 @@ float ParallelStatistics::getQ1(vector<float> &values)
 float ParallelStatistics::getQ3(vector<float> &values)
 {
     // Get the size of the input vector
-    int Size = values.size();
-    float Third;
-
+    int size = values.size();
+    // Variable to hold the third quartile value
+    float third;
     // Set pos to the position of the third quartile
-    int pos = (3 * Size) / 4;
+    int pos = size - (size / 4);
     // Check if size is an even number
-    if (Size % 2 == 0)
+    if (size % 2 == 0)
     {
-        float Difference = values[pos - 1] - values[pos]; // Calculate the difference between the two third quartile values
-        Third = values[pos - 1] - Difference / 2;         // Account for difference to find the true third quartile value
+        // Calculate the difference between the two third quartile values
+        float difference = values[pos - 1] - values[pos];
+        // Account for difference to find the true third quartile value
+        third = values[pos - 1] - difference / 2;
     }
     else
     {
-        Third = values[pos]; // Get the value of the third quartile
+        // Get the value of the third quartile
+        third = values[pos - 1];
     }
 
-    return Third;
+    return third;
 }

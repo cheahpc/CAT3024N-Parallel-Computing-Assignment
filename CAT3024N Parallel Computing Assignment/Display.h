@@ -39,8 +39,6 @@ void displayMenu_Main()
 {
     println("++++++++++++++++++++++++++++++++++++++++++++++++++ Main Menu");
     println("");
-    println("      0. Display Stations Name");
-    println("");
     println("Serial Operation Option:");
     println("");
     println("      1. Overall Summary");
@@ -155,21 +153,36 @@ void displayInfo_By_Station_Header()
     println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
 }
 
-void displayInfo_Histogram_Header(int binNum, float binSize, float min, float max)
+void displayInfo_Histogram_Header(int binNum, float binSize, float min, float max, unsigned long executionTime = 0)
 {
     println("=================================================================================================================================================================");
     println("|                                                                                                                                                               |");
     println("|                                                                     [Histogram Summary]                                                                       |");
     println("|                                                                                                                                                               |");
     println("=================================================================================================================================================================");
-    println("|      Min      |      Max      |   Bin Number  |   Bin Size    |                                                                                               |");
-    println("|---------------|---------------|---------------|---------------|-----------------------------------------------------------------------------------------------|");
-    cout << left << setfill(' ')
-         << "| " << setw(14) << min
-         << "| " << setw(14) << max
-         << "| " << setw(14) << binNum
-         << "| " << setw(14) << binSize
-         << "| " << internal << setfill(' ') << setw(95) << "|" << endl;
+    if (executionTime != 0)
+    {
+        println("|      Min      |      Max      |   Bin Number  |   Bin Size    | Ex.Time (ns)  |                                                                               |");
+        println("|---------------|---------------|---------------|---------------|---------------|-------------------------------------------------------------------------------|");
+        cout << left << setfill(' ')
+             << "| " << setw(14) << min
+             << "| " << setw(14) << max
+             << "| " << setw(14) << binNum
+             << "| " << setw(14) << binSize
+             << "| " << setw(14) << executionTime
+             << "| " << internal << setfill(' ') << setw(95) << "|" << endl;
+    }
+    else
+    {
+        println("|      Min      |      Max      |   Bin Number  |   Bin Size    |                                                                                               |");
+        println("|---------------|---------------|---------------|---------------|-----------------------------------------------------------------------------------------------|");
+        cout << left << setfill(' ')
+             << "| " << setw(14) << min
+             << "| " << setw(14) << max
+             << "| " << setw(14) << binNum
+             << "| " << setw(14) << binSize
+             << "| " << internal << setfill(' ') << setw(95) << "|" << endl;
+    }
     println("|_______________________________________________________________________________________________________________________________________________________________|");
     println("|                                                                                                                                                               |");
     println("|                                                                                                                                                               |");

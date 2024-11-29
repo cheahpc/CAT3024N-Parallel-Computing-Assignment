@@ -5,11 +5,11 @@ import numpy as np
 # Data format [start, end, frequency], no header
 
 # Load histogram data from file
-data = pd.read_csv('histogram.csv')
+data = pd.read_csv('Serial_Histogram.csv')
 
 # Check if histogram data is empty
 if data.empty:
-    print('No data in histogram.csv')
+    print('No data in Serial_Histogram.csv')
     exit()
 
 # Generate histogram data
@@ -31,10 +31,10 @@ for i, freq in enumerate(frequencies):
 # Set labels and title
 plt.xlabel('Temperature')
 plt.ylabel('Frequency')
-plt.title('Histogram For Weather Index')
+plt.title('Serial Histogram For Weather Index')
 
 # Save plot as image
-plt.savefig('histogram.png', dpi=1200)
+plt.savefig('Serial Histogram.png', dpi=1200)
 
 # Show plot
 plt.show()

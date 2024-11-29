@@ -320,24 +320,24 @@ float SerialStatistics::getQ1(vector<float> &values)
 float SerialStatistics::getQ3(vector<float> &values)
 {
 	// Get the size of the input vector
-	int Size = values.size();
+	int size = values.size();
 	// Variable to hold the third quartile value
-	float Third;
+	float third;
 	// Set pos to the position of the third quartile
-	int Pos = Size - (Size / 4);
+	int pos = size - (size / 4);
 	// Check if size is an even number
-	if (Size % 2 == 0)
+	if (size % 2 == 0)
 	{
 		// Calculate the difference between the two third quartile values
-		float Difference = values[Pos - 1] - values[Pos];
+		float difference = values[pos - 1] - values[pos];
 		// Account for difference to find the true third quartile value
-		Third = values[Pos - 1] - Difference / 2;
+		third = values[pos - 1] - difference / 2;
 	}
 	else
 	{
 		// Get the value of the third quartile
-		Third = values[Pos - 1];
+		third = values[pos - 1];
 	}
 
-	return Third;
+	return third;
 }

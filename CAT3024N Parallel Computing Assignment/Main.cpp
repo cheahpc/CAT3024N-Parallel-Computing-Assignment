@@ -17,7 +17,8 @@
 
 #include "Global.h"
 
-const char *PYTHON_PLOT_CMD = "python histPlot.py";
+const char *SERIAL_PYTHON_PLOT_CMD = "python Serial_HistPlot.py";
+const char *PARALLEL_PYTHON_PLOT_CMD = "python Parallel_HistPlot.py";
 
 vector<int> histogram_result = vector<int>(HISTOGRAM_BIN_NO);
 vector<int> output = vector<int>(histogram_result.size());
@@ -179,27 +180,34 @@ int main(int argc, char *argv[])
 			case 7: // Serial Histogram Summary
 
 				serial_Histogram(temps);
-				system(PYTHON_PLOT_CMD); // run python plot file
-
+				system(SERIAL_PYTHON_PLOT_CMD); // run python plot file
 				break;
 			case 8: // Parallel Overall Summary
 				parallel_Overall(temps, context, queue, program, prof_event);
 				break;
-				// TODO: Parallels
-				// case 4:
-				// Parallel_Summary(temps, context, queue, program, prof_event, stationName, months);
-			// cout << "NOTE: RUNNING ON PARALLEL MODE" << endl
-			// 		  << endl;
-			// startTime = clock();
-			// partTemp = updateHistogramData(data);
-			// Sort(partTemp, context, queue, program, prof_event);
-			// cout << "----------------- OVERALL PARALLEL HISTOGRAM -----------------" << std::endl;
-			// Histogram_Parallel(partTemp, context, queue, program, prof_event, partTemp[0], partTemp[partTemp.size() - 1]);
-			// endTime = clock();
-			// cout << "--------------------------------------------------------------" << std::endl;
-			// cout << "TOTAL COMPLETION TIME: \t" << (endTime - startTime) << " ms" << std::endl;
-			// system("python DrawHisto.py"); // run DrawHisto.py file
-			// break;
+			case 9: // Parallel By Month Summary
+				parallel_By_Month(temps, months, context, queue, program, prof_event);
+				break;
+			case 10: // Parallel By Station Summary
+				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
+				break;
+			case 11: // Parallel By Month All Station Summary
+				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 12: // Parallel By Station All Month Summary
+				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 13: // Parallel Full Summary
+				parallel_Overall(temps, context, queue, program, prof_event);
+				parallel_By_Month(temps, months, context, queue, program, prof_event);
+				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
+				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 14: // Parallel Histogram Summary
+				parallel_Histogram(temps, context, queue, program, prof_event);
+				system(PARALLEL_PYTHON_PLOT_CMD); // run python plot file
+				break;
 			case 15:
 				println("Exiting Program...");
 				pause();

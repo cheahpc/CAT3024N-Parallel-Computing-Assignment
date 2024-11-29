@@ -179,7 +179,7 @@ __kernel void p_Standard_Deviation(__global const float *A, __global float *B, _
 }
 
 // Histogram kernel
-kernel void hist_simple(global const float *temperature, global int *output, int bincount, float minval, float maxval)
+kernel void p_Hist(global const float *temperature, global int *output, int bincount, float minval, float maxval)
 {
 	int id = get_global_id(0);
 	int n = 0;
