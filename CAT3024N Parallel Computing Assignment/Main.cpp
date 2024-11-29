@@ -230,10 +230,10 @@ int main(int argc, char *argv[])
 				parallel_Histogram_By_Station(temps, stationName, context, queue, program, prof_event);
 				break;
 			case 110: // Parallel Histogram By Month All Station Summary
-					  // TODO
+				parallel_Histogram_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
 				break;
 			case 111: // Parallel Histogram By Station All Month Summary
-					  // TODO
+				parallel_Histogram_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
 				break;
 			default:
 				println("Invalid input. Please enter a valid option...");

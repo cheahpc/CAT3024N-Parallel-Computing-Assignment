@@ -469,4 +469,105 @@ void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationN
     return;
 }
 
+void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Create array of unique station
+    unordered_set<string> uniqueStation(stationName.begin(), stationName.end());
+
+    vector<vector<float>> monthData(12);    // For each month, store the temperature data for each station
+    vector<vector<int>> indexMonthData(12); // For each month, store the index of the temperature data
+    vector<float> tempData;
+    // Step 1. Create a list of all months regardless station with index
+    for (int i = 0; i < temp.size(); i++)
+    {
+        monthData[month[i] - 1].push_back(temp[i]); // Get Temperature Value
+        indexMonthData[month[i] - 1].push_back(i);  // Get Index Value
+    }
+
+    // Step 2. For each month, collect all data for each station
+    for (int i = 0; i < 12; i++)
+    {
+        println();
+        string outputFileName = "Serial_Histogram_By_" + MONTH_LIST[i] + "_For_";
+        println();
+
+        unordered_set<string> copiedUniqueStation = uniqueStation; // Copy the unique station
+        if (!monthData[i].empty())
+        {
+            string currentStation = stationName[indexMonthData[i][0]]; // Initialize with the first station name
+            vector<float> tempData;
+
+            for (int j = 0; j < indexMonthData[i].size(); j++)
+            {
+                if (stationName[indexMonthData[i][j]] == currentStation)
+                {
+                    tempData.push_back(temp[indexMonthData[i][j]]);
+                }
+                else
+                {
+                    // Print and process the current station's data
+                    cout << internal << setfill('=') << setw(162) << " " << MONTH_LIST[i] << " - " << currentStation << endl;
+                    parallel_Histogram(tempData, outputFileName + currentStation + ".csv", context, queue, program, prof_event);
+                    tempData.clear();
+                    copiedUniqueStation.erase(currentStation);
+
+                    // Update the current station and add the new temperature
+                    currentStation = stationName[indexMonthData[i][j]];
+                    tempData.push_back(temp[indexMonthData[i][j]]);
+                }
+            }
+
+            // Process the last station's data
+            cout << internal << setfill('=') << setw(162) << " " << MONTH_LIST[i] << " - " << currentStation << endl;
+            parallel_Histogram(tempData, outputFileName + currentStation + ".csv", context, queue, program, prof_event);
+            copiedUniqueStation.erase(currentStation);
+        }
+
+        for (const auto &station : copiedUniqueStation)
+        {
+            cout << internal << setfill('=') << setw(162) << " " << MONTH_LIST[i] << " - " << station << endl;
+            parallel_Histogram(tempData, outputFileName + station + ".csv", context, queue, program, prof_event);
+        }
+    }
+}
+
+void parallel_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Step 1. Collect data for each station
+    vector<vector<float>> tempData(12);     // For each station, store the temperature data for each month
+    string currentStation = stationName[0]; // Initialize with the first station name
+
+    // Each station
+    string outputFileName = "";
+    for (int i = 0; i < temp.size(); i++)
+    {
+        if (stationName[i] == currentStation)
+        {
+            tempData[month[i] - 1].push_back(temp[i]);
+        }
+        else
+        {
+            // Print and process the current station's data
+            outputFileName = "Parallel_Histogram_By_" + currentStation;
+            for (int j = 0; j < 12; j++)
+            {
+                cout << internal << setfill('=') << setw(162) << " " << currentStation << " - " << MONTH_LIST[j] << endl;
+                parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv", context, queue, program, prof_event);
+            }
+            tempData.clear();
+            tempData.resize(12);
+
+            // Update the current station and add the new temperature
+            currentStation = stationName[i];
+            tempData[month[i] - 1].push_back(temp[i]);
+        }
+    }
+    // Process the last station's data
+    for (int j = 0; j < 12; j++)
+    {
+        cout << internal << setfill('=') << setw(162) << " " << currentStation << " - " << MONTH_LIST[j] << endl;
+        parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv", context, queue, program, prof_event);
+    }
+}
+
 #endif // PARA_OPERATION_H

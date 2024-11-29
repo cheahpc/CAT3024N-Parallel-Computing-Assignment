@@ -469,7 +469,6 @@ void serial_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &
     for (int i = 0; i < 12; i++)
     {
         println();
-
         string outputFileName = "Serial_Histogram_By_" + MONTH_LIST[i] + "_For_";
         println();
 
@@ -532,7 +531,7 @@ void serial_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &
         {
             // Print and process the current station's data
             outputFileName = "Serial_Histogram_By_" + currentStation;
-            for (int j = 0; j < tempData.size(); j++)
+            for (int j = 0; j < 12; j++)
             {
                 cout << internal << setfill('=') << setw(162) << " " << currentStation << " - " << MONTH_LIST[j] << endl;
                 serial_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv");
