@@ -18,7 +18,9 @@ const int HISTOGRAM_BIN_NO = 15;
 const string SERIAL_HISTOGRAM_CSV = "histogram.csv";
 
 // Parallel
-const size_t LOCAL_SIZE = 512;
+const size_t LOCAL_SIZE = 32;
+
+
 
 // Vectors
 

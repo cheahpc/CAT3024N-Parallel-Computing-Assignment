@@ -100,13 +100,10 @@ void ParallelStatistics::bubbleSort(vector<float> &temp, cl::Context context, cl
 
 void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
-    int padding_size = addPadding(temp, LOCAL_SIZE, 0.0f); // Add padding to the vector
+    int padding_size = addPadding(temp, LOCAL_SIZE, -1000000.0f); // Add padding to the vector
     cl::Kernel kernel;
     // Set kernel to the parallel selection kernel
-    if (mode == ASCENDING)
-        kernel = cl::Kernel(program, "p_SelectionSortAsc"); // Set kernel to the parallel selection kernel
-    else if (mode == DESCENDING)
-        kernel = cl::Kernel(program, "p_SelectionSortDesc"); // Set kernel to the parallel selection kernel
+    kernel = cl::Kernel(program, "p_SelectionSort"); // Set kernel to the parallel selection kernel
 
     kernelExecute(false, kernel, temp, LOCAL_SIZE, context, queue,
                   false, false, false, 0.0f, 0,           // 2 for Local, 3 for Float (Mean), 4 for Int (padding size),
@@ -118,13 +115,13 @@ void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context,
 void ParallelStatistics::mergeSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
     // Add padding to the vector
-    int padding_size = addPadding(temp, LOCAL_SIZE, 0.0f); // Padding not needed for merge sort
+    int padding_size = addPadding(temp, LOCAL_SIZE, -1000000.0f); // Padding not needed for merge sort
 
     // cl::Kernel kernel = cl::Kernel(program, "p_MergeSort"); // Set kernel to the parallel merge sort kernel
     cl::Kernel kernel = cl::Kernel(program, "p_MergeSort"); // Set kernel to the parallel merge sort kernel
 
     kernelExecute(false, kernel, temp, LOCAL_SIZE, context, queue,
-                  true, false, false, 0.0f, 0,       // 2 for Local, 3 for Float (Mean), 4 for Int (padding size)
+                  true, false, false, 0.0f, 0,        // 2 for Local, 3 for Float (Mean), 4 for Int (padding size)
                   prof_event, "Parallel Merge Sort"); // Perform the kernel
 
     temp.erase(temp.begin(), temp.begin() + (LOCAL_SIZE - padding_size)); // Erase the padded elements at the start of the vector

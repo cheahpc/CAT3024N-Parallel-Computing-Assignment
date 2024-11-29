@@ -25,7 +25,7 @@ inline void atomicAddFloat(volatile __global float *addr, float val)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Selection sort kernel
-__kernel void p_SelectionSortAsc(__global const float *A, __global float *B)
+__kernel void p_SelectionSort(__global const float *A, __global float *B)
 {
 	// Get global ID, global size
 	int i = get_global_id(0);
@@ -44,30 +44,6 @@ __kernel void p_SelectionSortAsc(__global const float *A, __global float *B)
 		bool smaller = (jKey < iKey) || (jKey == iKey && j < i);
 		// Position + the result of smaller
 		pos += (smaller) ? 1 : 0;
-	}
-	// Put variable into output
-	B[pos] = A[i];
-}
-
-// Selection sort kernel descending
-__kernel void p_SelectionSortDesc(__global const float *A, __global float *B)
-{
-	// Get global ID, global size
-	int i = get_global_id(0);
-	int n = get_global_size(0);
-
-	// Set iKey to the current value
-	float iKey = A[i];
-
-	int pos = 0; // Position initialized to 0
-	for (int j = 0; j < n; j++)
-	{
-		// Get current value at j
-		float jKey = A[j];
-		// Get the larger out of the two values
-		bool larger = (jKey > iKey) || (jKey == iKey && j < i);
-		// Position + the result of larger
-		pos += (larger) ? 1 : 0;
 	}
 	// Put variable into output
 	B[pos] = A[i];
