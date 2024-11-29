@@ -311,6 +311,18 @@ void serial_Histogram(vector<float> &temperature, string outputFileName)
         outputFile.close();                  // Close the file
         return;
     }
+    else if (temperature.size() == 1)
+    {
+        displayInfo_Histogram_Header(HISTOGRAM_BIN_NO, 0, 0, 0);
+        displayInfo_Histogram_Summary(temperature[0], temperature[0], 1);
+        cout << "| " << left << setw(158) << setfill(' ') << "Only 1 Record, Insufficient Data" << "|" << endl;
+        displayInfo_Footer(0, 0);
+        // Save 0 to the file
+        ofstream outputFile(outputFileName);                                       // Open the file
+        outputFile << temperature[0] << ',' << temperature[0] << ',' << 1 << endl; // Save to file
+        outputFile.close();                                                        // Close the file
+        return;
+    }
 
     SerialStatistics sStats = SerialStatistics();
     // Step 1. Start Clock

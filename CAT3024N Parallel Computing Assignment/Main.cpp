@@ -10,7 +10,6 @@
 // Custom Includes
 #include "Display.h"
 #include "OpenCLUtils.h"
-#include "Sort.h"
 #include "StationData.h"
 #include "SerialOperation.h"
 #include "ParallelOperation.h"
