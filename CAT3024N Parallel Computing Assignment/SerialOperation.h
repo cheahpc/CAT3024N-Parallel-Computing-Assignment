@@ -12,11 +12,10 @@
 // Custom Includes
 #include "SerialStatistics.h"
 #include "Display.h"
-
 #include "Global.h"
 
 // Define plot or not
-#define PLOT
+// #define SERIAL_PLOT
 
 using namespace std;
 
@@ -386,7 +385,7 @@ void serial_Histogram(vector<float> &temperature, string outputFileName)
     // Step 9. Display Footer
     displayInfo_Footer(startTime, endTime);
 
-#ifdef PLOT
+#ifdef SERIAL_PLOT
     // Step 10. Call the python script to plot the histogram
     string command = "python histPlot.py " + outputFileName;
     system(command.c_str());
@@ -399,8 +398,6 @@ void serial_Histogram_By_Month(vector<float> &temperature, vector<int> &month)
 {
     // Create a 2D vector to store the temperature data by month
     vector<vector<float>> tempVar(12);
-
-    ;
 
     // Step 1. Isolate Temperature data by month
     for (int i = 0; i < temperature.size(); i++)

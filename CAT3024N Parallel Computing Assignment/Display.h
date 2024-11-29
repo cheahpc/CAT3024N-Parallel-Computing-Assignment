@@ -233,7 +233,7 @@ void displayInfo_Histogram_Header(int binNum, float binSize, float min, float ma
              << "| " << setw(14) << binNum
              << "| " << setw(14) << binSize
              << "| " << setw(14) << executionTime
-             << "| " << internal << setfill(' ') << setw(95) << "|" << endl;
+             << "| " << internal << setfill(' ') << setw(79) << "|" << endl;
     }
     else
     {

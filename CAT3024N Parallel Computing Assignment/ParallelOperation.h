@@ -14,6 +14,9 @@
 #include "Display.h"
 #include "Global.h"
 
+// Define plot or not
+// #define PARALLEL_PLO
+
 using namespace std;
 
 void parallel_Calculate(vector<float> &values, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
@@ -301,6 +304,10 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, cl::C
         displayInfo_Histogram_Summary(0, 0, 0);
         cout << "| " << left << setw(158) << setfill(' ') << "No Data" << "|" << endl;
         displayInfo_Footer(0, 0);
+        // Save 0 to the file
+        ofstream outputFile(outputFileName); // Open the file
+        outputFile << "0,0,0" << endl;       // Save to file
+        outputFile.close();                  // Close the file
         return;
     }
 
@@ -315,8 +322,8 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, cl::C
     vector<int> frequencies;    // store frequency of each bins
 
     // Step 3. Sort the temperature
-    pStats.mergeSort(temp, context, queue, program, prof_event, ASCENDING); // Perform merge sort
-    // pStats.selectionSort(temp, context, queue, program, prof_event, ASCENDING); // Perform selection sort
+    // pStats.mergeSort(temp, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+    pStats.selectionSort(temp, context, queue, program, prof_event, ASCENDING); // Perform selection sort
     // pStats.bubbleSort(temp, context, queue, program, prof_event, ASCENDING); // Perform bubble sort
     float minimum = temp[0];
     float maximum = temp[temp.size() - 1];
@@ -327,15 +334,15 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, cl::C
     size_t local_size = 256;
 
     // Step 5. Adjust padding
-    size_t padding_size = temperature.size() % local_size; // 512 / 1024 / 2048 / 4096
+    size_t padding_size = temp.size() % local_size; // 512 / 1024 / 2048 / 4096
     if (padding_size)
     {
-        vector<int> temperature_ext(local_size - padding_size, 1000);                          // create an extra vector with neutral values
-        temperature.insert(temperature.end(), temperature_ext.begin(), temperature_ext.end()); // append that extra vector to our input
+        vector<int> temperature_ext(local_size - padding_size, 1000);            // create an extra vector with neutral values
+        temp.insert(temp.end(), temperature_ext.begin(), temperature_ext.end()); // append that extra vector to our input
     }
 
-    size_t vector_elements = temperature.size();           // number of elements
-    size_t vector_size = temperature.size() * sizeof(int); // size in bytes for local memory
+    size_t vector_elements = temp.size();           // number of elements
+    size_t vector_size = temp.size() * sizeof(int); // size in bytes for local memory
 
     // Step 6. Create vectors to store the histogram results
     vector<int> histogram_vector(HISTOGRAM_BIN_NO); // histogram results
@@ -347,7 +354,7 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, cl::C
     cl::Buffer output_buffer(context, CL_MEM_READ_WRITE, output_size);
 
     // Step 8. Copy the input data to the device
-    queue.enqueueWriteBuffer(input_buffer, CL_TRUE, 0, vector_size, &temperature[0]);
+    queue.enqueueWriteBuffer(input_buffer, CL_TRUE, 0, vector_size, &temp[0]);
     queue.enqueueFillBuffer(output_buffer, 0, 0, output_size); // fill the output buffer with zeros for the histogram
 
     // Step 9. Set kernel arguments
@@ -373,8 +380,9 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, cl::C
     upper_Limits.clear();
     frequencies.clear();
 
-    // Step 14. Display the histogram summary, save to file
     upper_Limits.push_back(minimum);
+
+    // Step 14. Display the histogram summary, save to file
     ofstream outputFile(outputFileName); // Open the file
     for (int i = 1; i < HISTOGRAM_BIN_NO + 1; i++)
     {
@@ -398,9 +406,11 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, cl::C
     // Step 16. Display Footer
     displayInfo_Footer(startTime, endTime);
 
-    // Step 17. Call Python to plot the histogram
+// Step 17. Call Python to plot the histogram
+#ifdef PARALLEL_PLO
     string command = "python histPlot.py " + outputFileName;
     system(command.c_str());
+#endif
 
     return;
 }
@@ -410,8 +420,6 @@ void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month,
     // Create a 2D vector to store the temperature data by month
     vector<vector<float>> tempVar(12);
 
-    string outputFileName = "Parallel_Histogram_By_";
-
     // Step 1. Isolate Temperature data by month
     for (int i = 0; i < temperature.size(); i++)
         tempVar[month[i] - 1].push_back(temperature[i]); // Insert the temperature to the specific month. [[month][temperature]]
@@ -420,7 +428,7 @@ void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month,
     for (int i = 0; i < tempVar.size(); i++)
     {
         cout << internal << setfill('=') << setw(162) << " " << MONTH_LIST[i] << endl;
-        outputFileName += MONTH_LIST[i] + ".csv ";
+        string outputFileName = "Parallel_Histogram_By_" + MONTH_LIST[i] + ".csv ";
         parallel_Histogram(tempVar[i], outputFileName, context, queue, program, prof_event);
     }
     return;
@@ -432,7 +440,7 @@ void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationN
     vector<float> tempVar;
     string currentStation = stationName[0]; // Initialize with the first station name
 
-    string outputFileName = "Parallel_Histogram_By_";
+    string outputFileName = "";
     for (int i = 0; i < temp.size(); i++)
     {
         if (stationName[i] == currentStation)
@@ -443,7 +451,7 @@ void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationN
         {
             // Print and process the current station's data
             cout << internal << setfill('=') << setw(162) << " " << currentStation << endl;
-            outputFileName += currentStation + ".csv";
+            outputFileName = "Parallel_Histogram_By_" + currentStation + ".csv ";
             parallel_Histogram(tempVar, outputFileName, context, queue, program, prof_event);
             tempVar.clear();
 
@@ -455,7 +463,7 @@ void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationN
 
     // Process the last station's data
     cout << internal << setfill('=') << setw(162) << " " << currentStation << endl;
-    outputFileName += currentStation + ".csv";
+    outputFileName = "Parallel_Histogram_By_" + currentStation + ".csv";
     parallel_Histogram(tempVar, outputFileName, context, queue, program, prof_event);
 
     return;
