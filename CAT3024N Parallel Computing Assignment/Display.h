@@ -77,67 +77,73 @@ void displayInfo_Operation(int operation)
         print(" [ Option 1 - Parallel Operation ] Overall Summary");
         break;
     case 2:
-        print(" [ Option 2 - Parallel Operation ] By Month Summary");
+        print(" [ Option 2 - Parallel Operation ] By Year Summary");
         break;
     case 3:
-        print(" [ Option 3 - Parallel Operation ] By Station Summary");
+        print(" [ Option 3 - Parallel Operation ] By Month Summary");
         break;
     case 4:
-        print(" [ Option 4 - Parallel Operation ] By Month All Station Summary");
+        print(" [ Option 4 - Parallel Operation ] By Station Summary");
         break;
     case 5:
-        print(" [ Option 5 - Parallel Operation ] By Station All Month Summary");
+        print(" [ Option 5 - Parallel Operation ] By Month All Station Summary");
         break;
     case 6:
-        print(" [ Option 6 - Parallel Operation ] Full Summary");
+        print(" [ Option 6 - Parallel Operation ] By Station All Month Summary");
         break;
     case 7:
-        print(" [ Option 7 - Parallel Operation ] Histogram Overall");
+        print(" [ Option 7 - Parallel Operation ] Full Summary");
         break;
     case 8:
-        print(" [ Option 8 - Parallel Operation ] Histogram By Month");
+        print(" [ Option 8 - Parallel Operation ] Histogram Overall");
         break;
     case 9:
-        print(" [ Option 9 - Parallel Operation ] Histogram By Station");
+        print(" [ Option 9 - Parallel Operation ] Histogram By Month");
         break;
     case 10:
-        print(" [ Option 10 - Parallel Operation ] Histogram By Month All Station");
+        print(" [ Option 10 - Parallel Operation ] Histogram By Station");
         break;
     case 11:
-        print(" [ Option 11 - Parallel Operation ] Histogram By Station All Month");
+        print(" [ Option 11 - Parallel Operation ] Histogram By Month All Station");
+        break;
+    case 12:
+        print(" [ Option 12 - Parallel Operation ] Histogram By Station All Month");
         break;
     case 101:
         print(" [ Option 101 - Parallel Operation ] Overall Summary");
         break;
     case 102:
-        print(" [ Option 102 - Parallel Operation ] By Month Summary");
+        print(" [ Option 102 - Parallel Operation ] By Year Summary");
         break;
     case 103:
-        print(" [ Option 103 - Parallel Operation ] By Station Summary");
+        print(" [ Option 103 - Parallel Operation ] By Month Summary");
         break;
     case 104:
-        print(" [ Option 104 - Parallel Operation ] By Month All Station Summary");
+        print(" [ Option 104 - Parallel Operation ] By Station Summary");
         break;
     case 105:
-        print(" [ Option 105 - Parallel Operation ] By Station All Month Summary");
+        print(" [ Option 105 - Parallel Operation ] By Month All Station Summary");
         break;
     case 106:
-        print(" [ Option 106 - Parallel Operation ] Full Summary");
+        print(" [ Option 106 - Parallel Operation ] By Station All Month Summary");
         break;
     case 107:
-        print(" [ Option 107 - Parallel Operation ] Histogram Overall");
+        print(" [ Option 107 - Parallel Operation ] Full Summary");
         break;
     case 108:
-        print(" [ Option 108 - Parallel Operation ] Histogram By Month");
+        print(" [ Option 108 - Parallel Operation ] Histogram Overall");
         break;
     case 109:
-        print(" [ Option 109 - Parallel Operation ] Histogram By Station");
+        print(" [ Option 109 - Parallel Operation ] Histogram By Month");
         break;
     case 110:
-        print(" [ Option 110 - Parallel Operation ] Histogram By Month All Station");
+        print(" [ Option 110 - Parallel Operation ] Histogram By Station");
         break;
     case 111:
-        print(" [ Option 111 - Parallel Operation ] Histogram By Station All Month");
+        print(" [ Option 111 - Parallel Operation ] Histogram By Month All Station");
+        break;
+    case 112:
+        print(" [ Option 112 - Parallel Operation ] Histogram By Station All Month");
         break;
     default:
         break;

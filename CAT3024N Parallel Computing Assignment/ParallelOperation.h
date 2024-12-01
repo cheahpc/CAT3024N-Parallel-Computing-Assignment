@@ -105,10 +105,10 @@ void parallel_By_Year(vector<float> &temp, vector<int> &year, cl::Context contex
     for (const auto &entry : tempData)
     {
         int currentYear = entry.first;
-        const vector<float> &temperatures = entry.second;
+        vector<float> temperatures = entry.second;
 
         cout << "| " << left << setfill(' ') << setw(14) << currentYear;
-        parallel_Calculate(temp, true, context, queue, program, prof_event); // Calculate and display the temperature data
+        parallel_Calculate(temperatures, true, context, queue, program, prof_event); // Calculate and display the temperature data
     }
     // End Counting
     clock_t overallEndTime = clock();

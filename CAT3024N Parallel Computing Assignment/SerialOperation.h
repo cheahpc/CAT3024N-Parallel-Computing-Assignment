@@ -41,8 +41,8 @@ void serial_Calculate(vector<float> &values, bool displayQuartile = false)
     vector<float> temperature = values; // Copy the values to vector
 
     // Sorting
-    sStats.mergeSort(temperature, SORT_ORDER::ASCENDING); // Perform merge sort - Fastest
-    // sStats.selectionSort(temperature, SORT_ORDER::ASCENDING); // Perform selection sort
+    // sStats.mergeSort(temperature, SORT_ORDER::ASCENDING); // Perform merge sort - Fastest
+    sStats.selectionSort(temperature, SORT_ORDER::ASCENDING); // Perform selection sort
     // sStats.bubbleSort(temperature, SORT_ORDER::ASCENDING);    // Perform bubble sort - Slowest
 
     // Calculate the variables

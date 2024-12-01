@@ -175,14 +175,16 @@ int main(int argc, char *argv[])
 				break;
 			case 7: // Serial Full Summary
 				displayInfo_Operation(1);
-				serial_Overall(temps);
+				serial_By_Year(temps, years);
 				displayInfo_Operation(2);
-				serial_By_Month(temps, months);
+				serial_Overall(temps);
 				displayInfo_Operation(3);
-				serial_By_Station(temps, stationName);
+				serial_By_Month(temps, months);
 				displayInfo_Operation(4);
-				serial_By_Month_All_Station(temps, stationName, months);
+				serial_By_Station(temps, stationName);
 				displayInfo_Operation(5);
+				serial_By_Month_All_Station(temps, stationName, months);
+				displayInfo_Operation(6);
 				serial_By_Station_All_Month(temps, stationName, months);
 				break;
 			case 8: // Serial Histogram Summary
@@ -203,43 +205,48 @@ int main(int argc, char *argv[])
 			case 101: // Parallel Overall Summary
 				parallel_Overall(temps, context, queue, program, prof_event);
 				break;
-			case 102: // Parallel By Month Summary
+			case 102: // Parallel By Year Summary
+				parallel_By_Year(temps, years, context, queue, program, prof_event);
+				break;
+			case 103: // Parallel By Month Summary
 				parallel_By_Month(temps, months, context, queue, program, prof_event);
 				break;
-			case 103: // Parallel By Station Summary
+			case 104: // Parallel By Station Summary
 				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
 				break;
-			case 104: // Parallel By Month All Station Summary
+			case 105: // Parallel By Month All Station Summary
 				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
 				break;
-			case 105: // Parallel By Station All Month Summary
+			case 106: // Parallel By Station All Month Summary
 				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
 				break;
-			case 106: // Parallel Full Summary
+			case 107: // Parallel Full Summary
 				displayInfo_Operation(101);
-				parallel_Overall(temps, context, queue, program, prof_event);
+				parallel_By_Year(temps, years, context, queue, program, prof_event);
 				displayInfo_Operation(102);
-				parallel_By_Month(temps, months, context, queue, program, prof_event);
+				parallel_Overall(temps, context, queue, program, prof_event);
 				displayInfo_Operation(103);
-				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
+				parallel_By_Month(temps, months, context, queue, program, prof_event);
 				displayInfo_Operation(104);
-				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
 				displayInfo_Operation(105);
+				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				displayInfo_Operation(106);
 				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
 				break;
-			case 107: // Parallel Histogram Summary
+			case 108: // Parallel Histogram Summary
 				parallel_Histogram(temps, "Parallel_Histogram.csv", context, queue, program, prof_event);
 				break;
-			case 108: // Parallel Histogram By Month Summary
+			case 109: // Parallel Histogram By Month Summary
 				parallel_Histogram_By_Month(temps, months, context, queue, program, prof_event);
 				break;
-			case 109: // Parallel Histogram By Station Summary
+			case 120: // Parallel Histogram By Station Summary
 				parallel_Histogram_By_Station(temps, stationName, context, queue, program, prof_event);
 				break;
-			case 110: // Parallel Histogram By Month All Station Summary
+			case 112: // Parallel Histogram By Month All Station Summary
 				parallel_Histogram_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
 				break;
-			case 111: // Parallel Histogram By Station All Month Summary
+			case 113: // Parallel Histogram By Station All Month Summary
 				parallel_Histogram_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
 				break;
 			default:
