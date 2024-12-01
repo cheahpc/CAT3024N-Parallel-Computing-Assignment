@@ -29,7 +29,7 @@ for i, (start, end) in enumerate(bins):
     data.extend([np.random.uniform(start, end) for _ in range(frequencies[i])])
 
 # Plot histogram
-plt.hist(data, bins=len(bins), range=(bins[0][0], bins[-1][1]), edgecolor='black', color='red')
+plt.hist(data, bins=len(bins), range=(bins[0][0], bins[-1][1]), edgecolor='black', color='orange')
 
 # Add value annotations to bars
 for i, freq in enumerate(frequencies):
@@ -43,6 +43,9 @@ tittle = tittle.replace('_', ' ')
 plt.xlabel('Temperature')
 plt.ylabel('Frequency')
 plt.title(tittle + ' Weather Index')
+
+# Set title for the window
+plt.gcf().canvas.set_window_title(tittle)
 
 # Save plot as image
 plt.savefig(f'{tittle}.png', dpi=600)

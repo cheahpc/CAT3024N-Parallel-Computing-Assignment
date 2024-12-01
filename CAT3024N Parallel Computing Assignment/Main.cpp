@@ -23,14 +23,14 @@ int main(int argc, char *argv[])
 	SetConsoleTitle(L"CAT3024N Parallel Computing - Assignment | Developed by Cheah Pin Chee (0197637)");
 
 	// Step 1. Platform Selection
-	int platform_id = 1;
-	int device_id = 0;
+	int platform_id = 0; // Default Platform ID
+	int device_id = 0;	 // Default Device ID
 	do
 	{
-		refreshHeader("N/a", "N/a");
+		refreshHeader("N/a", "N/a"); // Displaying
 
-		displayMenu_PlatformAndDeviceSelection(ListPlatformsDevices());
-		pair<int, int> platform_device = getPlatformAndDeviceSelection();
+		displayMenu_PlatformAndDeviceSelection(ListPlatformsDevices());	  // Display the platform and device selection menu
+		pair<int, int> platform_device = getPlatformAndDeviceSelection(); // Get the platform and device selection
 		platform_id = platform_device.first;
 		device_id = platform_device.second;
 		// Check if platform size and device size is valid
@@ -58,8 +58,10 @@ int main(int argc, char *argv[])
 	// Step 2. Load the data
 	StationData data = StationData();
 
-	refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
-	println("Loading data from file: " + DATASET_PATH);
+	refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id)); // Refresh the header
+	println("Loading data from file: " + DATASET_PATH);									// Display the loading data message
+	clock_t dataStartTime = clock();													// Start the clock
+	clock_t dataEndTime;
 	if (!data.Load(DATASET_PATH))
 	{
 		println("Error: Unable to load the data. Please check the file path '" + DATASET_PATH + "' and try again...");
@@ -69,14 +71,19 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		println("Data loaded successfully...");
-		println();
-		pause();
+		dataEndTime = clock();					 // End the clock
+		print("Data loaded successfully... | "); // Display the success message
 	}
 
+	// If the data is loaded successfully, get the data into vectors
 	vector<float> &temps = data.GetTemp();
 	vector<string> &stationName = data.GetStationName();
 	vector<int> &months = data.GetMonth();
+	vector<int> &years = data.GetYear();
+
+	println("Time taken to load data: " + to_string(dataEndTime - dataStartTime) + "ms" + " | " + to_string(temps.size()) + " records loaded...");
+	println();
+	pause();
 
 	// Step 3. Setup OpenCL environment
 	try
@@ -103,6 +110,7 @@ int main(int argc, char *argv[])
 			println();
 			pause();
 		}
+		// If the kernel file is loaded successfully, build the program
 		cl::Program program(context, sources); // Define the program with the context and sources
 
 		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
@@ -120,15 +128,12 @@ int main(int argc, char *argv[])
 			throw err;
 			return 0;
 		}
+		// If the program is built successfully, display the success message
 		println("Program built successfully...");
 		println();
 		println("OpenCL environment setup successfully...");
 		println();
 		pause();
-
-		// Clock variable declaration
-		clock_t startTime = 0;
-		clock_t endTime = 0;
 
 		// Step 4. Main Program Loop
 		while (true)
@@ -153,19 +158,22 @@ int main(int argc, char *argv[])
 			case 1:					   // Serial Overall Summary
 				serial_Overall(temps); // Calculate and display
 				break;
-			case 2:								// Serial By Month Summary
+			case 2:							  // Serial By Year Summary
+				serial_By_Year(temps, years); // Calculate by year and display
+				break;
+			case 3:								// Serial By Month Summary
 				serial_By_Month(temps, months); // Calculate by month and display
 				break;
-			case 3:									   // Serial By Station Summary
+			case 4:									   // Serial By Station Summary
 				serial_By_Station(temps, stationName); // Calculate by station and display
 				break;
-			case 4: // Serial By Month All Station Summary
+			case 5: // Serial By Month All Station Summary
 				serial_By_Month_All_Station(temps, stationName, months);
 				break;
-			case 5: // Serial By Station All Month Summary
+			case 6: // Serial By Station All Month Summary
 				serial_By_Station_All_Month(temps, stationName, months);
 				break;
-			case 6: // Serial Full Summary
+			case 7: // Serial Full Summary
 				displayInfo_Operation(1);
 				serial_Overall(temps);
 				displayInfo_Operation(2);
@@ -177,19 +185,19 @@ int main(int argc, char *argv[])
 				displayInfo_Operation(5);
 				serial_By_Station_All_Month(temps, stationName, months);
 				break;
-			case 7: // Serial Histogram Summary
+			case 8: // Serial Histogram Summary
 				serial_Histogram(temps, "Serial_Histogram.csv");
 				break;
-			case 8: // Serial Histogram By Month Summary
+			case 9: // Serial Histogram By Month Summary
 				serial_Histogram_By_Month(temps, months);
 				break;
-			case 9: // Serial Histogram By Station Summary
+			case 10: // Serial Histogram By Station Summary
 				serial_Histogram_By_Station(temps, stationName);
 				break;
-			case 10: // Serial Histogram By Month All Station Summary
+			case 11: // Serial Histogram By Month All Station Summary
 				serial_Histogram_By_Month_All_Station(temps, stationName, months);
 				break;
-			case 11: // Serial Histogram By Station All Month Summary
+			case 12: // Serial Histogram By Station All Month Summary
 				serial_Histogram_By_Station_All_Month(temps, stationName, months);
 				break;
 			case 101: // Parallel Overall Summary

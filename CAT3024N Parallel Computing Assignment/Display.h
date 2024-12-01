@@ -40,25 +40,27 @@ void displayMenu_Main()
     println("|                              |                              |                                                                                                 |");
     println("|                1             |             101              |   Overall Summary                                                                               |");
     println("|                              |                              |                                                                                                 |");
-    println("|                2             |             102              |   By Month Summary                                                                              |");
+    println("|                2             |             102              |   By Year                                                                                       |");
     println("|                              |                              |                                                                                                 |");
-    println("|                3             |             103              |   By Station Summary                                                                            |");
+    println("|                3             |             103              |   By Month Summary                                                                              |");
     println("|                              |                              |                                                                                                 |");
-    println("|                4             |             104              |   By Month All Station Summary                                                                  |");
+    println("|                4             |             104              |   By Station Summary                                                                            |");
     println("|                              |                              |                                                                                                 |");
-    println("|                5             |             105              |   By Station All Month Summary                                                                  |");
+    println("|                5             |             105              |   By Month All Station Summary                                                                  |");
     println("|                              |                              |                                                                                                 |");
-    println("|                6             |             106              |   Full Summary                                                                                  |");
+    println("|                6             |             106              |   By Station All Month Summary                                                                  |");
     println("|                              |                              |                                                                                                 |");
-    println("|                7             |             107              |   Histogram Overall                                                                             |");
+    println("|                7             |             107              |   Full Summary                                                                                  |");
     println("|                              |                              |                                                                                                 |");
-    println("|                8             |             108              |   Histogram By Month                                                                            |");
+    println("|                8             |             108              |   Histogram Overall                                                                             |");
     println("|                              |                              |                                                                                                 |");
-    println("|                9             |             109              |   Histogram By Station                                                                          |");
+    println("|                9             |             109              |   Histogram By Month                                                                            |");
     println("|                              |                              |                                                                                                 |");
-    println("|               10             |             110              |   Histogram By Month All Station                                                                |");
+    println("|               10             |             110              |   Histogram By Station                                                                          |");
     println("|                              |                              |                                                                                                 |");
-    println("|               11             |             110              |   Histogram By Station All Month                                                                |");
+    println("|               11             |             111              |   Histogram By Month All Station                                                                |");
+    println("|                              |                              |                                                                                                 |");
+    println("|               12             |             112              |   Histogram By Station All Month                                                                |");
     println("|______________________________|______________________________|_________________________________________________________________________________________________|");
     println("|                                                                                                                                                               |");
     println("|                                                                      -1  |  Exit Program                                                                      |");
@@ -71,7 +73,6 @@ void displayInfo_Operation(int operation)
     print("=================================================================================================================================================================");
     switch (operation)
     {
-
     case 1:
         print(" [ Option 1 - Parallel Operation ] Overall Summary");
         break;
@@ -183,6 +184,8 @@ void displayInfo_Histogram_Summary(float binStart, float binEnd, int frequency)
          << "|" << internal << setfill(' ') << setw(112) << "|" << endl;
 }
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Headers
+
 void displayInfo_Overall_Header()
 {
     println("=================================================================================================================================================================");
@@ -191,6 +194,17 @@ void displayInfo_Overall_Header()
     println("|                                                                                                                                                               |");
     println("=================================================================================================================================================================");
     println("|               |      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |");
+    println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
+}
+
+void displayInfo_By_Year_Header()
+{
+    println("=================================================================================================================================================================");
+    println("|                                                                                                                                                               |");
+    println("|                                                                      [By Month Summary]                                                                       |");
+    println("|                                                                                                                                                               |");
+    println("=================================================================================================================================================================");
+    println("|     Year      |      Min      |      Max      |     Mean      | Std.Deviation |    Median     | 1st Quartile  | 3rd Quartile  |     Size      |   Time(ms)    |");
     println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|");
 }
 
@@ -256,6 +270,17 @@ void displayInfo_Histogram_Header(int binNum, float binSize, float min, float ma
     // TODO cumulative frequency?
 }
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Table Divider
+void displayInfo_ByX_Header(string string1, string string2 = "", string string3 = "")
+{
+    if (string2 == "")
+        cout << internal << setfill('=') << setw(162) << " " << string1 << endl;
+    else if (string3 == "")
+        cout << internal << setfill('=') << setw(162) << " " << string1 << " - " << string2 << endl;
+    else
+        cout << internal << setfill('=') << setw(162) << " " << string1 << " - " << string2 << " - " << string3 << endl;
+}
+
 void displayInfo_TableDiv(char c)
 {
     cout << "|" << internal << setfill(c) << setw(160) << "|" << endl; // Padding// Process the last station's data
@@ -277,38 +302,38 @@ void displayInfo_PlatformAndDevice(string platformName, string deviceName)
     println("Device\t\t: " + deviceName);
 }
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Utilities
 pair<int, int> getPlatformAndDeviceSelection()
 {
     int platform_id, device_id;
     print("Enter Platform ID | Device ID (e.g., '0 0' or '0 1'): ");
-    cin >> platform_id >> device_id;
+    cin >> platform_id >> device_id; // Take in 2 inputs for platform and device
     return make_pair(platform_id, device_id);
 }
 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Utilities
 int getMenuChoice()
 {
     int mainMenuChoice;
     print("Enter option: ");
     cin >> mainMenuChoice;
-    return mainMenuChoice;
+    return mainMenuChoice; // Return input choice
 }
 
 void pause()
 {
-    system("pause");
+    system("pause"); // Pause the console, press any key to continue
 }
 
 void clearScreen()
 {
-    system("cls");
+    system("cls"); // Clear screen
 }
 
 void refreshHeader(string platform_id, string device_name)
 {
-    clearScreen();
-    displayInfo_PlatformAndDevice(platform_id, device_name);
-    displayHeader();
+    clearScreen();                                           // Clear the screen
+    displayInfo_PlatformAndDevice(platform_id, device_name); // Display Platform and Device Information
+    displayHeader();                                         // Display Header with name and version etc
 }
 
 #endif // DISPLAY_H

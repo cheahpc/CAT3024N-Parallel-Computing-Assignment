@@ -1,4 +1,4 @@
-// Atomic add function to work with floats
+// Helper functions: atomic add to float, swap
 inline void atomicAddFloat(volatile __global float *addr, float val)
 {
 	// Create a union object between uint and float

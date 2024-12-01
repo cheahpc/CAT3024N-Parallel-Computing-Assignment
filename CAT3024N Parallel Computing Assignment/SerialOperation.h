@@ -14,13 +14,10 @@
 #include "Display.h"
 #include "Global.h"
 
-// Define plot or not
-// #define SERIAL_PLOT
-
 using namespace std;
 
 // Serial Function Implementation
-void serial_Calculate(vector<float> &values)
+void serial_Calculate(vector<float> &values, bool displayQuartile = false)
 {
     // Create an instance of the SerialStatistics
     SerialStatistics sStats = SerialStatistics();
@@ -57,8 +54,12 @@ void serial_Calculate(vector<float> &values)
     float mean = sum / (size);
     float sDeviation = sStats.getSDeviation(temperature);
     float median = sStats.getMedian(temperature);
-    float q1 = sStats.getQ1(temperature);
-    float q3 = sStats.getQ3(temperature);
+    float q1 = 0, q3 = 0;
+    if (displayQuartile)
+    {
+        q1 = sStats.getQ1(temperature);
+        q3 = sStats.getQ3(temperature);
+    }
 
     // End counting
     clock_t endTime = clock();
@@ -78,8 +79,39 @@ void serial_Overall(vector<float> &temp)
 
     // Calculate and display the temperature data
     cout << "| " << left << setfill(' ') << setw(14) << "OVERALL";
-    serial_Calculate(temp);
+    serial_Calculate(temp, true);
 
+    // End Counting
+    clock_t overallEndTime = clock();
+
+    // Display the footer
+    displayInfo_Footer(overallStartTime, overallEndTime);
+
+    return;
+}
+
+void serial_By_Year(vector<float> &temp, vector<int> &year)
+{
+    // Display by year header
+    displayInfo_By_Year_Header();
+
+    // Start Counting
+    clock_t overallStartTime = clock();
+
+    // Group temperatures by year
+    map<int, vector<float>> tempData;
+    for (size_t i = 0; i < temp.size(); i++)
+        tempData[year[i]].push_back(temp[i]);
+
+    // Calculate and display statistics for each year
+    for (const auto &entry : tempData)
+    {
+        int currentYear = entry.first;
+        vector<float> temperatures = entry.second;
+
+        cout << "| " << left << setfill(' ') << setw(14) << currentYear;
+        serial_Calculate(temperatures, true); // Calculate and display the temperature data
+    }
     // End Counting
     clock_t overallEndTime = clock();
 
@@ -142,7 +174,7 @@ void serial_By_Station(vector<float> &temp, vector<string> &stationName)
         {
             // Print and process the current station's data
             cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-            serial_Calculate(tempVar);
+            serial_Calculate(tempVar, true);
             tempVar.clear();
 
             // Update the current station and add the new temperature
@@ -153,7 +185,7 @@ void serial_By_Station(vector<float> &temp, vector<string> &stationName)
 
     // Process the last station's data
     cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-    serial_Calculate(tempVar);
+    serial_Calculate(tempVar, true);
 
     // End Counting
     clock_t overallEndTime = clock();
@@ -193,6 +225,7 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
         displayInfo_TableDiv(' ');
 
         unordered_set<string> copiedUniqueStation = uniqueStation; // Copy the unique station
+
         if (!monthData[i].empty())
         {
             string currentStation = stationName[indexMonthData[i][0]]; // Initialize with the first station name
@@ -418,7 +451,7 @@ void serial_Histogram_By_Month(vector<float> &temperature, vector<int> &month)
     // Step 2. Calculate for each available month
     for (int i = 0; i < tempVar.size(); i++)
     {
-        cout << internal << setfill('=') << setw(162) << " " << MONTH_LIST[i] << endl;
+        displayInfo_ByX_Header(MONTH_LIST[i]);
         string outputFileName = "Serial_Histogram_By_" + MONTH_LIST[i] + ".csv";
         serial_Histogram(tempVar[i], outputFileName); // Calculate and display the temperature data
     }
@@ -443,7 +476,7 @@ void serial_Histogram_By_Station(vector<float> &temperature, vector<string> &sta
         else
         {
             // Print and process the current station's data
-            cout << internal << setfill('=') << setw(162) << " " << currentStation << endl;
+            displayInfo_ByX_Header(currentStation);
             outputFileName = "Serial_Histogram_By_" + currentStation + ".csv ";
             serial_Histogram(tempVar, outputFileName);
             tempVar.clear();
@@ -455,7 +488,7 @@ void serial_Histogram_By_Station(vector<float> &temperature, vector<string> &sta
     }
 
     // Process the last station's data
-    cout << internal << setfill('=') << setw(162) << " " << currentStation << endl;
+    displayInfo_ByX_Header(currentStation);
     outputFileName = "Serial_Histogram_By_" + currentStation + ".csv";
     serial_Histogram(tempVar, outputFileName);
 
@@ -499,7 +532,7 @@ void serial_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &
                 else
                 {
                     // Print and process the current station's data
-                    cout << internal << setfill('=') << setw(162) << " " << MONTH_LIST[i] << " - " << currentStation << endl;
+                    displayInfo_ByX_Header(MONTH_LIST[i], currentStation);
                     serial_Histogram(tempData, outputFileName + currentStation + ".csv");
                     tempData.clear();
                     copiedUniqueStation.erase(currentStation);
@@ -511,14 +544,14 @@ void serial_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &
             }
 
             // Process the last station's data
-            cout << internal << setfill('=') << setw(162) << " " << MONTH_LIST[i] << " - " << currentStation << endl;
+            displayInfo_ByX_Header(MONTH_LIST[i], currentStation);
             serial_Histogram(tempData, outputFileName + currentStation + ".csv");
             copiedUniqueStation.erase(currentStation);
         }
 
         for (const auto &station : copiedUniqueStation)
         {
-            cout << internal << setfill('=') << setw(162) << " " << MONTH_LIST[i] << " - " << station << endl;
+            displayInfo_ByX_Header(MONTH_LIST[i], station);
             serial_Histogram(tempData, outputFileName + ".csv");
         }
     }
@@ -545,7 +578,7 @@ void serial_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &
             outputFileName = "Serial_Histogram_By_" + currentStation;
             for (int j = 0; j < 12; j++)
             {
-                cout << internal << setfill('=') << setw(162) << " " << currentStation << " - " << MONTH_LIST[j] << endl;
+                displayInfo_ByX_Header(currentStation, MONTH_LIST[j]);
                 serial_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv");
             }
             tempData.clear();
@@ -559,7 +592,7 @@ void serial_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &
     // Process the last station's data
     for (int j = 0; j < 12; j++)
     {
-        cout << internal << setfill('=') << setw(162) << " " << currentStation << " - " << MONTH_LIST[j] << endl;
+        displayInfo_ByX_Header(currentStation, MONTH_LIST[j]);
         serial_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv");
     }
 }

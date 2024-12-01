@@ -109,7 +109,8 @@ void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context,
                   false, false, false, 0.0f, 0,           // 2 for Local, 3 for Float (Mean), 4 for Int (padding size),
                   prof_event, "Parallel Selection Sort"); // Perform the kernel
 
-    temp.erase(temp.begin(), temp.begin() + (32 - padding_size)); // Erase the padded elements at the start of the vector
+    if (padding_size > 0)                                             // 256 mod 32 get 0 padding, thus no need to erase
+        temp.erase(temp.begin(), temp.begin() + (32 - padding_size)); // Erase the padded elements at the start of the vector
 }
 
 void ParallelStatistics::mergeSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
