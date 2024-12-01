@@ -459,6 +459,27 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, cl::C
     return;
 }
 
+void parallel_Histogram_By_Year(vector<float> &temp, vector<int> &year, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Group temperatures by year
+    map<int, vector<float>> tempData;
+    for (size_t i = 0; i < temp.size(); i++)
+        tempData[year[i]].push_back(temp[i]);
+
+    // Calculate and display statistics for each year
+    for (const auto &entry : tempData)
+    {
+        string currentYear = to_string(entry.first);
+        vector<float> temperatures = entry.second;
+
+        displayInfo_ByX_Header(currentYear);
+        string outputFileName = "Serial_Histogram_By_Year_" + currentYear + ".csv";
+        parallel_Histogram(temperatures, outputFileName, context, queue, program, prof_event); // Calculate and display the temperature data
+    }
+
+    return;
+}
+
 void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Create a 2D vector to store the temperature data by month

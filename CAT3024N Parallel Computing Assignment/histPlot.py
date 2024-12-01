@@ -44,11 +44,8 @@ plt.xlabel('Temperature')
 plt.ylabel('Frequency')
 plt.title(tittle + ' Weather Index')
 
-# Set title for the window
-plt.gcf().canvas.set_window_title(tittle)
-
 # Save plot as image
 plt.savefig(f'{tittle}.png', dpi=600)
 
 # Show plot
-plt.show()
+# plt.show()

@@ -54,13 +54,16 @@ void displayMenu_Main()
     println("|                              |                              |                                                                                                 |");
     println("|                8             |             108              |   Histogram Overall                                                                             |");
     println("|                              |                              |                                                                                                 |");
-    println("|                9             |             109              |   Histogram By Month                                                                            |");
+    println("|                9             |             109              |   Histogram Year                                                                                |");
     println("|                              |                              |                                                                                                 |");
-    println("|               10             |             110              |   Histogram By Station                                                                          |");
+    println("|               10             |             110              |   Histogram By Month                                                                            |");
     println("|                              |                              |                                                                                                 |");
-    println("|               11             |             111              |   Histogram By Month All Station                                                                |");
+    println("|               11             |             111              |   Histogram By Station                                                                          |");
     println("|                              |                              |                                                                                                 |");
-    println("|               12             |             112              |   Histogram By Station All Month                                                                |");
+    println("|               12             |             112              |   Histogram By Month All Station                                                                |");
+    println("|                              |                              |                                                                                                 |");
+    println("|               13             |             113              |   Histogram By Station All Month                                                                |");
+    println("|                              |                              |                                                                                                 |");
     println("|______________________________|______________________________|_________________________________________________________________________________________________|");
     println("|                                                                                                                                                               |");
     println("|                                                                      -1  |  Exit Program                                                                      |");
@@ -71,79 +74,86 @@ void displayMenu_Main()
 void displayInfo_Operation(int operation)
 {
     print("=================================================================================================================================================================");
+    print(" [ Option " + to_string(operation) + " ] - ");
     switch (operation)
     {
     case 1:
-        print(" [ Option 1 - Parallel Operation ] Overall Summary");
+        print("Overall Summary");
         break;
     case 2:
-        print(" [ Option 2 - Parallel Operation ] By Year Summary");
+        print("By Year Summary");
         break;
     case 3:
-        print(" [ Option 3 - Parallel Operation ] By Month Summary");
+        print("By Month Summary");
         break;
     case 4:
-        print(" [ Option 4 - Parallel Operation ] By Station Summary");
+        print("By Station Summary");
         break;
     case 5:
-        print(" [ Option 5 - Parallel Operation ] By Month All Station Summary");
+        print("By Month All Station Summary");
         break;
     case 6:
-        print(" [ Option 6 - Parallel Operation ] By Station All Month Summary");
+        print("By Station All Month Summary");
         break;
     case 7:
-        print(" [ Option 7 - Parallel Operation ] Full Summary");
+        print("Full Summary");
         break;
     case 8:
-        print(" [ Option 8 - Parallel Operation ] Histogram Overall");
+        print("Histogram Overall");
         break;
     case 9:
-        print(" [ Option 9 - Parallel Operation ] Histogram By Month");
+        print("Histogram By Year");
         break;
     case 10:
-        print(" [ Option 10 - Parallel Operation ] Histogram By Station");
+        print("Histogram By Month");
         break;
     case 11:
-        print(" [ Option 11 - Parallel Operation ] Histogram By Month All Station");
+        print("Histogram By Station");
         break;
     case 12:
-        print(" [ Option 12 - Parallel Operation ] Histogram By Station All Month");
+        print("Histogram By Month All Station");
+        break;
+    case 13:
+        print("Histogram By Station All Month");
         break;
     case 101:
-        print(" [ Option 101 - Parallel Operation ] Overall Summary");
+        print("Parallel Overall Summary");
         break;
     case 102:
-        print(" [ Option 102 - Parallel Operation ] By Year Summary");
+        print("Parallel By Year Summary");
         break;
     case 103:
-        print(" [ Option 103 - Parallel Operation ] By Month Summary");
+        print("Parallel By Month Summary");
         break;
     case 104:
-        print(" [ Option 104 - Parallel Operation ] By Station Summary");
+        print("Parallel By Station Summary");
         break;
     case 105:
-        print(" [ Option 105 - Parallel Operation ] By Month All Station Summary");
+        print("Parallel By Month All Station Summary");
         break;
     case 106:
-        print(" [ Option 106 - Parallel Operation ] By Station All Month Summary");
+        print("Parallel By Station All Month Summary");
         break;
     case 107:
-        print(" [ Option 107 - Parallel Operation ] Full Summary");
+        print("Parallel Full Summary");
         break;
     case 108:
-        print(" [ Option 108 - Parallel Operation ] Histogram Overall");
+        print("Parallel Histogram Overall");
         break;
     case 109:
-        print(" [ Option 109 - Parallel Operation ] Histogram By Month");
+        print("Parallel Histogram By Year");
         break;
     case 110:
-        print(" [ Option 110 - Parallel Operation ] Histogram By Station");
+        print("Parallel Histogram By Month");
         break;
     case 111:
-        print(" [ Option 111 - Parallel Operation ] Histogram By Month All Station");
+        print("Parallel Histogram By Station");
         break;
     case 112:
-        print(" [ Option 112 - Parallel Operation ] Histogram By Station All Month");
+        print("Parallel Histogram By Month All Station");
+        break;
+    case 113:
+        print("Parallel Histogram By Station All Month");
         break;
     default:
         break;
@@ -266,11 +276,9 @@ void displayInfo_Histogram_Header(int binNum, float binSize, float min, float ma
              << "| " << setw(14) << binSize
              << "| " << internal << setfill(' ') << setw(95) << "|" << endl;
     }
-    println("|_______________________________________________________________________________________________________________________________________________________________|");
+    println("|---------------------------------------------------------------------------------------------------------------------------------------------------------------|");
     println("|                                                                                                                                                               |");
-    println("|                                                                                                                                                               |");
-    println("|                                                                                                                                                               |");
-    println("|---------------|---------------|---------------|---------------------------------------------------------------------------------------------------------------|");
+    println("|---------------------------------------------------------------------------------------------------------------------------------------------------------------|");
     println("| Bin Range Low | Bin Range Up  |   Frequency   |                                                                                                               |");
     println("|---------------|---------------|---------------|---------------------------------------------------------------------------------------------------------------|");
     // TODO cumulative frequency?

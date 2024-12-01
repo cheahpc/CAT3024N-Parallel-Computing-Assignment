@@ -190,16 +190,19 @@ int main(int argc, char *argv[])
 			case 8: // Serial Histogram Summary
 				serial_Histogram(temps, "Serial_Histogram.csv");
 				break;
-			case 9: // Serial Histogram By Month Summary
+			case 9: // Serial Histogram By Year Summary
+				serial_Histogram_By_Year(temps, years);
+				break;
+			case 10: // Serial Histogram By Month Summary
 				serial_Histogram_By_Month(temps, months);
 				break;
-			case 10: // Serial Histogram By Station Summary
+			case 11: // Serial Histogram By Station Summary
 				serial_Histogram_By_Station(temps, stationName);
 				break;
-			case 11: // Serial Histogram By Month All Station Summary
+			case 12: // Serial Histogram By Month All Station Summary
 				serial_Histogram_By_Month_All_Station(temps, stationName, months);
 				break;
-			case 12: // Serial Histogram By Station All Month Summary
+			case 13: // Serial Histogram By Station All Month Summary
 				serial_Histogram_By_Station_All_Month(temps, stationName, months);
 				break;
 			case 101: // Parallel Overall Summary
@@ -237,10 +240,13 @@ int main(int argc, char *argv[])
 			case 108: // Parallel Histogram Summary
 				parallel_Histogram(temps, "Parallel_Histogram.csv", context, queue, program, prof_event);
 				break;
-			case 109: // Parallel Histogram By Month Summary
+			case 109: // Parallel Histogram By Year Summary
+				parallel_Histogram_By_Year(temps, years, context, queue, program, prof_event);
+				break;
+			case 110: // Parallel Histogram By Month Summary
 				parallel_Histogram_By_Month(temps, months, context, queue, program, prof_event);
 				break;
-			case 120: // Parallel Histogram By Station Summary
+			case 111: // Parallel Histogram By Station Summary
 				parallel_Histogram_By_Station(temps, stationName, context, queue, program, prof_event);
 				break;
 			case 112: // Parallel Histogram By Month All Station Summary
