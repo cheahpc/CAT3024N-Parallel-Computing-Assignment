@@ -74,7 +74,7 @@ void displayMenu_Main()
     println("|                              |                              |                                                                                                 |");
     println("|               56             |             156              |   By Month All Station                                                                          |");
     println("|                              |                              |                                                                                                 |");
-    println("|               56             |             156              |   By Station All Year                                                                           |");
+    println("|               57             |             157              |   By Station All Year                                                                           |");
     println("|                              |                              |                                                                                                 |");
     println("|               58             |             158              |   By Station All Month                                                                          |");
     println("|                              |                              |                                                                                                 |");

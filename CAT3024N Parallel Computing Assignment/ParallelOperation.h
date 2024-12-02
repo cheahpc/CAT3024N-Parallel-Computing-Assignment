@@ -83,6 +83,7 @@ void parallel_Overall(vector<float> &temp, cl::Context context, cl::CommandQueue
     clock_t overallEndTime = clock();
 
     // Display the footer
+    displayInfo_TableDiv('-');
     displayInfo_Footer(overallStartTime, overallEndTime);
 
     return;
@@ -114,6 +115,7 @@ void parallel_By_Year(vector<float> &temp, vector<int> &year, cl::Context contex
     clock_t overallEndTime = clock();
 
     // Display the footer
+    displayInfo_TableDiv('-');
     displayInfo_Footer(overallStartTime, overallEndTime);
 
     return;
@@ -145,6 +147,7 @@ void parallel_By_Month(vector<float> &temp, vector<int> &month, cl::Context cont
     clock_t overallEndTime = clock();
 
     // Display the footer
+    displayInfo_TableDiv('-');
     displayInfo_Footer(overallStartTime, overallEndTime);
 
     return;
@@ -185,6 +188,49 @@ void parallel_By_Station(vector<float> &temp, vector<string> &stationName, cl::C
     cout << "| " << left << setfill(' ') << setw(14) << currentStation;
     parallel_Calculate(tempVar, true, context, queue, program, prof_event);
 
+    // End Counting
+    clock_t overallEndTime = clock();
+
+    // Display the footer
+    displayInfo_TableDiv('-');
+    displayInfo_Footer(overallStartTime, overallEndTime);
+
+    return;
+}
+
+void parallel_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Display By Station Header
+    displayInfo_By_Station_Header();
+
+    // Start Counting
+    clock_t overallStartTime = clock();
+
+    // Get unique station names
+    unordered_set<string> uniqueStation(stationName.begin(), stationName.end());
+
+    // Group temperatures by year and then station names
+    map<int, map<string, vector<float>>> tempData;
+    for (size_t i = 0; i < temp.size(); i++)
+        tempData[year[i]][stationName[i]].push_back(temp[i]);
+
+    // Calculate and display statistics for each year
+    for (const auto &entry : tempData)
+    {
+        int currentYear = entry.first;                         // The year
+        map<string, vector<float>> stationData = entry.second; // The temperature data for each station
+
+        displayInfo_TableDiv(' ');
+        cout << "| " << left << setfill(' ') << setw(158) << currentYear << "|" << endl; // Display the year
+        displayInfo_TableDiv(' ');
+
+        for (const auto &station : uniqueStation) // For each station
+        {
+            cout << "| " << left << setfill(' ') << setw(14) << station;
+            parallel_Calculate(stationData[station], true, context, queue, program, prof_event); // Calculate and display the temperature data
+        }
+        displayInfo_TableDiv('-');
+    }
     // End Counting
     clock_t overallEndTime = clock();
 
@@ -259,8 +305,7 @@ void parallel_By_Month_All_Station(vector<float> &temp, vector<string> &stationN
             cout << "| " << left << setfill(' ') << setw(14) << station;
             parallel_Calculate(tempData, false, context, queue, program, prof_event);
         }
-        if (i != 11)
-            displayInfo_TableDiv('-');
+        displayInfo_TableDiv('-');
     }
 
     // End Counting
@@ -268,6 +313,48 @@ void parallel_By_Month_All_Station(vector<float> &temp, vector<string> &stationN
 
     // Display the footer
     displayInfo_Footer(overallStartTime, overallEndTime);
+}
+
+void parallel_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector<string> &stationName, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Display By Year Header
+    displayInfo_By_Year_Header();
+
+    // Start Counting
+    clock_t overallStartTime = clock();
+
+    // Group temperatures by Station and then year
+    map<string, map<int, vector<float>>> tempData;
+    for (size_t i = 0; i < temp.size(); i++)
+        tempData[stationName[i]][year[i]].push_back(temp[i]);
+
+    // Calculate and display statistics for each year
+    for (const auto &entry : tempData)
+    {
+        string currentStation = entry.first;             // The station name
+        map<int, vector<float>> yearData = entry.second; // The temperature data for each year
+
+        displayInfo_TableDiv(' ');
+        cout << "| " << left << setfill(' ') << setw(158) << currentStation << "|" << endl; // Display the station name
+        displayInfo_TableDiv(' ');
+
+        for (const auto &year : yearData) // For each year
+        {
+            string yearString = to_string(year.first);
+            vector<float> temperatures = year.second;
+
+            cout << "| " << left << setfill(' ') << setw(14) << yearString;
+            parallel_Calculate(temperatures, true, context, queue, program, prof_event); // Calculate and display the temperature data
+        }
+        displayInfo_TableDiv('-');
+    }
+    // End Counting
+    clock_t overallEndTime = clock();
+
+    // Display the footer
+    displayInfo_Footer(overallStartTime, overallEndTime);
+
+    return;
 }
 
 void parallel_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
@@ -323,12 +410,12 @@ void parallel_By_Station_All_Month(vector<float> &temp, vector<string> &stationN
     clock_t overallEndTime = clock();
 
     // Display the footer
+    displayInfo_TableDiv('-');
     displayInfo_Footer(overallStartTime, overallEndTime);
 }
 
 void parallel_Histogram(vector<float> &temperature, string outputFileName, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
-
     // Step 0. Check if the temperature vector is empty
     if (temperature.size() == 0)
     {
@@ -473,10 +560,9 @@ void parallel_Histogram_By_Year(vector<float> &temp, vector<int> &year, cl::Cont
         vector<float> temperatures = entry.second;
 
         displayInfo_ByX_Header(currentYear);
-        string outputFileName = "Serial_Histogram_By_Year_" + currentYear + ".csv";
+        string outputFileName = "Serial_Histogram_In_Year_" + currentYear + ".csv";
         parallel_Histogram(temperatures, outputFileName, context, queue, program, prof_event); // Calculate and display the temperature data
     }
-
     return;
 }
 
@@ -493,7 +579,7 @@ void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month,
     for (int i = 0; i < tempVar.size(); i++)
     {
         displayInfo_ByX_Header(MONTH_LIST[i]);
-        string outputFileName = "Parallel_Histogram_By_" + MONTH_LIST[i] + ".csv ";
+        string outputFileName = "Parallel_Histogram_In_" + MONTH_LIST[i] + ".csv ";
         parallel_Histogram(tempVar[i], outputFileName, context, queue, program, prof_event);
     }
     return;
@@ -534,6 +620,32 @@ void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationN
     return;
 }
 
+void parallel_Histogram_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Get unique station names
+    unordered_set<string> uniqueStation(stationName.begin(), stationName.end());
+
+    // Group temperatures by year and then station names
+    map<int, map<string, vector<float>>> tempData;
+    for (size_t i = 0; i < temp.size(); i++)
+        tempData[year[i]][stationName[i]].push_back(temp[i]);
+
+    // Calculate and display statistics for each station
+    for (const auto &entry : tempData)
+    {
+        int currentYear = entry.first;                         // The year
+        map<string, vector<float>> stationData = entry.second; // The temperature data for each station
+
+        for (const auto &station : uniqueStation) // For each station
+        {
+            displayInfo_ByX_Header(to_string(currentYear), station);
+            string outputFileName = "Parallel_Histogram_In_Year_" + to_string(currentYear) + "_For_" + station + ".csv";
+            parallel_Histogram(stationData[station], outputFileName, context, queue, program, prof_event); // Calculate and display the temperature data
+        }
+    }
+    return;
+}
+
 void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Create array of unique station
@@ -553,7 +665,7 @@ void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string>
     for (int i = 0; i < 12; i++)
     {
         println();
-        string outputFileName = "Serial_Histogram_By_" + MONTH_LIST[i] + "_For_";
+        string outputFileName = "Serial_Histogram_In_" + MONTH_LIST[i] + "_For_";
         println();
 
         unordered_set<string> copiedUniqueStation = uniqueStation; // Copy the unique station
@@ -594,6 +706,32 @@ void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string>
             parallel_Histogram(tempData, outputFileName + station + ".csv", context, queue, program, prof_event);
         }
     }
+}
+
+void parallel_Histogram_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector<string> &stationName, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+{
+    // Group temperatures by Station and then year
+    map<string, map<int, vector<float>>> tempData;
+    for (size_t i = 0; i < temp.size(); i++)
+        tempData[stationName[i]][year[i]].push_back(temp[i]);
+
+    // Calculate and display statistics for each year
+    for (const auto &entry : tempData)
+    {
+        string currentStation = entry.first;             // The station name
+        map<int, vector<float>> yearData = entry.second; // The temperature data for each year
+
+        for (const auto &year : yearData) // For each year
+        {
+            vector<float> temperatures = year.second; // The temperature data
+
+            displayInfo_ByX_Header(currentStation, to_string(year.first));
+            string outputFileName = "Parallel_Histogram_For_" + currentStation + "_In_Year_" + to_string(year.first) + ".csv";
+            parallel_Histogram(temperatures, outputFileName, context, queue, program, prof_event); // Calculate and display the temperature data
+        }
+    }
+
+    return;
 }
 
 void parallel_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)

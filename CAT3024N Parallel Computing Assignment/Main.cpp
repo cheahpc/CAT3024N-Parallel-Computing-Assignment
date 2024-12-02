@@ -181,19 +181,149 @@ int main(int argc, char *argv[])
 				break;
 			case 9: // Serial Full Summary
 				displayInfo_Operation(1);
-				serial_By_Year(temps, years);
-				displayInfo_Operation(2);
 				serial_Overall(temps);
+				displayInfo_Operation(2);
+				serial_By_Year(temps, years);
 				displayInfo_Operation(3);
 				serial_By_Month(temps, months);
 				displayInfo_Operation(4);
 				serial_By_Station(temps, stationName);
 				displayInfo_Operation(5);
-				serial_By_Month_All_Station(temps, stationName, months);
+				serial_By_Year_All_Station(temps, years, stationName);
 				displayInfo_Operation(6);
+				serial_By_Month_All_Station(temps, stationName, months);
+				displayInfo_Operation(7);
+				serial_By_Station_All_Year(temps, stationName, years);
+				displayInfo_Operation(8);
 				serial_By_Station_All_Month(temps, stationName, months);
 				break;
-			
+			case 51: // Serial Histogram Overall
+				serial_Histogram(temps, "Serial_Histogram_Overall.csv");
+				break;
+			case 52: // Serial Histogram By Year
+				serial_Histogram_By_Year(temps, years);
+				break;
+			case 53: // Serial Histogram By Month
+				serial_Histogram_By_Month(temps, months);
+				break;
+			case 54: // Serial Histogram By Station
+				serial_Histogram_By_Station(temps, stationName);
+				break;
+			case 55: // Serial Histogram By Year All Station
+				serial_Histogram_By_Year_All_Station(temps, years, stationName);
+				break;
+			case 56: // Serial Histogram By Month All Station
+				serial_Histogram_By_Month_All_Station(temps, stationName, months);
+				break;
+			case 57: // Serial Histogram By Station All Year
+				serial_Histogram_By_Station_All_Year(temps, years, stationName);
+				break;
+			case 58: // Serial Histogram By Station All Month
+				serial_Histogram_By_Station_All_Month(temps, stationName, months);
+				break;
+			case 59: // Serial Full Histogram
+				displayInfo_Operation(51);
+				serial_Histogram(temps, "Serial_Histogram_Overall.csv");
+				displayInfo_Operation(52);
+				serial_Histogram_By_Year(temps, years);
+				displayInfo_Operation(53);
+				serial_Histogram_By_Month(temps, months);
+				displayInfo_Operation(54);
+				serial_Histogram_By_Station(temps, stationName);
+				displayInfo_Operation(55);
+				serial_Histogram_By_Year_All_Station(temps, years, stationName);
+				displayInfo_Operation(56);
+				serial_Histogram_By_Month_All_Station(temps, stationName, months);
+				displayInfo_Operation(57);
+				serial_Histogram_By_Station_All_Year(temps, years, stationName);
+				displayInfo_Operation(58);
+				serial_Histogram_By_Station_All_Month(temps, stationName, months);
+				break;
+
+			case 101: // Parallel Overall Summary
+				parallel_Overall(temps, context, queue, program, prof_event);
+				break;
+			case 102: // Parallel By Year Summary
+				parallel_By_Year(temps, years, context, queue, program, prof_event);
+				break;
+			case 103: // Parallel By Month Summary
+				parallel_By_Month(temps, months, context, queue, program, prof_event);
+				break;
+			case 104: // Parallel By Station Summary
+				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
+				break;
+			case 105: // Parallel By Year All Station Summary
+				parallel_By_Year_All_Station(temps, years, stationName, context, queue, program, prof_event);
+				break;
+			case 106: // Parallel By Month All Station Summary
+				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 107: // Parallel By Station All Year Summary
+				parallel_By_Station_All_Year(temps, years, stationName, context, queue, program, prof_event);
+				break;
+			case 108: // Parallel By Station All Month Summary
+				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 109: // Parallel Full Summary
+				displayInfo_Operation(101);
+				parallel_Overall(temps, context, queue, program, prof_event);
+				displayInfo_Operation(102);
+				parallel_By_Year(temps, years, context, queue, program, prof_event);
+				displayInfo_Operation(103);
+				parallel_By_Month(temps, months, context, queue, program, prof_event);
+				displayInfo_Operation(104);
+				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
+				displayInfo_Operation(105);
+				parallel_By_Year_All_Station(temps, years, stationName, context, queue, program, prof_event);
+				displayInfo_Operation(106);
+				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				displayInfo_Operation(107);
+				parallel_By_Station_All_Year(temps, years, stationName, context, queue, program, prof_event);
+				displayInfo_Operation(108);
+				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 151: // Parallel Histogram Overall
+				parallel_Histogram(temps, "Parallel_Histogram_Overall.csv", context, queue, program, prof_event);
+				break;
+			case 152: // Parallel Histogram By Year
+				parallel_Histogram_By_Year(temps, years, context, queue, program, prof_event);
+				break;
+			case 153: // Parallel Histogram By Month
+				parallel_Histogram_By_Month(temps, months, context, queue, program, prof_event);
+				break;
+			case 154: // Parallel Histogram By Station
+				parallel_Histogram_By_Station(temps, stationName, context, queue, program, prof_event);
+				break;
+			case 155: // Parallel Histogram By Year All Station
+				parallel_Histogram_By_Year_All_Station(temps, years, stationName, context, queue, program, prof_event);
+				break;
+			case 156: // Parallel Histogram By Month All Station
+				parallel_Histogram_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 157: // Parallel Histogram By Station All Year
+				parallel_Histogram_By_Station_All_Year(temps, years, stationName, context, queue, program, prof_event);
+				break;
+			case 158: // Parallel Histogram By Station All Month
+				parallel_Histogram_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+				break;
+			case 159: // Parallel Full Histogram
+				displayInfo_Operation(151);
+				parallel_Histogram(temps, "Parallel_Histogram_Overall.csv", context, queue, program, prof_event);
+				displayInfo_Operation(152);
+				parallel_Histogram_By_Year(temps, years, context, queue, program, prof_event);
+				displayInfo_Operation(153);
+				parallel_Histogram_By_Month(temps, months, context, queue, program, prof_event);
+				displayInfo_Operation(154);
+				parallel_Histogram_By_Station(temps, stationName, context, queue, program, prof_event);
+				displayInfo_Operation(155);
+				parallel_Histogram_By_Year_All_Station(temps, years, stationName, context, queue, program, prof_event);
+				displayInfo_Operation(156);
+				parallel_Histogram_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+				displayInfo_Operation(157);
+				parallel_Histogram_By_Station_All_Year(temps, years, stationName, context, queue, program, prof_event);
+				displayInfo_Operation(158);
+				parallel_Histogram_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+				break;
 			default:
 				println("Invalid input. Please enter a valid option...");
 				break;
