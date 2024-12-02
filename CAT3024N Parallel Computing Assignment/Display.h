@@ -37,32 +37,48 @@ void displayMenu_Main()
     println("=================================================================================================================================================================");
     println("|     Serial Operations (x)    |  Parallel Operations (1xx)   |   Description                                                                                   |");
     println("|------------------------------|------------------------------|-------------------------------------------------------------------------------------------------|");
+    println("|                                                                            Summary                                                                            |");
+    println("|------------------------------|------------------------------|-------------------------------------------------------------------------------------------------|");
     println("|                              |                              |                                                                                                 |");
-    println("|                1             |             101              |   Overall Summary                                                                               |");
+    println("|                1             |             101              |   Overview                                                                                      |");
     println("|                              |                              |                                                                                                 |");
     println("|                2             |             102              |   By Year                                                                                       |");
     println("|                              |                              |                                                                                                 |");
-    println("|                3             |             103              |   By Month Summary                                                                              |");
+    println("|                3             |             103              |   By Month                                                                                      |");
     println("|                              |                              |                                                                                                 |");
-    println("|                4             |             104              |   By Station Summary                                                                            |");
+    println("|                4             |             104              |   By Station                                                                                    |");
     println("|                              |                              |                                                                                                 |");
-    println("|                5             |             105              |   By Month All Station Summary                                                                  |");
+    println("|                5             |             105              |   By Year All Station                                                                           |");
     println("|                              |                              |                                                                                                 |");
-    println("|                6             |             106              |   By Station All Month Summary                                                                  |");
+    println("|                6             |             106              |   By Month All Station                                                                          |");
     println("|                              |                              |                                                                                                 |");
-    println("|                7             |             107              |   Full Summary                                                                                  |");
+    println("|                7             |             107              |   By Station All Year                                                                           |");
     println("|                              |                              |                                                                                                 |");
-    println("|                8             |             108              |   Histogram Overall                                                                             |");
+    println("|                8             |             108              |   By Station All Month                                                                          |");
     println("|                              |                              |                                                                                                 |");
-    println("|                9             |             109              |   Histogram Year                                                                                |");
+    println("|                9             |             109              |   Full                                                                                          |");
     println("|                              |                              |                                                                                                 |");
-    println("|               10             |             110              |   Histogram By Month                                                                            |");
+    println("|------------------------------|------------------------------|-------------------------------------------------------------------------------------------------|");
+    println("|                                                                           Histogram                                                                           |");
+    println("|------------------------------|------------------------------|-------------------------------------------------------------------------------------------------|");
     println("|                              |                              |                                                                                                 |");
-    println("|               11             |             111              |   Histogram By Station                                                                          |");
+    println("|               51             |             151              |   Overview                                                                                      |");
     println("|                              |                              |                                                                                                 |");
-    println("|               12             |             112              |   Histogram By Month All Station                                                                |");
+    println("|               52             |             152              |   By Year                                                                                       |");
     println("|                              |                              |                                                                                                 |");
-    println("|               13             |             113              |   Histogram By Station All Month                                                                |");
+    println("|               53             |             153              |   By Month                                                                                      |");
+    println("|                              |                              |                                                                                                 |");
+    println("|               54             |             154              |   By Station                                                                                    |");
+    println("|                              |                              |                                                                                                 |");
+    println("|               55             |             155              |   By Year All Station                                                                           |");
+    println("|                              |                              |                                                                                                 |");
+    println("|               56             |             156              |   By Month All Station                                                                          |");
+    println("|                              |                              |                                                                                                 |");
+    println("|               56             |             156              |   By Station All Year                                                                           |");
+    println("|                              |                              |                                                                                                 |");
+    println("|               58             |             158              |   By Station All Month                                                                          |");
+    println("|                              |                              |                                                                                                 |");
+    println("|               59             |             159              |   Full                                                                                          |");
     println("|                              |                              |                                                                                                 |");
     println("|______________________________|______________________________|_________________________________________________________________________________________________|");
     println("|                                                                                                                                                               |");
@@ -74,88 +90,113 @@ void displayMenu_Main()
 void displayInfo_Operation(int operation)
 {
     print("=================================================================================================================================================================");
-    print(" [ Option " + to_string(operation) + " ] - ");
+    print(" [ Option " + to_string(operation) + ": ");
     switch (operation)
     {
     case 1:
-        print("Overall Summary");
-        break;
     case 2:
-        print("By Year Summary");
-        break;
     case 3:
-        print("By Month Summary");
-        break;
     case 4:
-        print("By Station Summary");
-        break;
     case 5:
-        print("By Month All Station Summary");
-        break;
     case 6:
-        print("By Station All Month Summary");
-        break;
     case 7:
-        print("Full Summary");
-        break;
     case 8:
-        print("Histogram Overall");
-        break;
     case 9:
-        print("Histogram By Year");
+        print("Serial Operation] - Summary ");
         break;
-    case 10:
-        print("Histogram By Month");
-        break;
-    case 11:
-        print("Histogram By Station");
-        break;
-    case 12:
-        print("Histogram By Month All Station");
-        break;
-    case 13:
-        print("Histogram By Station All Month");
+    case 51:
+    case 52:
+    case 53:
+    case 54:
+    case 55:
+    case 56:
+    case 57:
+    case 58:
+        print("Serial Operation] - Histogram ");
         break;
     case 101:
-        print("Parallel Overall Summary");
-        break;
     case 102:
-        print("Parallel By Year Summary");
-        break;
     case 103:
-        print("Parallel By Month Summary");
-        break;
     case 104:
-        print("Parallel By Station Summary");
-        break;
     case 105:
-        print("Parallel By Month All Station Summary");
-        break;
     case 106:
-        print("Parallel By Station All Month Summary");
-        break;
     case 107:
-        print("Parallel Full Summary");
-        break;
     case 108:
-        print("Parallel Histogram Overall");
-        break;
     case 109:
-        print("Parallel Histogram By Year");
+        print("Parallel Operation] - Summary ");
         break;
-    case 110:
-        print("Parallel Histogram By Month");
-        break;
-    case 111:
-        print("Parallel Histogram By Station");
-        break;
-    case 112:
-        print("Parallel Histogram By Month All Station");
-        break;
-    case 113:
-        print("Parallel Histogram By Station All Month");
+    case 151:
+    case 152:
+    case 153:
+    case 154:
+    case 155:
+    case 156:
+    case 157:
+    case 158:
+        print("Parallel Operation] - Histogram ");
         break;
     default:
+        println("Invalid Option");
+        break;
+    }
+    switch (operation)
+    {
+    case 1:
+    case 51:
+    case 101:
+    case 151:
+        println("Overview");
+        break;
+    case 2:
+    case 52:
+    case 102:
+    case 152:
+        println("By Year");
+        break;
+    case 3:
+    case 53:
+    case 103:
+    case 153:
+        println("By Month");
+        break;
+    case 4:
+    case 54:
+    case 104:
+    case 154:
+        println("By Station");
+        break;
+    case 5:
+    case 55:
+    case 105:
+    case 155:
+        println("By Year All Station");
+        break;
+    case 6:
+    case 56:
+    case 106:
+    case 156:
+        println("By Month All Station");
+        break;
+    case 7:
+    case 57:
+    case 107:
+    case 157:
+        println("By Station All Year");
+        break;
+    case 8:
+    case 58:
+    case 108:
+    case 158:
+        println("By Station All Month");
+        break;
+    case 9:
+    case 59:
+    case 109:
+    case 159:
+        println("Full");
+        break;
+    default:
+        println("Invalid Option");
         break;
     }
     println();
