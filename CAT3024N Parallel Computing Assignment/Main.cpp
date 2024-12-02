@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 				serial_By_Month_All_Station(temps, stationName, months);
 				break;
 			case 7: // Serial By Station All Year
-				// TODO
+				serial_By_Station_All_Year(temps, stationName, years);
 				break;
 			case 8: // Serial By Station All Month Summary
 				serial_By_Station_All_Month(temps, stationName, months);

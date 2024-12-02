@@ -198,8 +198,8 @@ void serial_By_Station(vector<float> &temp, vector<string> &stationName)
 
 void serial_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName)
 {
-    // Display By Year Header
-    displayInfo_By_Year_Header();
+    // Display By Station Header
+    displayInfo_By_Station_Header();
 
     // Start Counting
     clock_t overallStartTime = clock();
@@ -215,7 +215,7 @@ void serial_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<s
     // Calculate and display statistics for each year
     for (const auto &entry : tempData)
     {
-        int currentYear = entry.first; // The year
+        int currentYear = entry.first;                         // The year
         map<string, vector<float>> stationData = entry.second; // The temperature data for each station
 
         displayInfo_TableDiv(' ');
@@ -313,6 +313,48 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
 
     // Display the footer
     displayInfo_Footer(overallStartTime, overallEndTime);
+}
+
+void serial_By_Station_All_Year(vector<float> &temp, vector<string> &stationName, vector<int> &year)
+{
+    // Display By Year Header
+    displayInfo_By_Year_Header();
+
+    // Start Counting
+    clock_t overallStartTime = clock();
+
+    // Group temperatures by Station and then year
+    map<string, map<int, vector<float>>> tempData;
+    for (size_t i = 0; i < temp.size(); i++)
+        tempData[stationName[i]][year[i]].push_back(temp[i]);
+
+    // Calculate and display statistics for each year
+    for (const auto &entry : tempData)
+    {
+        string currentStation = entry.first;             // The station name
+        map<int, vector<float>> yearData = entry.second; // The temperature data for each year
+
+        displayInfo_TableDiv(' ');
+        cout << "| " << left << setfill(' ') << setw(158) << currentStation << "|" << endl; // Display the station name
+        displayInfo_TableDiv(' ');
+
+        for (const auto &year : yearData) // For each year
+        {
+            string yearString = to_string(year.first);
+            vector<float> temperatures = year.second;
+
+            cout << "| " << left << setfill(' ') << setw(14) << yearString;
+            serial_Calculate(temperatures, true); // Calculate and display the temperature data
+        }
+        displayInfo_TableDiv('-');
+    }
+    // End Counting
+    clock_t overallEndTime = clock();
+
+    // Display the footer
+    displayInfo_Footer(overallStartTime, overallEndTime);
+
+    return;
 }
 
 void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month)
