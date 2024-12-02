@@ -39,10 +39,14 @@ void parallel_Calculate(vector<float> &values, bool displayQuartile, cl::Context
 
     vector<float> temperature = values; // Copy the values to vector
 
-    // Sorting
-    // pStats.mergeSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+// Sorting
+#if defined PARALLEL_MERGE
+// pStats.mergeSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+#elif defined PARALLEL_SELECTION
     pStats.selectionSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform selection sort
-    // pStats.bubbleSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform bubble sort TODO
+#elif defined PARALLEL_BUBBLE
+// pStats.bubbleSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform bubble sort TODO
+#endif
 
     // Get the size of the vector
     int size = temperature.size();

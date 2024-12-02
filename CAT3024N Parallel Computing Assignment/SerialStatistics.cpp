@@ -58,7 +58,7 @@ void SerialStatistics::bubbleSort(vector<float> &values, SORT_ORDER mode)
 void SerialStatistics::selectionSort(vector<float> &values, SORT_ORDER mode)
 {
 	int min_index;
-	if (SORT_ORDER::ASCENDING)
+	if (SORT_ORDER::DESCENDING)
 	{
 		// One by one move boundary of unsorted array
 		for (int i = 0; i < values.size() - 1; i++)
@@ -82,7 +82,7 @@ void SerialStatistics::selectionSort(vector<float> &values, SORT_ORDER mode)
 			}
 		}
 	}
-	else if (SORT_ORDER::DESCENDING)
+	else if (SORT_ORDER::ASCENDING)
 	{
 		// One by one move boundary of unsorted array
 		for (int i = 0; i < values.size() - 1; i++)
