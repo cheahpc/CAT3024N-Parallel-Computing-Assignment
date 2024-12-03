@@ -41,11 +41,11 @@ void parallel_Calculate(vector<float> &values, bool displayQuartile, cl::Context
 
 // Sorting
 #if defined PARALLEL_MERGE
-// pStats.mergeSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+    pStats.mergeSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform merge sort
 #elif defined PARALLEL_SELECTION
     pStats.selectionSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform selection sort
 #elif defined PARALLEL_BUBBLE
-// pStats.bubbleSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform bubble sort TODO
+    pStats.bubbleSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform bubble sort TODO
 #endif
 
     // Get the size of the vector

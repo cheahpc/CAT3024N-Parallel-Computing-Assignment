@@ -22,12 +22,25 @@ inline void atomicAddFloat(volatile __global float *addr, float val)
 	} while (current.u32 != expected.u32);
 }
 
-inline void swap(float *a, float *b)
+void cmpxchg(__global float *A, __global float *B, bool dir)
 {
-	float tmp;
-	tmp = *b;
-	*b = *a;
-	*a = tmp;
+	if ((!dir && *A > *B) || (dir && *A < *B))
+	{
+		float temp = *A;
+		*A = *B;
+		*B = temp;
+	}
+}
+
+void bitonic_merge(int id, __global float *A, int N, bool dir)
+{
+	for (int i = N / 2; i > 0; i / 2)
+	{
+		if ((id % (i * 2)) < i)
+			cmpxchg(&A[id], &A[id + i], dir);
+
+		barrier(CLK_LOCAL_MEM_FENCE);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,67 +70,22 @@ __kernel void p_SelectionSort(__global const float *A, __global float *B)
 	B[pos] = A[i];
 }
 
-// Merge sort kernel
-// Merge function to merge two sorted subarrays
-__kernel void merge(__global float *A, __global float *B, int width, int size)
-{
-	int global_id = get_global_id(0);
-	int start = 2 * global_id * width;
-	int middle = min(start + width, size);
-	int end = min(start + 2 * width, size);
-
-	int i = start;
-	int j = middle;
-	int k = start;
-
-	while (i < middle && j < end)
-	{
-		if (A[i] < A[j]) // Compare the two values, if the first is smaller then put it in the output
-			B[k++] = A[i++];
-		else
-			B[k++] = A[j++];
-	}
-
-	// Copy the remaining elements of the first half
-	while (i < middle)
-	{
-		B[k++] = A[i++];
-	}
-
-	// Copy the remaining elements of the second half
-	while (j < end)
-	{
-		B[k++] = A[j++];
-	}
-}
-
-// Merge sort kernel
+// Parallel merge sort (Bitonic) kernel
 __kernel void p_MergeSort(__global float *A, __global float *B)
 {
-	int size = get_global_size(0);
-	int width = 1;
-	while (width < size)
-	{
-		int num_merges = (size + 2 * width - 1) / (2 * width); // Calculate the number of merges
-		for (int i = 0; i < num_merges; i++)
-		{
-			merge(A, B, width, size);
-		}
-		barrier(CLK_GLOBAL_MEM_FENCE);
+	// Get global ID, local ID, local size
+	int id = get_global_id(0);
+	int n = get_global_size(0);
 
-		width *= 2;
-		// Swap A and B
-		swap(&A, &B);
-		// Synchronize all work-items after swapping
-	}
-	// Ensure the final sorted array is in A
-	if (width / 2 % 2 == 1)
+	for (int i = 1; i < n / 2; i *= 2)
 	{
-		for (int i = 0; i < size; i++)
-		{
-			B[i] = A[i];
-		}
+		if (id % (i * 4) < i * 2)
+			bitonic_merge(id, A, i * 2, false);
+		else if ((id + i * 2) % (i * 4) < i * 2)
+			bitonic_merge(id, A, i * 2, true);
+		barrier(CLK_LOCAL_MEM_FENCE);
 	}
+	bitonic_merge(id, A, n, true);
 }
 
 // Reduce add kernel

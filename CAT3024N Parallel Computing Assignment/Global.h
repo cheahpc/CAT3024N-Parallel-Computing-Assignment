@@ -26,16 +26,16 @@ typedef enum SORT_ORDER
 };
 
 // Switches, comment or uncomment to enable or disable
-#define SERIAL_PLOT // Enable to plot the histogram using Python for serial
+// #define SERIAL_PLOT // Enable to plot the histogram using Python for serial
 // #define PARALLEL_PLOT // Enable to plot the histogram using Python for parallel
 
 // Sorting Algorithms
-// #define SERIAL_MERGE // Enable to use Merge Sort for Serial
-#define SERIAL_SELECTION // Enable to use Selection Sort for Serial
+#define SERIAL_MERGE // Enable to use Merge Sort for Serial
+// #define SERIAL_SELECTION // Enable to use Selection Sort for Serial
 // #define SERIAL_BUBBLE // Enable to use Bubble Sort for Serial
 
-// #define PARALLEL_MERGE // Enable to use Merge Sort for Parallel
-#define PARALLEL_SELECTION // Enable to use Selection Sort for Parallel
+#define PARALLEL_MERGE // Enable to use Merge Sort for Parallel
+// #define PARALLEL_SELECTION // Enable to use Selection Sort for Parallel
 // #define PARALLEL_BUBBLE // Enable to use Bubble Sort for Parallel
 
 #endif // GLOBAL_H

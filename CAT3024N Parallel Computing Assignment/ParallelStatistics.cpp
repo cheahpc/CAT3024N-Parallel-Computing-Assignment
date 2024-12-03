@@ -113,20 +113,20 @@ void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context,
         temp.erase(temp.begin(), temp.begin() + (32 - padding_size)); // Erase the padded elements at the start of the vector
 }
 
+
+
 void ParallelStatistics::mergeSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
-    // Add padding to the vector
-    int padding_size = addPadding(temp, 32, -1000000.0f); // Padding
-    // int padding_size = addPadding(temp, 64, -150.0f); // Padding
+    int padding_size = addPadding(temp, 32, -1000000.0f);       // Add padding to the vector for the parallel selection sort
+                                                                // Set kernel to the parallel selection kernel
+    cl::Kernel kernel = cl::Kernel(program, "p_SelectionSort"); // Set kernel to the parallel selection kernel
 
-    cl::Kernel kernel = cl::Kernel(program, "p_MergeSort"); // Set kernel to the parallel merge sort kernel
-
-    // kernelExecute(false, kernel, temp, 64, context, queue,
     kernelExecute(false, kernel, temp, 32, context, queue,
-                  true, false, false, 0.0f, 0,        // 2 for Local, 3 for Float (Mean), 4 for Int (padding size)
-                  prof_event, "Parallel Merge Sort"); // Perform the kernel
+                  false, false, false, 0.0f, 0,           // 2 for Local, 3 for Float (Mean), 4 for Int (padding size),
+                  prof_event, "Parallel Selection Sort"); // Perform the kernel
 
-    temp.erase(temp.begin(), temp.begin() + (32 - padding_size)); // Erase the padded elements at the start of the vector
+    if (padding_size > 0)                                             // 256 mod 32 get 0 padding, thus no need to erase
+        temp.erase(temp.begin(), temp.begin() + (32 - padding_size)); // Erase the padded elements at the start of the vector
 }
 
 // Statistics Functions

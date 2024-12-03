@@ -183,7 +183,6 @@
     <ClInclude Include="ParallelStatistics.h" />
     <ClInclude Include="SerialOperation.h" />
     <ClInclude Include="SerialStatistics.h" />
-    <ClInclude Include="Sort.h" />
     <ClInclude Include="StationData.h" />
     <ClInclude Include="OpenCLUtils.h" />
   </ItemGroup>

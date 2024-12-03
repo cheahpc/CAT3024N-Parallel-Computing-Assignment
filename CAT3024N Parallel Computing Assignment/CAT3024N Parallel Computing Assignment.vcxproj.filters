@@ -27,9 +27,6 @@
     <ClInclude Include="StationData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sort.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SerialOperation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
