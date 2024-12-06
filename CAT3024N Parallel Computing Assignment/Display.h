@@ -156,6 +156,16 @@ void displayInfo_Operation(int operation)
     case 18:
         print("Serial Merge Sort Operation] - Summary ");
         break;
+    case 21:
+    case 22:
+    case 23:
+    case 24:
+    case 25:
+    case 26:
+    case 27:
+    case 28:
+        print("Serial Bubble Sort Operation] - Summary ");
+        break;
     case 51:
     case 52:
     case 53:
@@ -174,7 +184,17 @@ void displayInfo_Operation(int operation)
     case 66:
     case 67:
     case 68:
-        print("Serial Selection Sort Operation] - Histogram ");
+        print("Serial Merge Sort Operation] - Histogram ");
+        break;
+    case 71:
+    case 72:
+    case 73:
+    case 74:
+    case 75:
+    case 76:
+    case 77:
+    case 78:
+        print("Serial Bubble Sort Operation] - Histogram ");
         break;
     case 101:
     case 102:
@@ -217,7 +237,7 @@ void displayInfo_Operation(int operation)
         print("Parallel Bitonic SortOperation] - Histogram ");
         break;
     default:
-        println("Invalid Option");
+        print("Invalid Option");
         break;
     }
 
@@ -225,8 +245,10 @@ void displayInfo_Operation(int operation)
     {
     case 1:
     case 11:
+    case 21:
     case 51:
     case 61:
+    case 71:
     case 101:
     case 111:
     case 151:
@@ -235,8 +257,10 @@ void displayInfo_Operation(int operation)
         break;
     case 2:
     case 12:
+    case 22:
     case 52:
     case 62:
+    case 72:
     case 102:
     case 112:
     case 152:
@@ -245,8 +269,10 @@ void displayInfo_Operation(int operation)
         break;
     case 3:
     case 13:
+    case 23:
     case 53:
     case 63:
+    case 73:
     case 103:
     case 113:
     case 153:
@@ -255,8 +281,10 @@ void displayInfo_Operation(int operation)
         break;
     case 4:
     case 14:
+    case 24:
     case 54:
     case 64:
+    case 74:
     case 104:
     case 114:
     case 154:
@@ -265,8 +293,10 @@ void displayInfo_Operation(int operation)
         break;
     case 5:
     case 15:
+    case 25:
     case 55:
     case 65:
+    case 75:
     case 105:
     case 115:
     case 155:
@@ -275,8 +305,10 @@ void displayInfo_Operation(int operation)
         break;
     case 6:
     case 16:
+    case 26:
     case 56:
     case 66:
+    case 76:
     case 106:
     case 116:
     case 156:
@@ -285,8 +317,10 @@ void displayInfo_Operation(int operation)
         break;
     case 7:
     case 17:
+    case 27:
     case 57:
     case 67:
+    case 77:
     case 107:
     case 117:
     case 157:
@@ -295,8 +329,10 @@ void displayInfo_Operation(int operation)
         break;
     case 8:
     case 18:
+    case 28:
     case 58:
     case 68:
+    case 78:
     case 108:
     case 118:
     case 158:
@@ -325,7 +361,6 @@ void displayInfo_Footer(clock_t startTime, clock_t endTime)
 
 void displayInfo_Summary(int size, float mean, float sDeviation, float min, float max, float median, float Q1, float Q3, clock_t startTime, clock_t endTime, string message = "")
 {
-
     cout << left << setprecision(4) << fixed << setfill(' ')
          << "| "
          << setw(14) << min << "| "
