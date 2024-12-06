@@ -4623,7 +4623,7 @@ public:
             bufobj,
             &error);
 
-        // TODO: This should really have a D3D10 rerror code!
+        // TODO: This should really have a D3D10 error code!
         detail::errHandler(error, __CREATE_GL_BUFFER_ERR);
         if (err != nullptr) {
             *err = error;

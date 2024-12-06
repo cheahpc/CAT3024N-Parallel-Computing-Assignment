@@ -88,6 +88,40 @@ void setSortingAlgorithm(SORT_ALGORITHM &sortAlgorithm, int choice)
 	case 168:
 		sortAlgorithm = SORT_ALGORITHM::MERGE;
 		break;
+	case 21:
+	case 22:
+	case 23:
+	case 24:
+	case 25:
+	case 26:
+	case 27:
+	case 28:
+	case 121:
+	case 122:
+	case 123:
+	case 124:
+	case 125:
+	case 126:
+	case 127:
+	case 128:
+	case 71:
+	case 72:
+	case 73:
+	case 74:
+	case 75:
+	case 76:
+	case 77:
+	case 78:
+	case 171:
+	case 172:
+	case 173:
+	case 174:
+	case 175:
+	case 176:
+	case 177:
+	case 178:
+		sortAlgorithm = SORT_ALGORITHM::BUBBLE;
+		break;
 	default:
 		sortAlgorithm = SORT_ALGORITHM::SELECTION;
 		break;
@@ -290,134 +324,166 @@ setBinSize:
 			switch (mainMenuChoice)
 			{
 			case 1:									  // Serial Overall Summary
-			case 11:								  // Parallel Overall Summary
+			case 11:								  // Serial Overall Summary
+			case 21:								  // Serial Overall Summary
 				serial_Overall(temps, sortAlgorithm); // Calculate and display
 				break;
 			case 2:											 // Serial By Year Summary
 			case 12:										 // Serial By Year Summary
+			case 22:										 // Serial By Year Summary
 				serial_By_Year(temps, years, sortAlgorithm); // Calculate by year and display
 				break;
 			case 3:											   // Serial By Month Summary
 			case 13:										   // Serial By Month Summary
+			case 23:										   // Serial By Month Summary
 				serial_By_Month(temps, months, sortAlgorithm); // Calculate by month and display
 				break;
 			case 4:													  // Serial By Station Summary
 			case 14:												  // Serial By Station Summary
+			case 24:												  // Serial By Station Summary
 				serial_By_Station(temps, stationName, sortAlgorithm); // Calculate by station and display
 				break;
 			case 5:
 			case 15:
+			case 25:
 				serial_By_Year_All_Station(temps, years, stationName, sortAlgorithm);
 				break;
 			case 6:	 // Serial By Month All Station Summary
 			case 16: // Serial By Month All Station Summary
+			case 26: // Serial By Month All Station Summary
 				serial_By_Month_All_Station(temps, stationName, months, sortAlgorithm);
 				break;
 			case 7:	 // Serial By Station All Year
 			case 17: // Serial By Station All Year
+			case 27: // Serial By Station All Year
 				serial_By_Station_All_Year(temps, stationName, years, sortAlgorithm);
 				break;
 			case 8:	 // Serial By Station All Month Summary
 			case 18: // Serial By Station All Month Summary
+			case 28: // Serial By Station All Month Summary
 				serial_By_Station_All_Month(temps, stationName, months, sortAlgorithm);
 				break;
 
 			case 51: // Serial Histogram Overall
 			case 61: // Serial Histogram Overall
+			case 71: // Serial Histogram Overall
 				serial_Histogram(temps, "Serial_Histogram_Overall.csv", binSize, sortAlgorithm);
 				break;
 			case 52: // Serial Histogram By Year
 			case 62: // Serial Histogram By Year
+			case 72: // Serial Histogram By Year
 				serial_Histogram_By_Year(temps, years, binSize, sortAlgorithm);
 				break;
 			case 53: // Serial Histogram By Month
 			case 63: // Serial Histogram By Month
+			case 73: // Serial Histogram By Month
 				serial_Histogram_By_Month(temps, months, binSize, sortAlgorithm);
 				break;
 			case 54: // Serial Histogram By Station
 			case 64: // Serial Histogram By Station
+			case 74: // Serial Histogram By Station
 				serial_Histogram_By_Station(temps, stationName, binSize, sortAlgorithm);
 				break;
 			case 55: // Serial Histogram By Year All Station
 			case 65: // Serial Histogram By Year All Station
+			case 75: // Serial Histogram By Year All Station
 				serial_Histogram_By_Year_All_Station(temps, years, stationName, binSize, sortAlgorithm);
 				break;
 			case 56: // Serial Histogram By Month All Station
 			case 66: // Serial Histogram By Month All Station
+			case 76: // Serial Histogram By Month All Station
 				serial_Histogram_By_Month_All_Station(temps, stationName, months, binSize, sortAlgorithm);
 				break;
 			case 57: // Serial Histogram By Station All Year
 			case 67: // Serial Histogram By Station All Year
+			case 77: // Serial Histogram By Station All Year
 				serial_Histogram_By_Station_All_Year(temps, years, stationName, binSize, sortAlgorithm);
 				break;
 			case 58: // Serial Histogram By Station All Month
 			case 68: // Serial Histogram By Station All Month
+			case 78: // Serial Histogram By Station All Month
 				serial_Histogram_By_Station_All_Month(temps, stationName, months, binSize, sortAlgorithm);
 				break;
 
 			case 101: // Parallel Overall Summary
 			case 111: // Parallel Overall Summary
+			case 121: // Parallel Overall Summary
 				parallel_Overall(temps, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 102: // Parallel By Year Summary
 			case 112: // Parallel By Year Summary
+			case 122: // Parallel By Year Summary
 				parallel_By_Year(temps, years, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 103: // Parallel By Month Summary
 			case 123: // Parallel By Month Summary
+			case 133: // Parallel By Month Summary
 				parallel_By_Month(temps, months, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 104: // Parallel By Station Summary
 			case 114: // Parallel By Station Summary
+			case 124: // Parallel By Station Summary
 				parallel_By_Station(temps, stationName, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 105: // Parallel By Year All Station Summary
 			case 115: // Parallel By Year All Station Summary
+			case 125: // Parallel By Year All Station Summary
 				parallel_By_Year_All_Station(temps, years, stationName, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 106: // Parallel By Month All Station Summary
 			case 116: // Parallel By Month All Station Summary
+			case 126: // Parallel By Month All Station Summary
 				parallel_By_Month_All_Station(temps, stationName, months, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 107: // Parallel By Station All Year Summary
 			case 117: // Parallel By Station All Year Summary
+			case 127: // Parallel By Station All Year Summary
 				parallel_By_Station_All_Year(temps, years, stationName, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 108: // Parallel By Station All Month Summary
 			case 118: // Parallel By Station All Month Summary
+			case 128: // Parallel By Station All Month Summary
 				parallel_By_Station_All_Month(temps, stationName, months, sortAlgorithm, context, queue, program, prof_event);
 				break;
 
 			case 151: // Parallel Histogram Overall
 			case 161: // Parallel Histogram Overall
+			case 171: // Parallel Histogram Overall
 				parallel_Histogram(temps, "Parallel_Histogram_Overall.csv", binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 152: // Parallel Histogram By Year
 			case 162: // Parallel Histogram By Year
+			case 172: // Parallel Histogram By Year
 				parallel_Histogram_By_Year(temps, years, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 153: // Parallel Histogram By Month
 			case 163: // Parallel Histogram By Month
+			case 173: // Parallel Histogram By Month
 				parallel_Histogram_By_Month(temps, months, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 154: // Parallel Histogram By Station
 			case 164: // Parallel Histogram By Station
+			case 174: // Parallel Histogram By Station
 				parallel_Histogram_By_Station(temps, stationName, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 155: // Parallel Histogram By Year All Station
 			case 165: // Parallel Histogram By Year All Station
+			case 175: // Parallel Histogram By Year All Station
 				parallel_Histogram_By_Year_All_Station(temps, years, stationName, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 156: // Parallel Histogram By Month All Station
 			case 166: // Parallel Histogram By Month All Station
+			case 176: // Parallel Histogram By Month All Station
 				parallel_Histogram_By_Month_All_Station(temps, stationName, months, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 157: // Parallel Histogram By Station All Year
 			case 167: // Parallel Histogram By Station All Year
+			case 177: // Parallel Histogram By Station All Year
 				parallel_Histogram_By_Station_All_Year(temps, years, stationName, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 158: // Parallel Histogram By Station All Month
 			case 168: // Parallel Histogram By Station All Month
+			case 178: // Parallel Histogram By Station All Month
 				parallel_Histogram_By_Station_All_Month(temps, stationName, months, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 

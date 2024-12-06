@@ -10,7 +10,6 @@ const string KERNEL_PATH = "my_kernels.cl";
 // Months
 const string MONTH_LIST[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-
 // Sorting Enum
 typedef enum SORT_ORDER
 {
@@ -29,6 +28,5 @@ typedef enum SORT_ALGORITHM
     SELECTION,
     BUBBLE
 };
-
 
 #endif // GLOBAL_H

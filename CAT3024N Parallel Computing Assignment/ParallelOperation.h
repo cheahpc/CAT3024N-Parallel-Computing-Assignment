@@ -40,12 +40,12 @@ void parallel_Calculate(vector<float> &values, bool displayQuartile, SORT_ALGORI
     vector<float> temperature = values; // Copy the values to vector
 
     // Sorting
-    if (sortAlgorithm == MERGE)                                                        // Check the sorting algorithm
-        pStats.mergeSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+    if (sortAlgorithm == MERGE)                                                          // Check the sorting algorithm
+        pStats.bitonicSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform merge sort
     else if (sortAlgorithm == SELECTION)
         pStats.selectionSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform selection sort
     else if (sortAlgorithm == BUBBLE)
-        pStats.bubbleSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform bubble sort TODO
+        pStats.oddEvenSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform bubble sort TODO
 
     // Get the size of the vector
     int size = temperature.size();
@@ -455,13 +455,14 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, int b
     vector<float> upper_Limits; // upper limit for each bins
     vector<int> frequencies;    // store frequency of each bins
 
+    // TODO Fix bitnoic and odd even sort
     // Step 3. Sort the temperature
     if (sortAlgorithm == MERGE)
-        pStats.mergeSort(temp, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+        pStats.bitonicSort(temp, context, queue, program, prof_event, ASCENDING); // Perform merge sort
     else if (sortAlgorithm == SELECTION)
         pStats.selectionSort(temp, context, queue, program, prof_event, ASCENDING); // Perform selection sort
     else if (sortAlgorithm == BUBBLE)
-        pStats.bubbleSort(temp, context, queue, program, prof_event, ASCENDING); // Perform bubble sort
+        pStats.oddEvenSort(temp, context, queue, program, prof_event, ASCENDING); // Perform bubble sort
 
     float minimum = temp[0];
     float maximum = temp[temp.size() - 1];

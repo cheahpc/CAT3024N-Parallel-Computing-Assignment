@@ -20,6 +20,8 @@ private:
                                             bool arg2, bool arg3, bool arg4, float float3, int int4,
                                             cl::Event &prof_event, string Name);
 
+    void ParallelStatistics::kernelExecuteLite(cl::Kernel kernel, vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Event &prof_event);
+
     // Add Padding
     int addPadding(vector<float> &temp, size_t LocalSize, float PadVal);
 
@@ -30,9 +32,9 @@ public:
 
     // Function Declarations
     // Sort Functions
-    void ParallelStatistics::bubbleSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
+    void ParallelStatistics::oddEvenSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
     void ParallelStatistics::selectionSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
-    void ParallelStatistics::mergeSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
+    void ParallelStatistics::bitonicSort(vector<float> &temp, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
 
     void ParallelStatistics::Display(vector<float> &values); // Displays a vector
 
