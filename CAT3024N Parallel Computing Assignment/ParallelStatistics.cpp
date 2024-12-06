@@ -95,7 +95,7 @@ int ParallelStatistics::addPadding(vector<float> &temp, size_t LocalSize, float 
 }
 
 // Sort function
-void ParallelStatistics::oddEvenSort(vector<float> &temp, int localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
+void ParallelStatistics::oddEvenSort(vector<float> &temp, size_t localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
     int padding_size = addPadding(temp, localSize, -100.0f);  // Add padding to the vector for the parallel selection sort
     cl::Kernel kernel = cl::Kernel(program, "p_OddEvenSort"); // Set kernel to the parallel selection kernel
@@ -108,7 +108,7 @@ void ParallelStatistics::oddEvenSort(vector<float> &temp, int localSize, cl::Con
         temp.erase(temp.begin(), temp.begin() + (localSize - padding_size)); // Erase the padded elements at the start of the vector
 }
 
-void ParallelStatistics::selectionSort(vector<float> &temp, int localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
+void ParallelStatistics::selectionSort(vector<float> &temp, size_t localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
     int padding_size = addPadding(temp, localSize, -100.0f);    // Add padding to the vector for the parallel selection sort
     cl::Kernel kernel = cl::Kernel(program, "p_SelectionSort"); // Set kernel to the parallel selection kernel
@@ -121,7 +121,7 @@ void ParallelStatistics::selectionSort(vector<float> &temp, int localSize, cl::C
         temp.erase(temp.begin(), temp.begin() + (localSize - padding_size)); // Erase the padded elements at the start of the vector
 }
 
-void ParallelStatistics::bitonicSort(vector<float> &temp, int localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
+void ParallelStatistics::bitonicSort(vector<float> &temp, size_t localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode)
 {
     int padding_size = addPadding(temp, localSize, -100.0f);  // Add padding to the vector for the parallel selection sort
     cl::Kernel kernel = cl::Kernel(program, "p_BitonicSort"); // Set kernel to the parallel selection kernel

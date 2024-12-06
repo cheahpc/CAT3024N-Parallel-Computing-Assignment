@@ -6,6 +6,9 @@
 #include <string>
 #include <limits>
 
+#include "OpenCLUtils.h"
+#include "Global.h"
+
 using namespace std;
 
 void print(string str)
@@ -540,11 +543,11 @@ void displayMenu_SortingLocalSizeSetting()
     println("");
 }
 
-void displayInfo_ProgramConfiguration(string platformName, string deviceName, int binSize, int histLocalSize, int sortLocalSize)
+void displayInfo_ProgramConfiguration()
 {
     println("================================================== Platform and Device Information");
-    println("Platform\t: " + platformName);
-    println("Device\t\t: " + deviceName);
+    println("Platform\t: " + GetPlatformName(platform_id));
+    println("Device\t\t: " + GetDeviceName(platform_id, device_id));
     println("================================================== Histogram Bin Size");
     println("Bin Size\t: " + to_string(binSize));
     println("================================================== Parallel Execution Local Size");
@@ -579,11 +582,11 @@ void clearScreen()
     system("cls"); // Clear screen
 }
 
-void refreshHeader(string platform_id, string device_name, int binSize, int histLocalSize, int sortLocalSize)
+void refreshHeader()
 {
-    clearScreen();                                                                                     // Clear the screen
-    displayInfo_ProgramConfiguration(platform_id, device_name, binSize, histLocalSize, sortLocalSize); // Display the program configuration
-    displayHeader();                                                                                   // Display Header with name and version etc
+    clearScreen();                      // Clear the screen
+    displayInfo_ProgramConfiguration(); // Display the program configuration
+    displayHeader();                    // Display Header with name and version etc
 }
 
 #endif // DISPLAY_H

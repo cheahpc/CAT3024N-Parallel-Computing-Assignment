@@ -17,6 +17,8 @@ typedef enum SORT_ORDER
     DESCENDING
 };
 
+
+
 // Switches, comment or uncomment to enable or disable
 // #define SERIAL_PLOT // Enable to plot the histogram using Python for serial
 // #define PARALLEL_PLOT // Enable to plot the histogram using Python for parallel

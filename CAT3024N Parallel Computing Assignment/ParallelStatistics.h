@@ -30,9 +30,9 @@ public:
 
     // Function Declarations
     // Sort Functions
-    void ParallelStatistics::oddEvenSort(vector<float> &temp, int localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
-    void ParallelStatistics::selectionSort(vector<float> &temp, int localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
-    void ParallelStatistics::bitonicSort(vector<float> &temp, int localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
+    void ParallelStatistics::oddEvenSort(vector<float> &temp, size_t localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
+    void ParallelStatistics::selectionSort(vector<float> &temp, size_t localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
+    void ParallelStatistics::bitonicSort(vector<float> &temp, size_t localSize, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event, SORT_ORDER mode);
 
     void ParallelStatistics::Display(vector<float> &values); // Displays a vector
 
