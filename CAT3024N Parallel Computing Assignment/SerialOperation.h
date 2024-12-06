@@ -17,7 +17,7 @@
 using namespace std;
 
 // Serial Function Implementation
-void serial_Calculate(vector<float> &values, bool displayQuartile = false)
+void serial_Calculate(vector<float> &values, bool displayQuartile = false, SORT_ALGORITHM sortAlgorithm = SORT_ALGORITHM::SELECTION)
 {
     // Create an instance of the SerialStatistics
     SerialStatistics sStats = SerialStatistics();
@@ -40,14 +40,14 @@ void serial_Calculate(vector<float> &values, bool displayQuartile = false)
 
     vector<float> temperature = values; // Copy the values to vector
 
-// Sorting
-#if defined SERIAL_MERGE
-    sStats.mergeSort(temperature, SORT_ORDER::ASCENDING); // Perform merge sort - Fastest
-#elif defined SERIAL_SELECTION
-    sStats.selectionSort(temperature, SORT_ORDER::ASCENDING); // Perform selection sort
-#elif defined SERIAL_BUBBLE
-    sStats.bubbleSort(temperature, SORT_ORDER::ASCENDING); // Perform bubble sort - Slowest
-#endif
+    // Sorting
+    if (sortAlgorithm == MERGE)
+        sStats.mergeSort(temperature, SORT_ORDER::ASCENDING); // Perform merge sort - Fastest
+    else if (sortAlgorithm == SELECTION)
+        sStats.selectionSort(temperature, SORT_ORDER::ASCENDING); // Perform selection sort
+    else if (sortAlgorithm == BUBBLE)
+        sStats.bubbleSort(temperature, SORT_ORDER::ASCENDING); // Perform bubble sort - Slowest
+
     // Calculate the variables
     int size = temperature.size();
     float sum = sStats.getSum(temperature);
@@ -72,7 +72,7 @@ void serial_Calculate(vector<float> &values, bool displayQuartile = false)
 }
 
 // Summary Functions
-void serial_Overall(vector<float> &temp)
+void serial_Overall(vector<float> &temp, SORT_ALGORITHM sortAlgorithm)
 {
     // Display overall header
     displayInfo_Overall_Header();
@@ -82,7 +82,7 @@ void serial_Overall(vector<float> &temp)
 
     // Calculate and display the temperature data
     cout << "| " << left << setfill(' ') << setw(14) << "OVERALL";
-    serial_Calculate(temp, true);
+    serial_Calculate(temp, true, sortAlgorithm);
 
     // End Counting
     clock_t overallEndTime = clock();
@@ -94,7 +94,7 @@ void serial_Overall(vector<float> &temp)
     return;
 }
 
-void serial_By_Year(vector<float> &temp, vector<int> &year)
+void serial_By_Year(vector<float> &temp, vector<int> &year, SORT_ALGORITHM sortAlgorithm)
 {
     // Display by year header
     displayInfo_By_Year_Header();
@@ -114,19 +114,19 @@ void serial_By_Year(vector<float> &temp, vector<int> &year)
         vector<float> temperatures = entry.second;
 
         cout << "| " << left << setfill(' ') << setw(14) << currentYear;
-        serial_Calculate(temperatures, true); // Calculate and display the temperature data
+        serial_Calculate(temperatures, true, sortAlgorithm); // Calculate and display the temperature data
     }
     // End Counting
     clock_t overallEndTime = clock();
 
     // Display the footer
-        displayInfo_TableDiv('-');
-        displayInfo_Footer(overallStartTime, overallEndTime);
+    displayInfo_TableDiv('-');
+    displayInfo_Footer(overallStartTime, overallEndTime);
 
     return;
 }
 
-void serial_By_Month(vector<float> &temp, vector<int> &month)
+void serial_By_Month(vector<float> &temp, vector<int> &month, SORT_ALGORITHM sortAlgorithm)
 {
     // Display by month header
     displayInfo_By_Month_Header();
@@ -145,7 +145,7 @@ void serial_By_Month(vector<float> &temp, vector<int> &month)
     for (int i = 0; i < tempVar.size(); i++)
     {
         cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[i];
-        serial_Calculate(tempVar[i]); // Calculate and display the temperature data
+        serial_Calculate(tempVar[i], false, sortAlgorithm); // Calculate and display the temperature data
     }
 
     // End Counting
@@ -158,7 +158,7 @@ void serial_By_Month(vector<float> &temp, vector<int> &month)
     return;
 }
 
-void serial_By_Station(vector<float> &temp, vector<string> &stationName)
+void serial_By_Station(vector<float> &temp, vector<string> &stationName, SORT_ALGORITHM sortAlgorithm)
 {
     // Display by station header
     displayInfo_By_Station_Header();
@@ -180,7 +180,7 @@ void serial_By_Station(vector<float> &temp, vector<string> &stationName)
         {
             // Print and process the current station's data
             cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-            serial_Calculate(tempVar, true);
+            serial_Calculate(tempVar, true, sortAlgorithm);
             tempVar.clear();
 
             // Update the current station and add the new temperature
@@ -191,7 +191,7 @@ void serial_By_Station(vector<float> &temp, vector<string> &stationName)
 
     // Process the last station's data
     cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-    serial_Calculate(tempVar, true);
+    serial_Calculate(tempVar, true, sortAlgorithm);
 
     // End Counting
     clock_t overallEndTime = clock();
@@ -203,7 +203,7 @@ void serial_By_Station(vector<float> &temp, vector<string> &stationName)
     return;
 }
 
-void serial_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName)
+void serial_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName, SORT_ALGORITHM sortAlgorithm)
 {
     // Display By Station Header
     displayInfo_By_Station_Header();
@@ -232,7 +232,7 @@ void serial_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<s
         for (const auto &station : uniqueStation) // For each station
         {
             cout << "| " << left << setfill(' ') << setw(14) << station;
-            serial_Calculate(stationData[station], true); // Calculate and display the temperature data
+            serial_Calculate(stationData[station], true, sortAlgorithm); // Calculate and display the temperature data
         }
         displayInfo_TableDiv('-');
     }
@@ -245,7 +245,7 @@ void serial_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<s
     return;
 }
 
-void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month)
+void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month, SORT_ALGORITHM sortAlgorithm)
 {
     // Each month all station
     displayInfo_By_Station_Header();
@@ -290,7 +290,7 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
                 {
                     // Print and process the current station's data
                     cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-                    serial_Calculate(tempData);
+                    serial_Calculate(tempData, false, sortAlgorithm);
                     tempData.clear();
                     copiedUniqueStation.erase(currentStation);
 
@@ -302,14 +302,14 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
 
             // Process the last station's data
             cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-            serial_Calculate(tempData);
+            serial_Calculate(tempData, false, sortAlgorithm);
             copiedUniqueStation.erase(currentStation);
         }
 
         for (const auto &station : copiedUniqueStation)
         {
             cout << "| " << left << setfill(' ') << setw(14) << station;
-            serial_Calculate(tempData);
+            serial_Calculate(tempData, false, sortAlgorithm);
         }
         displayInfo_TableDiv('-');
     }
@@ -321,7 +321,7 @@ void serial_By_Month_All_Station(vector<float> &temp, vector<string> &stationNam
     displayInfo_Footer(overallStartTime, overallEndTime);
 }
 
-void serial_By_Station_All_Year(vector<float> &temp, vector<string> &stationName, vector<int> &year)
+void serial_By_Station_All_Year(vector<float> &temp, vector<string> &stationName, vector<int> &year, SORT_ALGORITHM sortAlgorithm)
 {
     // Display By Year Header
     displayInfo_By_Year_Header();
@@ -350,7 +350,7 @@ void serial_By_Station_All_Year(vector<float> &temp, vector<string> &stationName
             vector<float> temperatures = year.second;
 
             cout << "| " << left << setfill(' ') << setw(14) << yearString;
-            serial_Calculate(temperatures, true); // Calculate and display the temperature data
+            serial_Calculate(temperatures, true, sortAlgorithm); // Calculate and display the temperature data
         }
         displayInfo_TableDiv('-');
     }
@@ -363,7 +363,7 @@ void serial_By_Station_All_Year(vector<float> &temp, vector<string> &stationName
     return;
 }
 
-void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month)
+void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month, SORT_ALGORITHM sortAlgorithm)
 {
     // Each station all month
     displayInfo_By_Month_Header();
@@ -391,7 +391,7 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
             for (int j = 0; j < tempData.size(); j++)
             {
                 cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[j];
-                serial_Calculate(tempData[j]);
+                serial_Calculate(tempData[j], false, sortAlgorithm);
             }
             displayInfo_TableDiv('-');
             tempData.clear();
@@ -409,7 +409,7 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
     for (int j = 0; j < 12; j++)
     {
         cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[j];
-        serial_Calculate(tempData[j]);
+        serial_Calculate(tempData[j], false, sortAlgorithm);
     }
 
     // End Counting
@@ -420,12 +420,12 @@ void serial_By_Station_All_Month(vector<float> &temp, vector<string> &stationNam
     displayInfo_Footer(overallStartTime, overallEndTime);
 }
 
-void serial_Histogram(vector<float> &temperature, string outputFileName)
+void serial_Histogram(vector<float> &temperature, string outputFileName, int binSize, SORT_ALGORITHM sortAlgorithm)
 {
     // Step 0. Check if the temperature is empty
     if (temperature.size() == 0)
     {
-        displayInfo_Histogram_Header(HISTOGRAM_BIN_NO, 0, 0, 0);
+        displayInfo_Histogram_Header(binSize, 0, 0, 0);
         displayInfo_Histogram_Summary(0, 0, 0);
         cout << "| " << left << setw(158) << setfill(' ') << "No Data" << "|" << endl;
         displayInfo_Footer(0, 0);
@@ -437,7 +437,7 @@ void serial_Histogram(vector<float> &temperature, string outputFileName)
     }
     else if (temperature.size() == 1)
     {
-        displayInfo_Histogram_Header(HISTOGRAM_BIN_NO, 0, 0, 0);
+        displayInfo_Histogram_Header(binSize, 0, 0, 0);
         displayInfo_Histogram_Summary(temperature[0], temperature[0], 1);
         cout << "| " << left << setw(158) << setfill(' ') << "Only 1 Record, Insufficient Data" << "|" << endl;
         displayInfo_Footer(0, 0);
@@ -458,18 +458,22 @@ void serial_Histogram(vector<float> &temperature, string outputFileName)
     vector<int> frequencies;    // store frequency of each bins
 
     // Step 3. Sort the temperature, get the minimum and maximum
-    sStats.mergeSort(temp, SORT_ORDER::ASCENDING);
-    // sStats.selectionSort(temp, SORT_ORDER::ASCENDING);
-    // sStats.bubbleSort(temp, SORT_ORDER::ASCENDING);
+    if (sortAlgorithm == MERGE)
+        sStats.mergeSort(temp, SORT_ORDER::ASCENDING);
+    else if (sortAlgorithm == SELECTION)
+        sStats.selectionSort(temp, SORT_ORDER::ASCENDING);
+    else if (sortAlgorithm == BUBBLE)
+        sStats.bubbleSort(temp, SORT_ORDER::ASCENDING);
+
     float minimum = temp[0];
     float maximum = temp[temp.size() - 1];
-    float binSize = (maximum - minimum) / HISTOGRAM_BIN_NO;
+    float bin = (maximum - minimum) / binSize;
 
     // Step 4. Create output vector
-    vector<int> histogram_vector(HISTOGRAM_BIN_NO); // histogram results
+    vector<int> histogram_vector(binSize); // histogram results
 
     // Step 5. Display Header
-    displayInfo_Histogram_Header(HISTOGRAM_BIN_NO, binSize, minimum, maximum);
+    displayInfo_Histogram_Header(binSize, bin, minimum, maximum);
 
     // Step 6. Calculate the histogram
     // Clear the vector and max frequency
@@ -480,14 +484,14 @@ void serial_Histogram(vector<float> &temperature, string outputFileName)
     // For each temperature, calculate the frequency
     for (int i = 0; i < temperature.size(); i++)
     {
-        float compareVal = minimum + binSize;
+        float compareVal = minimum + bin;
         int idx = 0;
         while (temperature[i] > compareVal)
         {
-            compareVal += binSize; // check next range
+            compareVal += bin; // check next range
             idx++;
         }
-        if (idx == HISTOGRAM_BIN_NO)
+        if (idx == binSize)
         {
             idx--;
         }
@@ -498,11 +502,11 @@ void serial_Histogram(vector<float> &temperature, string outputFileName)
     upper_Limits.push_back(minimum);
 
     // Step 7. Save the result
-    ofstream outputFile(outputFileName);           // Open the file
-    for (int i = 1; i < HISTOGRAM_BIN_NO + 1; i++) // Display the histogram
+    ofstream outputFile(outputFileName);  // Open the file
+    for (int i = 1; i < binSize + 1; i++) // Display the histogram
     {
-        float binStart = minimum + ((i - 1) * binSize);
-        float binEnd = minimum + (i * binSize);
+        float binStart = minimum + ((i - 1) * bin);
+        float binEnd = minimum + (i * bin);
         int frequency = (histogram_vector[i - 1]);
 
         displayInfo_Histogram_Summary(binStart, binEnd, frequency);          // Print histogram summary
@@ -530,7 +534,7 @@ void serial_Histogram(vector<float> &temperature, string outputFileName)
     return;
 }
 
-void serial_Histogram_By_Year(vector<float> &temp, vector<int> &year)
+void serial_Histogram_By_Year(vector<float> &temp, vector<int> &year, int binSize, SORT_ALGORITHM sortAlgorithm)
 {
     // Group temperatures by year
     map<int, vector<float>> tempData;
@@ -545,13 +549,13 @@ void serial_Histogram_By_Year(vector<float> &temp, vector<int> &year)
 
         displayInfo_ByX_Header(currentYear);
         string outputFileName = "Serial_Histogram_In_Year_" + currentYear + ".csv";
-        serial_Histogram(temperatures, outputFileName); // Calculate and display the temperature data
+        serial_Histogram(temperatures, outputFileName, binSize, sortAlgorithm); // Calculate and display the temperature data
     }
 
     return;
 }
 
-void serial_Histogram_By_Month(vector<float> &temperature, vector<int> &month)
+void serial_Histogram_By_Month(vector<float> &temperature, vector<int> &month, int binSize, SORT_ALGORITHM sortAlgorithm)
 {
     // Create a 2D vector to store the temperature data by month
     vector<vector<float>> tempVar(12);
@@ -565,13 +569,13 @@ void serial_Histogram_By_Month(vector<float> &temperature, vector<int> &month)
     {
         displayInfo_ByX_Header(MONTH_LIST[i]);
         string outputFileName = "Serial_Histogram_In_" + MONTH_LIST[i] + ".csv";
-        serial_Histogram(tempVar[i], outputFileName); // Calculate and display the temperature data
+        serial_Histogram(tempVar[i], outputFileName, binSize, sortAlgorithm);
     }
 
     return;
 }
 
-void serial_Histogram_By_Station(vector<float> &temperature, vector<string> &stationName)
+void serial_Histogram_By_Station(vector<float> &temperature, vector<string> &stationName, int binSize, SORT_ALGORITHM sortAlgorithm)
 {
     // Create a 1D vector to store the temperature data by station
     vector<float> tempVar;
@@ -590,7 +594,7 @@ void serial_Histogram_By_Station(vector<float> &temperature, vector<string> &sta
             // Print and process the current station's data
             displayInfo_ByX_Header(currentStation);
             outputFileName = "Serial_Histogram_For_" + currentStation + ".csv ";
-            serial_Histogram(tempVar, outputFileName);
+            serial_Histogram(tempVar, outputFileName, binSize, sortAlgorithm);
             tempVar.clear();
 
             // Update the current station and add the new temperature
@@ -602,12 +606,12 @@ void serial_Histogram_By_Station(vector<float> &temperature, vector<string> &sta
     // Process the last station's data
     displayInfo_ByX_Header(currentStation);
     outputFileName = "Serial_Histogram_For_" + currentStation + ".csv";
-    serial_Histogram(tempVar, outputFileName);
+    serial_Histogram(tempVar, outputFileName, binSize, sortAlgorithm);
 
     return;
 }
 
-void serial_Histogram_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName)
+void serial_Histogram_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName, int binSize, SORT_ALGORITHM sortAlgorithm)
 {
     // Get unique station names
     unordered_set<string> uniqueStation(stationName.begin(), stationName.end());
@@ -627,13 +631,13 @@ void serial_Histogram_By_Year_All_Station(vector<float> &temp, vector<int> &year
         {
             displayInfo_ByX_Header(to_string(currentYear), station);
             string outputFileName = "Serial_Histogram_In_Year_" + to_string(currentYear) + "_For_" + station + ".csv";
-            serial_Histogram(stationData[station], outputFileName); // Calculate and display the temperature data
+            serial_Histogram(stationData[station], outputFileName, binSize, sortAlgorithm); // Calculate and display the temperature data
         }
     }
     return;
 }
 
-void serial_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month)
+void serial_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month, int binSize, SORT_ALGORITHM sortAlgorithm)
 {
     // Create array of unique station
     unordered_set<string> uniqueStation(stationName.begin(), stationName.end());
@@ -671,7 +675,7 @@ void serial_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &
                 {
                     // Print and process the current station's data
                     displayInfo_ByX_Header(MONTH_LIST[i], currentStation);
-                    serial_Histogram(tempData, outputFileName + currentStation + ".csv");
+                    serial_Histogram(tempData, outputFileName + currentStation + ".csv", binSize, sortAlgorithm);
                     tempData.clear();
                     copiedUniqueStation.erase(currentStation);
 
@@ -680,23 +684,22 @@ void serial_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &
                     tempData.push_back(temp[indexMonthData[i][j]]);
                 }
             }
-
             // Process the last station's data
             displayInfo_ByX_Header(MONTH_LIST[i], currentStation);
-            serial_Histogram(tempData, outputFileName + currentStation + ".csv");
+            serial_Histogram(tempData, outputFileName + currentStation + ".csv", binSize, sortAlgorithm);
             copiedUniqueStation.erase(currentStation);
         }
-
+        // Process the last station's data
         for (const auto &station : copiedUniqueStation)
         {
             displayInfo_ByX_Header(MONTH_LIST[i], station);
-            serial_Histogram(tempData, outputFileName + ".csv");
+            serial_Histogram(tempData, outputFileName + ".csv", binSize, sortAlgorithm);
         }
     }
     return;
 }
 
-void serial_Histogram_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector<string> &stationName)
+void serial_Histogram_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector<string> &stationName, int binSize, SORT_ALGORITHM sortAlgorithm)
 {
     // Group temperatures by Station and then year
     map<string, map<int, vector<float>>> tempData;
@@ -715,14 +718,14 @@ void serial_Histogram_By_Station_All_Year(vector<float> &temp, vector<int> &year
 
             displayInfo_ByX_Header(currentStation, to_string(year.first));
             string outputFileName = "Serial_Histogram_For_" + currentStation + "_In_Year_" + to_string(year.first) + ".csv";
-            serial_Histogram(temperatures, outputFileName); // Calculate and display the temperature data
+            serial_Histogram(temperatures, outputFileName, binSize, sortAlgorithm); // Calculate and display the temperature data
         }
     }
 
     return;
 }
 
-void serial_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month)
+void serial_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month, int binSize, SORT_ALGORITHM sortAlgorithm)
 {
     // Step 1. Collect data for each station
     vector<vector<float>> tempData(12);     // For each station, store the temperature data for each month
@@ -743,7 +746,7 @@ void serial_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &
             for (int j = 0; j < 12; j++)
             {
                 displayInfo_ByX_Header(currentStation, MONTH_LIST[j]);
-                serial_Histogram(tempData[j], outputFileName + "_In_" + MONTH_LIST[j] + ".csv");
+                serial_Histogram(tempData[j], outputFileName + "_In_" + MONTH_LIST[j] + ".csv", binSize, sortAlgorithm);
             }
             tempData.clear();
             tempData.resize(12);
@@ -757,7 +760,7 @@ void serial_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &
     for (int j = 0; j < 12; j++)
     {
         displayInfo_ByX_Header(currentStation, MONTH_LIST[j]);
-        serial_Histogram(tempData[j], outputFileName + "_In_" + MONTH_LIST[j] + ".csv");
+        serial_Histogram(tempData[j], outputFileName + "_In_" + MONTH_LIST[j] + ".csv", binSize, sortAlgorithm);
     }
 }
 

@@ -16,18 +16,99 @@
 
 #include "Global.h"
 
+void setSortingAlgorithm(SORT_ALGORITHM &sortAlgorithm, int choice)
+{
+	switch (choice)
+	{
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+	case 7:
+	case 8:
+	case 101:
+	case 102:
+	case 103:
+	case 104:
+	case 105:
+	case 106:
+	case 107:
+	case 108:
+	case 51:
+	case 52:
+	case 53:
+	case 54:
+	case 55:
+	case 56:
+	case 57:
+	case 58:
+	case 151:
+	case 152:
+	case 153:
+	case 154:
+	case 155:
+	case 156:
+	case 157:
+	case 158:
+		sortAlgorithm = SORT_ALGORITHM::SELECTION;
+		break;
+	case 11:
+	case 12:
+	case 13:
+	case 14:
+	case 15:
+	case 16:
+	case 17:
+	case 18:
+	case 111:
+	case 112:
+	case 113:
+	case 114:
+	case 115:
+	case 116:
+	case 117:
+	case 118:
+	case 61:
+	case 62:
+	case 63:
+	case 64:
+	case 65:
+	case 66:
+	case 67:
+	case 68:
+	case 161:
+	case 162:
+	case 163:
+	case 164:
+	case 165:
+	case 166:
+	case 167:
+	case 168:
+		sortAlgorithm = SORT_ALGORITHM::MERGE;
+		break;
+	default:
+		sortAlgorithm = SORT_ALGORITHM::SELECTION;
+		break;
+	}
+}
+
 // Main method
 int main(int argc, char *argv[])
 {
+	int binSize = 0; // Default bin size
+
 	// Step 0. Setup Console title
 	SetConsoleTitle(L"CAT3024N Parallel Computing - Assignment | Developed by Cheah Pin Chee (0197637)");
 
 	// Step 1. Platform Selection
+restart:
 	int platform_id = 0; // Default Platform ID
 	int device_id = 0;	 // Default Device ID
 	do
 	{
-		refreshHeader("N/a", "N/a"); // Displaying
+		refreshHeader("N/a", "N/a", binSize); // Displaying
 
 		displayMenu_PlatformAndDeviceSelection(ListPlatformsDevices());	  // Display the platform and device selection menu
 		pair<int, int> platform_device = getPlatformAndDeviceSelection(); // Get the platform and device selection
@@ -55,25 +136,40 @@ int main(int argc, char *argv[])
 		}
 	} while (true);
 
-	// Step 2. Load the data
+// Step 2. Load the data
+loadData:
 	StationData data = StationData();
-
-	refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id)); // Refresh the header
-	println("Loading data from file: " + DATASET_PATH);									// Display the loading data message
-	clock_t dataStartTime = clock();													// Start the clock
-	clock_t dataEndTime;
-	if (!data.Load(DATASET_PATH))
+	clock_t dataStartTime, dataEndTime;
+	do
 	{
-		println("Error: Unable to load the data. Please check the file path '" + DATASET_PATH + "' and try again...");
-		println();
-		pause();
-		return 0;
-	}
-	else
-	{
-		dataEndTime = clock();					 // End the clock
-		print("Data loaded successfully... | "); // Display the success message
-	}
+		string dataPath;
+		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id), binSize); // Refresh the header
+		displayMenu_DatasetSelection();
+		int datasetChoice = getInput();
+		if (datasetChoice == 0)
+			dataPath = "china_temp_debug.txt"; // Debug
+		else if (datasetChoice == 1)
+			dataPath = "china_temp_short.txt"; // Development
+		else if (datasetChoice == 2)
+			dataPath = "china_temp_large.txt"; // Final
+		else
+			dataPath = "china_temp_short.txt";
+		println("Loading data from file: " + dataPath); // Display the loading data message
+		dataStartTime = clock();						// Start the clock
+		if (!data.Load(dataPath))
+		{
+			println("Error: Unable to load the data. Please check the file path '" + dataPath + "' and try again...");
+			println();
+			pause();
+			continue;
+		}
+		else
+		{
+			dataEndTime = clock();					 // End the clock
+			print("Data loaded successfully... | "); // Display the success message
+			break;
+		}
+	} while (true);
 
 	// If the data is loaded successfully, get the data into vectors
 	vector<float> &temps = data.GetTemp();
@@ -85,7 +181,27 @@ int main(int argc, char *argv[])
 	println();
 	pause();
 
-	// Step 3. Setup OpenCL environment
+// Step 3. Set Bin Size
+setBinSize:
+	do
+	{
+		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id), binSize);
+		displayMenu_HistogramBinSizeSetting();
+		int binSizeChoice = getInput();
+		if (binSizeChoice >= 1 && binSizeChoice <= 1000)
+		{
+			binSize = binSizeChoice;
+			break;
+		}
+		else
+		{
+			println("Error: Invalid bin size. Please enter a valid bin size between 1 and 1000...");
+			println();
+			pause();
+		}
+	} while (true);
+
+	// Step 4. Setup OpenCL environment
 	try
 	{
 		// Setup the OpenCL environment
@@ -95,7 +211,7 @@ int main(int argc, char *argv[])
 		cl::Program::Sources sources;								// Setup the sources
 
 		// Load the kernel file
-		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id), binSize);
 		println("Loading the kernel file: " + KERNEL_PATH);
 		if (!AddSources(sources, KERNEL_PATH)) // Add the sources to the program
 		{
@@ -113,7 +229,7 @@ int main(int argc, char *argv[])
 		// If the kernel file is loaded successfully, build the program
 		cl::Program program(context, sources); // Define the program with the context and sources
 
-		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+		refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id), binSize);
 		println("Building the program...");
 		try
 		{
@@ -135,195 +251,176 @@ int main(int argc, char *argv[])
 		println();
 		pause();
 
-		// Step 4. Main Program Loop
+		// Step 5. Main Program Loop
 		while (true)
 		{
-			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id), binSize);
 			// Display Main Menu
 			displayMenu_Main();
-			int mainMenuChoice = getMenuChoice();
-			if (mainMenuChoice == -1)
+			int mainMenuChoice = getInput();
+			if (mainMenuChoice == -3)
 			{
 				println("Exiting Program...");
 				pause();
 				return 0;
 			}
+			else if (mainMenuChoice == -2)
+			{
+				println("Directing to Bin Size Setting...");
+				pause();
+				goto setBinSize;
+				continue;
+			}
+			else if (mainMenuChoice == -1)
+			{
+				println("Restarting program...");
+				pause();
+				goto restart;
+				continue;
+			}
 
 			// Initialize Screen
-			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id));
+			refreshHeader(GetPlatformName(platform_id), GetDeviceName(platform_id, device_id), binSize);
 			displayInfo_Operation(mainMenuChoice);
+			// Process sorting method
+			SORT_ALGORITHM sortAlgorithm;
+			setSortingAlgorithm(sortAlgorithm, mainMenuChoice); // Set the sorting algorithm
 
+			// Main Menu Choice
 			switch (mainMenuChoice)
 			{
-			case 1:					   // Serial Overall Summary
-				serial_Overall(temps); // Calculate and display
+			case 1:									  // Serial Overall Summary
+			case 11:								  // Parallel Overall Summary
+				serial_Overall(temps, sortAlgorithm); // Calculate and display
 				break;
-			case 2:							  // Serial By Year Summary
-				serial_By_Year(temps, years); // Calculate by year and display
+			case 2:											 // Serial By Year Summary
+			case 12:										 // Serial By Year Summary
+				serial_By_Year(temps, years, sortAlgorithm); // Calculate by year and display
 				break;
-			case 3:								// Serial By Month Summary
-				serial_By_Month(temps, months); // Calculate by month and display
+			case 3:											   // Serial By Month Summary
+			case 13:										   // Serial By Month Summary
+				serial_By_Month(temps, months, sortAlgorithm); // Calculate by month and display
 				break;
-			case 4:									   // Serial By Station Summary
-				serial_By_Station(temps, stationName); // Calculate by station and display
+			case 4:													  // Serial By Station Summary
+			case 14:												  // Serial By Station Summary
+				serial_By_Station(temps, stationName, sortAlgorithm); // Calculate by station and display
 				break;
 			case 5:
-				serial_By_Year_All_Station(temps, years, stationName);
+			case 15:
+				serial_By_Year_All_Station(temps, years, stationName, sortAlgorithm);
 				break;
-			case 6: // Serial By Month All Station Summary
-				serial_By_Month_All_Station(temps, stationName, months);
+			case 6:	 // Serial By Month All Station Summary
+			case 16: // Serial By Month All Station Summary
+				serial_By_Month_All_Station(temps, stationName, months, sortAlgorithm);
 				break;
-			case 7: // Serial By Station All Year
-				serial_By_Station_All_Year(temps, stationName, years);
+			case 7:	 // Serial By Station All Year
+			case 17: // Serial By Station All Year
+				serial_By_Station_All_Year(temps, stationName, years, sortAlgorithm);
 				break;
-			case 8: // Serial By Station All Month Summary
-				serial_By_Station_All_Month(temps, stationName, months);
+			case 8:	 // Serial By Station All Month Summary
+			case 18: // Serial By Station All Month Summary
+				serial_By_Station_All_Month(temps, stationName, months, sortAlgorithm);
 				break;
-			case 9: // Serial Full Summary
-				displayInfo_Operation(1);
-				serial_Overall(temps);
-				displayInfo_Operation(2);
-				serial_By_Year(temps, years);
-				displayInfo_Operation(3);
-				serial_By_Month(temps, months);
-				displayInfo_Operation(4);
-				serial_By_Station(temps, stationName);
-				displayInfo_Operation(5);
-				serial_By_Year_All_Station(temps, years, stationName);
-				displayInfo_Operation(6);
-				serial_By_Month_All_Station(temps, stationName, months);
-				displayInfo_Operation(7);
-				serial_By_Station_All_Year(temps, stationName, years);
-				displayInfo_Operation(8);
-				serial_By_Station_All_Month(temps, stationName, months);
-				break;
+
 			case 51: // Serial Histogram Overall
-				serial_Histogram(temps, "Serial_Histogram_Overall.csv");
+			case 61: // Serial Histogram Overall
+				serial_Histogram(temps, "Serial_Histogram_Overall.csv", binSize, sortAlgorithm);
 				break;
 			case 52: // Serial Histogram By Year
-				serial_Histogram_By_Year(temps, years);
+			case 62: // Serial Histogram By Year
+				serial_Histogram_By_Year(temps, years, binSize, sortAlgorithm);
 				break;
 			case 53: // Serial Histogram By Month
-				serial_Histogram_By_Month(temps, months);
+			case 63: // Serial Histogram By Month
+				serial_Histogram_By_Month(temps, months, binSize, sortAlgorithm);
 				break;
 			case 54: // Serial Histogram By Station
-				serial_Histogram_By_Station(temps, stationName);
+			case 64: // Serial Histogram By Station
+				serial_Histogram_By_Station(temps, stationName, binSize, sortAlgorithm);
 				break;
 			case 55: // Serial Histogram By Year All Station
-				serial_Histogram_By_Year_All_Station(temps, years, stationName);
+			case 65: // Serial Histogram By Year All Station
+				serial_Histogram_By_Year_All_Station(temps, years, stationName, binSize, sortAlgorithm);
 				break;
 			case 56: // Serial Histogram By Month All Station
-				serial_Histogram_By_Month_All_Station(temps, stationName, months);
+			case 66: // Serial Histogram By Month All Station
+				serial_Histogram_By_Month_All_Station(temps, stationName, months, binSize, sortAlgorithm);
 				break;
 			case 57: // Serial Histogram By Station All Year
-				serial_Histogram_By_Station_All_Year(temps, years, stationName);
+			case 67: // Serial Histogram By Station All Year
+				serial_Histogram_By_Station_All_Year(temps, years, stationName, binSize, sortAlgorithm);
 				break;
 			case 58: // Serial Histogram By Station All Month
-				serial_Histogram_By_Station_All_Month(temps, stationName, months);
-				break;
-			case 59: // Serial Full Histogram
-				displayInfo_Operation(51);
-				serial_Histogram(temps, "Serial_Histogram_Overall.csv");
-				displayInfo_Operation(52);
-				serial_Histogram_By_Year(temps, years);
-				displayInfo_Operation(53);
-				serial_Histogram_By_Month(temps, months);
-				displayInfo_Operation(54);
-				serial_Histogram_By_Station(temps, stationName);
-				displayInfo_Operation(55);
-				serial_Histogram_By_Year_All_Station(temps, years, stationName);
-				displayInfo_Operation(56);
-				serial_Histogram_By_Month_All_Station(temps, stationName, months);
-				displayInfo_Operation(57);
-				serial_Histogram_By_Station_All_Year(temps, years, stationName);
-				displayInfo_Operation(58);
-				serial_Histogram_By_Station_All_Month(temps, stationName, months);
+			case 68: // Serial Histogram By Station All Month
+				serial_Histogram_By_Station_All_Month(temps, stationName, months, binSize, sortAlgorithm);
 				break;
 
 			case 101: // Parallel Overall Summary
-				parallel_Overall(temps, context, queue, program, prof_event);
+			case 111: // Parallel Overall Summary
+				parallel_Overall(temps, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 102: // Parallel By Year Summary
-				parallel_By_Year(temps, years, context, queue, program, prof_event);
+			case 112: // Parallel By Year Summary
+				parallel_By_Year(temps, years, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 103: // Parallel By Month Summary
-				parallel_By_Month(temps, months, context, queue, program, prof_event);
+			case 123: // Parallel By Month Summary
+				parallel_By_Month(temps, months, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 104: // Parallel By Station Summary
-				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
+			case 114: // Parallel By Station Summary
+				parallel_By_Station(temps, stationName, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 105: // Parallel By Year All Station Summary
-				parallel_By_Year_All_Station(temps, years, stationName, context, queue, program, prof_event);
+			case 115: // Parallel By Year All Station Summary
+				parallel_By_Year_All_Station(temps, years, stationName, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 106: // Parallel By Month All Station Summary
-				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+			case 116: // Parallel By Month All Station Summary
+				parallel_By_Month_All_Station(temps, stationName, months, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 107: // Parallel By Station All Year Summary
-				parallel_By_Station_All_Year(temps, years, stationName, context, queue, program, prof_event);
+			case 117: // Parallel By Station All Year Summary
+				parallel_By_Station_All_Year(temps, years, stationName, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 108: // Parallel By Station All Month Summary
-				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+			case 118: // Parallel By Station All Month Summary
+				parallel_By_Station_All_Month(temps, stationName, months, sortAlgorithm, context, queue, program, prof_event);
 				break;
-			case 109: // Parallel Full Summary
-				displayInfo_Operation(101);
-				parallel_Overall(temps, context, queue, program, prof_event);
-				displayInfo_Operation(102);
-				parallel_By_Year(temps, years, context, queue, program, prof_event);
-				displayInfo_Operation(103);
-				parallel_By_Month(temps, months, context, queue, program, prof_event);
-				displayInfo_Operation(104);
-				parallel_By_Station(temps, stationName, context, queue, program, prof_event);
-				displayInfo_Operation(105);
-				parallel_By_Year_All_Station(temps, years, stationName, context, queue, program, prof_event);
-				displayInfo_Operation(106);
-				parallel_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
-				displayInfo_Operation(107);
-				parallel_By_Station_All_Year(temps, years, stationName, context, queue, program, prof_event);
-				displayInfo_Operation(108);
-				parallel_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
-				break;
+
 			case 151: // Parallel Histogram Overall
-				parallel_Histogram(temps, "Parallel_Histogram_Overall.csv", context, queue, program, prof_event);
+			case 161: // Parallel Histogram Overall
+				parallel_Histogram(temps, "Parallel_Histogram_Overall.csv", binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 152: // Parallel Histogram By Year
-				parallel_Histogram_By_Year(temps, years, context, queue, program, prof_event);
+			case 162: // Parallel Histogram By Year
+				parallel_Histogram_By_Year(temps, years, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 153: // Parallel Histogram By Month
-				parallel_Histogram_By_Month(temps, months, context, queue, program, prof_event);
+			case 163: // Parallel Histogram By Month
+				parallel_Histogram_By_Month(temps, months, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 154: // Parallel Histogram By Station
-				parallel_Histogram_By_Station(temps, stationName, context, queue, program, prof_event);
+			case 164: // Parallel Histogram By Station
+				parallel_Histogram_By_Station(temps, stationName, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 155: // Parallel Histogram By Year All Station
-				parallel_Histogram_By_Year_All_Station(temps, years, stationName, context, queue, program, prof_event);
+			case 165: // Parallel Histogram By Year All Station
+				parallel_Histogram_By_Year_All_Station(temps, years, stationName, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 156: // Parallel Histogram By Month All Station
-				parallel_Histogram_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
+			case 166: // Parallel Histogram By Month All Station
+				parallel_Histogram_By_Month_All_Station(temps, stationName, months, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 157: // Parallel Histogram By Station All Year
-				parallel_Histogram_By_Station_All_Year(temps, years, stationName, context, queue, program, prof_event);
+			case 167: // Parallel Histogram By Station All Year
+				parallel_Histogram_By_Station_All_Year(temps, years, stationName, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 158: // Parallel Histogram By Station All Month
-				parallel_Histogram_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
+			case 168: // Parallel Histogram By Station All Month
+				parallel_Histogram_By_Station_All_Month(temps, stationName, months, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
-			case 159: // Parallel Full Histogram
-				displayInfo_Operation(151);
-				parallel_Histogram(temps, "Parallel_Histogram_Overall.csv", context, queue, program, prof_event);
-				displayInfo_Operation(152);
-				parallel_Histogram_By_Year(temps, years, context, queue, program, prof_event);
-				displayInfo_Operation(153);
-				parallel_Histogram_By_Month(temps, months, context, queue, program, prof_event);
-				displayInfo_Operation(154);
-				parallel_Histogram_By_Station(temps, stationName, context, queue, program, prof_event);
-				displayInfo_Operation(155);
-				parallel_Histogram_By_Year_All_Station(temps, years, stationName, context, queue, program, prof_event);
-				displayInfo_Operation(156);
-				parallel_Histogram_By_Month_All_Station(temps, stationName, months, context, queue, program, prof_event);
-				displayInfo_Operation(157);
-				parallel_Histogram_By_Station_All_Year(temps, years, stationName, context, queue, program, prof_event);
-				displayInfo_Operation(158);
-				parallel_Histogram_By_Station_All_Month(temps, stationName, months, context, queue, program, prof_event);
-				break;
+
 			default:
 				println("Invalid input. Please enter a valid option...");
 				break;

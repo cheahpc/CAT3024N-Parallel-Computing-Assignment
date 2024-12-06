@@ -68,9 +68,7 @@ void SerialStatistics::selectionSort(vector<float> &values, SORT_ORDER mode)
 			{
 				// Store the index of minimum element in unsorted array
 				if (values[j] < values[min_index])
-				{
 					min_index = j;
-				}
 			}
 			// Swap the found min element with the bigger element
 			if (min_index != i)
@@ -92,9 +90,7 @@ void SerialStatistics::selectionSort(vector<float> &values, SORT_ORDER mode)
 			{
 				// Store the index of minimum element in unsorted array
 				if (values[j] > values[min_index])
-				{
 					min_index = j;
-				}
 			}
 			// Swap the found min element with the bigger element
 			if (min_index != i)
@@ -114,9 +110,7 @@ void SerialStatistics::mergeSort(vector<float> &values, SORT_ORDER mode)
 {
 	// Base case: array of size 1 or less is already sorted
 	if (values.size() <= 1)
-	{
 		return;
-	}
 
 	// Set the middle index
 	int mid = values.size() / 2;
@@ -144,13 +138,9 @@ void SerialStatistics::merge(vector<float> &values, const vector<float> &left, c
 		while (i < left.size() && j < right.size())
 		{
 			if (left[i] < right[j])
-			{
 				values[k++] = left[i++];
-			}
 			else
-			{
 				values[k++] = right[j++];
-			}
 		}
 	}
 	else if (mode == DESCENDING)
@@ -158,27 +148,19 @@ void SerialStatistics::merge(vector<float> &values, const vector<float> &left, c
 		while (i < left.size() && j < right.size())
 		{
 			if (left[i] > right[j])
-			{
 				values[k++] = left[i++];
-			}
 			else
-			{
 				values[k++] = right[j++];
-			}
 		}
 	}
 
 	// Copy the remaining elements of left, if there are any
 	while (i < left.size())
-	{
 		values[k++] = left[i++];
-	}
 
 	// Copy the remaining elements of right, if there are any
 	while (j < right.size())
-	{
 		values[k++] = right[j++];
-	}
 
 	return;
 }
@@ -191,10 +173,7 @@ float SerialStatistics::getSum(vector<float> &values)
 	int Size = values.size();
 	// Loop through the vector
 	for (int i = 0; i < Size; i++)
-	{
-		// Add the current element to the sum
-		Sum += values[i];
-	}
+		Sum += values[i]; // Add the current element to the sum
 	// Return the sum
 	return Sum;
 }
