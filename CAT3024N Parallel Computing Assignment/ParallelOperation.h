@@ -16,7 +16,7 @@
 
 using namespace std;
 
-void parallel_Calculate(vector<float> &values, bool displayQuartile, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Calculate(vector<float> &values, bool displayQuartile, int localSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Create an instance of the ParallelStatistics
     ParallelStatistics pStats = ParallelStatistics();
@@ -41,11 +41,11 @@ void parallel_Calculate(vector<float> &values, bool displayQuartile, SORT_ALGORI
 
     // Sorting
     if (sortAlgorithm == MERGE)                                                          // Check the sorting algorithm
-        pStats.bitonicSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+        pStats.bitonicSort(temperature, localSize, context, queue, program, prof_event, ASCENDING); // Perform merge sort
     else if (sortAlgorithm == SELECTION)
-        pStats.selectionSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform selection sort
+        pStats.selectionSort(temperature, localSize, context, queue, program, prof_event, ASCENDING); // Perform selection sort
     else if (sortAlgorithm == BUBBLE)
-        pStats.oddEvenSort(temperature, context, queue, program, prof_event, ASCENDING); // Perform bubble sort TODO
+        pStats.oddEvenSort(temperature, localSize, context, queue, program, prof_event, ASCENDING); // Perform bubble sort TODO
 
     // Get the size of the vector
     int size = temperature.size();
@@ -70,7 +70,7 @@ void parallel_Calculate(vector<float> &values, bool displayQuartile, SORT_ALGORI
     displayInfo_Summary(size, mean, sDeviation, min, max, median, q1, q3, startTime, endTime);
 }
 
-void parallel_Overall(vector<float> &temp, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Overall(vector<float> &temp, int localSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Display overall header
     displayInfo_Overall_Header();
@@ -80,7 +80,7 @@ void parallel_Overall(vector<float> &temp, SORT_ALGORITHM sortAlgorithm, cl::Con
 
     // Calculate and display the temperature data
     cout << "| " << left << setfill(' ') << setw(14) << "OVERALL";
-    parallel_Calculate(temp, true, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+    parallel_Calculate(temp, true, localSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
 
     // End Counting
     clock_t overallEndTime = clock();
@@ -92,7 +92,7 @@ void parallel_Overall(vector<float> &temp, SORT_ALGORITHM sortAlgorithm, cl::Con
     return;
 }
 
-void parallel_By_Year(vector<float> &temp, vector<int> &year, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_By_Year(vector<float> &temp, vector<int> &year, int localSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Display by year header
     displayInfo_By_Year_Header();
@@ -112,7 +112,7 @@ void parallel_By_Year(vector<float> &temp, vector<int> &year, SORT_ALGORITHM sor
         vector<float> temperatures = entry.second;
 
         cout << "| " << left << setfill(' ') << setw(14) << currentYear;
-        parallel_Calculate(temperatures, true, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+        parallel_Calculate(temperatures, true, localSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
     }
     // End Counting
     clock_t overallEndTime = clock();
@@ -124,7 +124,7 @@ void parallel_By_Year(vector<float> &temp, vector<int> &year, SORT_ALGORITHM sor
     return;
 }
 
-void parallel_By_Month(vector<float> &temp, vector<int> &month, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_By_Month(vector<float> &temp, vector<int> &month, int localSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Display by month header
     displayInfo_By_Month_Header();
@@ -143,7 +143,7 @@ void parallel_By_Month(vector<float> &temp, vector<int> &month, SORT_ALGORITHM s
     for (int i = 0; i < tempVar.size(); i++)
     {
         cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[i];
-        parallel_Calculate(tempVar[i], false, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+        parallel_Calculate(tempVar[i], false, localSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
     }
 
     // End Counting
@@ -156,7 +156,7 @@ void parallel_By_Month(vector<float> &temp, vector<int> &month, SORT_ALGORITHM s
     return;
 }
 
-void parallel_By_Station(vector<float> &temp, vector<string> &stationName, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_By_Station(vector<float> &temp, vector<string> &stationName, int localSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Display by station header
     displayInfo_By_Station_Header();
@@ -178,7 +178,7 @@ void parallel_By_Station(vector<float> &temp, vector<string> &stationName, SORT_
         {
             // Print and process the current station's data
             cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-            parallel_Calculate(tempVar, true, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+            parallel_Calculate(tempVar, true, localSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
             tempVar.clear();
 
             // Update the current station and add the new temperature
@@ -189,7 +189,7 @@ void parallel_By_Station(vector<float> &temp, vector<string> &stationName, SORT_
 
     // Process the last station's data
     cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-    parallel_Calculate(tempVar, true, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+    parallel_Calculate(tempVar, true, localSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
 
     // End Counting
     clock_t overallEndTime = clock();
@@ -201,7 +201,7 @@ void parallel_By_Station(vector<float> &temp, vector<string> &stationName, SORT_
     return;
 }
 
-void parallel_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName, int localSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Display By Station Header
     displayInfo_By_Station_Header();
@@ -230,7 +230,7 @@ void parallel_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector
         for (const auto &station : uniqueStation) // For each station
         {
             cout << "| " << left << setfill(' ') << setw(14) << station;
-            parallel_Calculate(stationData[station], true, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+            parallel_Calculate(stationData[station], true, localSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
         }
         displayInfo_TableDiv('-');
     }
@@ -243,7 +243,7 @@ void parallel_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector
     return;
 }
 
-void parallel_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month, int localSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Each month all station
     displayInfo_By_Station_Header();
@@ -287,7 +287,7 @@ void parallel_By_Month_All_Station(vector<float> &temp, vector<string> &stationN
                 {
                     // Print and process the current station's data
                     cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-                    parallel_Calculate(tempData, false, sortAlgorithm, context, queue, program, prof_event);
+                    parallel_Calculate(tempData, false, localSize, sortAlgorithm, context, queue, program, prof_event);
                     tempData.clear();
                     copiedUniqueStation.erase(currentStation);
 
@@ -299,14 +299,14 @@ void parallel_By_Month_All_Station(vector<float> &temp, vector<string> &stationN
 
             // Process the last station's data
             cout << "| " << left << setfill(' ') << setw(14) << currentStation;
-            parallel_Calculate(tempData, false, sortAlgorithm, context, queue, program, prof_event);
+            parallel_Calculate(tempData, false, localSize, sortAlgorithm, context, queue, program, prof_event);
             copiedUniqueStation.erase(currentStation);
         }
 
         for (const auto &station : copiedUniqueStation)
         {
             cout << "| " << left << setfill(' ') << setw(14) << station;
-            parallel_Calculate(tempData, false, sortAlgorithm, context, queue, program, prof_event);
+            parallel_Calculate(tempData, false, localSize, sortAlgorithm, context, queue, program, prof_event);
         }
         displayInfo_TableDiv('-');
     }
@@ -318,7 +318,7 @@ void parallel_By_Month_All_Station(vector<float> &temp, vector<string> &stationN
     displayInfo_Footer(overallStartTime, overallEndTime);
 }
 
-void parallel_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector<string> &stationName, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector<string> &stationName, int localSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Display By Year Header
     displayInfo_By_Year_Header();
@@ -347,7 +347,7 @@ void parallel_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector
             vector<float> temperatures = year.second;
 
             cout << "| " << left << setfill(' ') << setw(14) << yearString;
-            parallel_Calculate(temperatures, true, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+            parallel_Calculate(temperatures, true, localSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
         }
         displayInfo_TableDiv('-');
     }
@@ -360,7 +360,7 @@ void parallel_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector
     return;
 }
 
-void parallel_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month, int localSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Each station all month
     displayInfo_By_Month_Header();
@@ -388,7 +388,7 @@ void parallel_By_Station_All_Month(vector<float> &temp, vector<string> &stationN
             for (int j = 0; j < tempData.size(); j++)
             {
                 cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[j];
-                parallel_Calculate(tempData[j], false, sortAlgorithm, context, queue, program, prof_event);
+                parallel_Calculate(tempData[j], false, localSize, sortAlgorithm, context, queue, program, prof_event);
             }
             displayInfo_TableDiv('-');
             tempData.clear();
@@ -406,7 +406,7 @@ void parallel_By_Station_All_Month(vector<float> &temp, vector<string> &stationN
     for (int j = 0; j < tempData.size(); j++)
     {
         cout << "| " << left << setfill(' ') << setw(14) << MONTH_LIST[j];
-        parallel_Calculate(tempData[j], false, sortAlgorithm, context, queue, program, prof_event);
+        parallel_Calculate(tempData[j], false, localSize, sortAlgorithm, context, queue, program, prof_event);
     }
 
     // End Counting
@@ -417,7 +417,7 @@ void parallel_By_Station_All_Month(vector<float> &temp, vector<string> &stationN
     displayInfo_Footer(overallStartTime, overallEndTime);
 }
 
-void parallel_Histogram(vector<float> &temperature, string outputFileName, int binSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Histogram(vector<float> &temperature, string outputFileName, int binSize, int localSize, int histLocalSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Step 0. Check if the temperature vector is empty
     if (temperature.size() == 0)
@@ -458,11 +458,11 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, int b
     // TODO Fix bitnoic and odd even sort
     // Step 3. Sort the temperature
     if (sortAlgorithm == MERGE)
-        pStats.bitonicSort(temp, context, queue, program, prof_event, ASCENDING); // Perform merge sort
+        pStats.bitonicSort(temp, localSize, context, queue, program, prof_event, ASCENDING); // Perform merge sort
     else if (sortAlgorithm == SELECTION)
-        pStats.selectionSort(temp, context, queue, program, prof_event, ASCENDING); // Perform selection sort
+        pStats.selectionSort(temp, localSize, context, queue, program, prof_event, ASCENDING); // Perform selection sort
     else if (sortAlgorithm == BUBBLE)
-        pStats.oddEvenSort(temp, context, queue, program, prof_event, ASCENDING); // Perform bubble sort
+        pStats.oddEvenSort(temp, localSize, context, queue, program, prof_event, ASCENDING); // Perform bubble sort
 
     float minimum = temp[0];
     float maximum = temp[temp.size() - 1];
@@ -470,13 +470,12 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, int b
 
     // Step 4. Create a kernel
     cl::Kernel kernel(program, "p_Hist");
-    size_t local_size = 256;
 
     // Step 5. Adjust padding
-    size_t padding_size = temp.size() % local_size; // 512 / 1024 / 2048 / 4096
+    size_t padding_size = temp.size() % histLocalSize; // 512 / 1024 / 2048 / 4096
     if (padding_size)
     {
-        vector<int> temperature_ext(local_size - padding_size, 1000);            // create an extra vector with neutral values
+        vector<int> temperature_ext(histLocalSize - padding_size, 1000);         // create an extra vector with neutral values
         temp.insert(temp.end(), temperature_ext.begin(), temperature_ext.end()); // append that extra vector to our input
     }
 
@@ -505,7 +504,7 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, int b
     kernel.setArg(5, bin);
 
     // Step 10. Run the kernel
-    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(vector_elements), cl::NDRange(local_size));
+    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(vector_elements), cl::NDRange(histLocalSize));
 
     // Step 11. Read the output data and get the histogram execution time
     queue.enqueueReadBuffer(output_buffer, CL_TRUE, 0, output_size, &histogram_vector[0]);
@@ -554,7 +553,7 @@ void parallel_Histogram(vector<float> &temperature, string outputFileName, int b
     return;
 }
 
-void parallel_Histogram_By_Year(vector<float> &temp, vector<int> &year, int binSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Histogram_By_Year(vector<float> &temp, vector<int> &year, int binSize, int localSize, int histLocalSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Group temperatures by year
     map<int, vector<float>> tempData;
@@ -569,12 +568,12 @@ void parallel_Histogram_By_Year(vector<float> &temp, vector<int> &year, int binS
 
         displayInfo_ByX_Header(currentYear);
         string outputFileName = "Serial_Histogram_In_Year_" + currentYear + ".csv";
-        parallel_Histogram(temperatures, outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+        parallel_Histogram(temperatures, outputFileName, binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
     }
     return;
 }
 
-void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month, int binSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month, int binSize, int localSize, int histLocalSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Create a 2D vector to store the temperature data by month
     vector<vector<float>> tempVar(12);
@@ -588,12 +587,12 @@ void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month,
     {
         displayInfo_ByX_Header(MONTH_LIST[i]);
         string outputFileName = "Parallel_Histogram_In_" + MONTH_LIST[i] + ".csv ";
-        parallel_Histogram(tempVar[i], outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+        parallel_Histogram(tempVar[i], outputFileName, binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
     }
     return;
 }
 
-void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationName, int binSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationName, int binSize, int localSize, int histLocalSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Create a 1D vector to store the temperature data by station
     vector<float> tempVar;
@@ -611,7 +610,7 @@ void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationN
             // Print and process the current station's data
             displayInfo_ByX_Header(currentStation);
             outputFileName = "Parallel_Histogram_By_" + currentStation + ".csv ";
-            parallel_Histogram(tempVar, outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+            parallel_Histogram(tempVar, outputFileName, binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
             tempVar.clear();
 
             // Update the current station and add the new temperature
@@ -623,12 +622,12 @@ void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationN
     // Process the last station's data
     displayInfo_ByX_Header(currentStation);
     outputFileName = "Parallel_Histogram_By_" + currentStation + ".csv";
-    parallel_Histogram(tempVar, outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+    parallel_Histogram(tempVar, outputFileName, binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
 
     return;
 }
 
-void parallel_Histogram_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName, int binSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Histogram_By_Year_All_Station(vector<float> &temp, vector<int> &year, vector<string> &stationName, int binSize, int localSize, int histLocalSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Get unique station names
     unordered_set<string> uniqueStation(stationName.begin(), stationName.end());
@@ -648,13 +647,13 @@ void parallel_Histogram_By_Year_All_Station(vector<float> &temp, vector<int> &ye
         {
             displayInfo_ByX_Header(to_string(currentYear), station);
             string outputFileName = "Parallel_Histogram_In_Year_" + to_string(currentYear) + "_For_" + station + ".csv";
-            parallel_Histogram(stationData[station], outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+            parallel_Histogram(stationData[station], outputFileName, binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
         }
     }
     return;
 }
 
-void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month, int binSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string> &stationName, vector<int> &month, int binSize, int localSize, int histLocalSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Create array of unique station
     unordered_set<string> uniqueStation(stationName.begin(), stationName.end());
@@ -692,7 +691,7 @@ void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string>
                 {
                     // Print and process the current station's data
                     displayInfo_ByX_Header(MONTH_LIST[i], currentStation);
-                    parallel_Histogram(tempData, outputFileName + currentStation + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+                    parallel_Histogram(tempData, outputFileName + currentStation + ".csv", binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event);
                     tempData.clear();
                     copiedUniqueStation.erase(currentStation);
 
@@ -704,19 +703,19 @@ void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string>
 
             // Process the last station's data
             displayInfo_ByX_Header(MONTH_LIST[i], currentStation);
-            parallel_Histogram(tempData, outputFileName + currentStation + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+            parallel_Histogram(tempData, outputFileName + currentStation + ".csv", binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event);
             copiedUniqueStation.erase(currentStation);
         }
 
         for (const auto &station : copiedUniqueStation)
         {
             displayInfo_ByX_Header(MONTH_LIST[i], station);
-            parallel_Histogram(tempData, outputFileName + station + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+            parallel_Histogram(tempData, outputFileName + station + ".csv", binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event);
         }
     }
 }
 
-void parallel_Histogram_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector<string> &stationName, int binSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Histogram_By_Station_All_Year(vector<float> &temp, vector<int> &year, vector<string> &stationName, int binSize, int localSize, int histLocalSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Group temperatures by Station and then year
     map<string, map<int, vector<float>>> tempData;
@@ -735,14 +734,14 @@ void parallel_Histogram_By_Station_All_Year(vector<float> &temp, vector<int> &ye
 
             displayInfo_ByX_Header(currentStation, to_string(year.first));
             string outputFileName = "Parallel_Histogram_For_" + currentStation + "_In_Year_" + to_string(year.first) + ".csv";
-            parallel_Histogram(temperatures, outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
+            parallel_Histogram(temperatures, outputFileName, binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
         }
     }
 
     return;
 }
 
-void parallel_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month, int binSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
+void parallel_Histogram_By_Station_All_Month(vector<float> &temp, vector<string> &stationName, vector<int> &month, int binSize, int localSize, int histLocalSize, SORT_ALGORITHM sortAlgorithm, cl::Context context, cl::CommandQueue queue, cl::Program program, cl::Event &prof_event)
 {
     // Step 1. Collect data for each station
     vector<vector<float>> tempData(12);     // For each station, store the temperature data for each month
@@ -763,7 +762,7 @@ void parallel_Histogram_By_Station_All_Month(vector<float> &temp, vector<string>
             for (int j = 0; j < 12; j++)
             {
                 displayInfo_ByX_Header(currentStation, MONTH_LIST[j]);
-                parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+                parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv", binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event);
             }
             tempData.clear();
             tempData.resize(12);
@@ -777,7 +776,7 @@ void parallel_Histogram_By_Station_All_Month(vector<float> &temp, vector<string>
     for (int j = 0; j < 12; j++)
     {
         displayInfo_ByX_Header(currentStation, MONTH_LIST[j]);
-        parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+        parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv", binSize, localSize, histLocalSize, sortAlgorithm, context, queue, program, prof_event);
     }
 }
 

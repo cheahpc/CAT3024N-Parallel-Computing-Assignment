@@ -35,52 +35,97 @@ void displayMenu_Main()
     println("=================================================================================================================================================================");
     println("|                                                                           Main Menu                                                                           |");
     println("=================================================================================================================================================================");
+    // println("|            Serial Operations (xx)             |           Parallel Operations (xxx)           |   Description                                                 |");
+    // println("|-----------------------------------------------|-----------------------------------------------|---------------------------------------------------------------|");
+    // println("|   Selection   |     Merge     |    Bubble     |   Selection   |    Bitonic    |    Odd Even   |   Summary                                                     |");
+    // println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------------------------------------------------------|");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       1       |      11       |      21       |      101      |      111      |      121      |   Overview                                                    |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       2       |      12       |      22       |      102      |      112      |      122      |   By Year                                                     |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       3       |      13       |      23       |      103      |      113      |      123      |   By Month                                                    |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       4       |      14       |      24       |      104      |      114      |      124      |   By Station                                                  |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       5       |      15       |      25       |      105      |      115      |      125      |   By Year All Station                                         |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       6       |      16       |      26       |      106      |      116      |      126      |   By Month All Station                                        |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       7       |      17       |      27       |      107      |      117      |      127      |   By Station All Year                                         |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       8       |      18       |      28       |      108      |      118      |      128      |   By Station All Month                                        |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------------------------------------------------------|");
+    // println("|   Selection   |     Merge     |    Bubble     |   Selection   |    Bitonic    |    Odd Even   |   Histograms                                                  |");
+    // println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------------------------------------------------------|");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       51      |      61       |      71       |      151      |      161      |      171      |   Overview                                                    |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       52      |      62       |      72       |      152      |      162      |      172      |   By Year                                                     |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       53      |      63       |      73       |      153      |      163      |      173      |   By Month                                                    |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       54      |      64       |      74       |      154      |      164      |      174      |   By Station                                                  |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       55      |      65       |      75       |      155      |      165      |      175      |   By Year All Station                                         |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       56      |      66       |      76       |      156      |      166      |      176      |   By Month All Station                                        |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       57      |      67       |      77       |      157      |      167      |      177      |   By Station All Year                                         |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|       58      |      68       |      78       |      158      |      168      |      178      |   By Station All Month                                        |");
+    // println("|               |               |               |               |               |               |                                                               |");
+    // println("|_______________|_______________|_______________|_______________|_______________|_______________|_______________________________________________________________|");
     println("|            Serial Operations (xx)             |           Parallel Operations (xxx)           |   Description                                                 |");
     println("|-----------------------------------------------|-----------------------------------------------|---------------------------------------------------------------|");
-    println("|   Selection   |     Merge     |    Bubble     |   Selection   |    Bitonic    |    Odd Even   |   Summary                                                     |");
-    println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------------------------------------------------------|");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       1       |      11       |      21       |      101      |      111      |      121      |   Overview                                                    |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       2       |      12       |      22       |      102      |      112      |      122      |   By Year                                                     |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       3       |      13       |      23       |      103      |      113      |      123      |   By Month                                                    |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       4       |      14       |      24       |      104      |      114      |      124      |   By Station                                                  |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       5       |      15       |      25       |      105      |      115      |      125      |   By Year All Station                                         |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       6       |      16       |      26       |      106      |      116      |      126      |   By Month All Station                                        |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       7       |      17       |      27       |      107      |      117      |      127      |   By Station All Year                                         |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       8       |      18       |      28       |      108      |      118      |      128      |   By Station All Month                                        |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------------------------------------------------------|");
-    println("|   Selection   |     Merge     |    Bubble     |   Selection   |    Bitonic    |    Odd Even   |   Histograms                                                  |");
-    println("|---------------|---------------|---------------|---------------|---------------|---------------|---------------------------------------------------------------|");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       51      |      61       |      71       |      151      |      161      |      171      |   Overview                                                    |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       52      |      62       |      72       |      152      |      162      |      172      |   By Year                                                     |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       53      |      63       |      73       |      153      |      163      |      173      |   By Month                                                    |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       54      |      64       |      74       |      154      |      164      |      174      |   By Station                                                  |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       55      |      65       |      75       |      155      |      165      |      175      |   By Year All Station                                         |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       56      |      66       |      76       |      156      |      166      |      176      |   By Month All Station                                        |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       57      |      67       |      77       |      157      |      167      |      177      |   By Station All Year                                         |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|       58      |      68       |      78       |      158      |      168      |      178      |   By Station All Month                                        |");
-    println("|               |               |               |               |               |               |                                                               |");
-    println("|_______________|_______________|_______________|_______________|_______________|_______________|_______________________________________________________________|");
+    println("|   Selection   |     Merge     |    Bubble     |   Selection   |                               |   Summary                                                     |");
+    println("|---------------|---------------|---------------|---------------|-------------------------------|---------------------------------------------------------------|");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       1       |      11       |      21       |      101      |                               |   Overview                                                    |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       2       |      12       |      22       |      102      |                               |   By Year                                                     |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       3       |      13       |      23       |      103      |                               |   By Month                                                    |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       4       |      14       |      24       |      104      |                               |   By Station                                                  |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       5       |      15       |      25       |      105      |                               |   By Year All Station                                         |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       6       |      16       |      26       |      106      |                               |   By Month All Station                                        |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       7       |      17       |      27       |      107      |                               |   By Station All Year                                         |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       8       |      18       |      28       |      108      |                               |   By Station All Month                                        |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|---------------|---------------|---------------|---------------|-------------------------------|---------------------------------------------------------------|");
+    println("|   Selection   |     Merge     |    Bubble     |   Selection   |                               |   Histograms                                                  |");
+    println("|---------------|---------------|---------------|---------------|-------------------------------|---------------------------------------------------------------|");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       51      |      61       |      71       |      151      |                               |   Overview                                                    |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       52      |      62       |      72       |      152      |                               |   By Year                                                     |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       53      |      63       |      73       |      153      |                               |   By Month                                                    |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       54      |      64       |      74       |      154      |                               |   By Station                                                  |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       55      |      65       |      75       |      155      |                               |   By Year All Station                                         |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       56      |      66       |      76       |      156      |                               |   By Month All Station                                        |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       57      |      67       |      77       |      157      |                               |   By Station All Year                                         |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|       58      |      68       |      78       |      158      |                               |   By Station All Month                                        |");
+    println("|               |               |               |               |                               |                                                               |");
+    println("|_______________|_______________|_______________|_______________|_______________________________|_______________________________________________________________|");
     println("|                                                                                                                                                               |");
     println("|                                                                      -1  |  Restart                                                                           |");
-    println("|                                                                      -2  |  Set Bin Size                                                                      |");
-    println("|                                                                      -3  |  Exit Program                                                                      |");
+    println("|                                                                      -2  |  Set Dataset                                                                       |");
+    println("|                                                                      -3  |  Set Bin Size                                                                      |");
+    println("|                                                                      -4  |  Set Histogram Local Size                                                          |");
+    println("|                                                                      -5  |  Set Sorting Local Size                                                            |");
+    println("|                                                                     -10  |  Exit Program                                                                      |");
     println("|_______________________________________________________________________________________________________________________________________________________________|");
     println("");
 }
@@ -428,7 +473,7 @@ void displayMenu_DatasetSelection()
 
 void displayMenu_HistogramBinSizeSetting()
 {
-    println("++++++++++++++++++++++++++++++++++++++++++++++++++ Dataset Selection");
+    println("++++++++++++++++++++++++++++++++++++++++++++++++++ Histogram Bin Size Setting");
     println("");
     println("   Please enter a bin size value between 1 and 1000");
     println("");
@@ -436,13 +481,40 @@ void displayMenu_HistogramBinSizeSetting()
     println("");
 }
 
-void displayInfo_ProgramConfiguration(string platformName, string deviceName, int binSize)
+void displayMenu_HistLocalSizeSetting()
+{
+    println("++++++++++++++++++++++++++++++++++++++++++++++++++ Histogram Local Size Setting");
+    println("");
+    println("   Please enter a local size value between 1 and 1024.");
+    println("");
+    println("   *** Make sure it is a power of 2 and less than or equal to the device's maximum work group size.");
+    println("");
+    println("++++++++++++++++++++++++++++++++++++++++++++++++++");
+    println("");
+}
+
+void displayMenu_SortingLocalSizeSetting()
+{
+    println("++++++++++++++++++++++++++++++++++++++++++++++++++ Sorting Local Size Setting");
+    println("");
+    println("   Please enter a local size value between 1 and 1024.");
+    println("");
+    println("   *** Make sure it is a power of 2 and less than or equal to the device's maximum work group size.");
+    println("");
+    println("++++++++++++++++++++++++++++++++++++++++++++++++++");
+    println("");
+}
+
+void displayInfo_ProgramConfiguration(string platformName, string deviceName, int binSize, int histLocalSize, int sortLocalSize)
 {
     println("================================================== Platform and Device Information");
     println("Platform\t: " + platformName);
     println("Device\t\t: " + deviceName);
     println("================================================== Histogram Bin Size");
     println("Bin Size\t: " + to_string(binSize));
+    println("================================================== Parallel Execution Local Size");
+    println("Histogram Local Size\t: " + to_string(histLocalSize));
+    println("Sorting Local Size\t: " + to_string(sortLocalSize));
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Utilities
@@ -472,11 +544,11 @@ void clearScreen()
     system("cls"); // Clear screen
 }
 
-void refreshHeader(string platform_id, string device_name, int binSize)
+void refreshHeader(string platform_id, string device_name, int binSize, int histLocalSize, int sortLocalSize)
 {
-    clearScreen();                                                       // Clear the screen
-    displayInfo_ProgramConfiguration(platform_id, device_name, binSize); // Display Platform and Device Information
-    displayHeader();                                                     // Display Header with name and version etc
+    clearScreen();                                                                                     // Clear the screen
+    displayInfo_ProgramConfiguration(platform_id, device_name, binSize, histLocalSize, sortLocalSize); // Display the program configuration
+    displayHeader();                                                                                   // Display Header with name and version etc
 }
 
 #endif // DISPLAY_H

@@ -22,65 +22,45 @@ inline void atomicAddFloat(volatile __global float *addr, float val)
 	} while (current.u32 != expected.u32);
 }
 
-void cmpxchg(__global float *A, __global float *B) // Compare and exchange, dir true for ascending, false for descending
+inline void swap(__global float *a, __global float *b)
 {
-	if (*A > *B)
-	{
-		float t = *A;
-		*A = *B;
-		*B = t;
-	}
-}
-
-void cmpxchgAsc(__global float *A, __global float *B)
-{
-	if (*A > *B)
-	{
-		float t = *A;
-		*A = *B;
-		*B = t;
-	}
-}
-
-void cmpxchgDesc(__global float *A, __global float *B)
-{
-	if (*A < *B)
-	{
-		float t = *A;
-		*A = *B;
-		*B = t;
-	}
-}
-
-void bitonic_merge(int id, __global float *A, int N, bool dir)
-{
-	for (int i = N / 2; i > 0; i / 2)
-	{
-		if ((id % (i * 2)) < i)
-			if (dir)
-				cmpxchgDesc(&A[id], &A[id + i]);
-			else
-				cmpxchgAsc(&A[id], &A[id + i]);
-		barrier(CLK_GLOBAL_MEM_FENCE);
-	}
+	float temp = *a;
+	*a = *b;
+	*b = temp;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Parallel Odd Even Sort kernel
-__kernel void p_OddEvenSort(__global float *A)
+kernel void p_OddEvenSort(global const float *A, __global float *B)
 {
-	int id = get_global_id(0);
-	int n = get_global_size(0);
+	int id = get_global_id(0);	   // Get the thread ID
+	int size = get_global_size(0); // Total number of threads
 
-	for (int i = 0; i < n; i += 2) // Step
+	// Copy input to output
+	B[id] = A[id];
+	barrier(CLK_GLOBAL_MEM_FENCE);
+
+	for (int i = 0; i < size; i++)
 	{
-		if (id % 2 == 1 && id + 1 < n) // Odd
-			cmpxchg(&A[id], &A[id + 1]);
+		// Even phase
+		if (id % 2 == 0 && id + 1 < size)
+		{
+			if (B[id] > B[id + 1])
+			{
+				swap(&B[id], &B[id + 1]);
+			}
+		}
 		barrier(CLK_GLOBAL_MEM_FENCE);
 
-		if (id % 2 == 0 && id + 1 < n) // Even
-			cmpxchg(&A[id], &A[id + 1]);
+		// Odd phase
+		if (id % 2 == 1 && id + 1 < size)
+		{
+			if (B[id] > B[id + 1])
+			{
+				swap(&B[id], &B[id + 1]);
+			}
+		}
 		barrier(CLK_GLOBAL_MEM_FENCE);
 	}
 }
@@ -111,21 +91,41 @@ __kernel void p_SelectionSort(__global const float *A, __global float *B)
 }
 
 // Parallel merge sort (Bitonic) kernel
-__kernel void p_BitonicSort(__global float *A)
+__kernel void p_BitonicSort(__global const float *A, __global float *B)
 {
 	// Get global ID, local ID, local size
 	int id = get_global_id(0);
 	int n = get_global_size(0);
 
-	for (int i = 1; i < n / 2; i *= 2)
+	// Copy input to output
+	B[id] = A[id];
+	barrier(CLK_GLOBAL_MEM_FENCE);
+
+	for (int size = 2; size <= n; size <<= 1)
 	{
-		if (id % (i * 4) < i * 2)
-			bitonic_merge(id, A, i * 2, false);
-		else if ((id + i * 2) % (i * 4) < i * 2)
-			bitonic_merge(id, A, i * 2, true);
-		barrier(CLK_GLOBAL_MEM_FENCE);
+		for (int stride = size >> 1; stride > 0; stride >>= 1)
+		{
+			int pos = 2 * id - (id & (stride - 1));
+			if (pos + stride < n)
+			{
+				if ((pos & size) == 0)
+				{
+					if (B[pos] > B[pos + stride])
+					{
+						swap(&B[pos], &B[pos + stride]);
+					}
+				}
+				else
+				{
+					if (B[pos] < B[pos + stride])
+					{
+						swap(&B[pos], &B[pos + stride]);
+					}
+				}
+			}
+			barrier(CLK_LOCAL_MEM_FENCE);
+		}
 	}
-	bitonic_merge(id, A, n, false);
 }
 
 // Reduce add kernel
