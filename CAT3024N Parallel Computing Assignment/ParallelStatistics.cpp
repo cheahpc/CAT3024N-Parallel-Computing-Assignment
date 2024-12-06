@@ -53,8 +53,8 @@ float ParallelStatistics::kernelExecute(bool isReturn, // Should function return
         kernel.setArg(4, int4);
 
     // Step 5: Run the kernel
-    // queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(input_elements), cl::NDRange(Local_Size), NULL, &prof_event);
-    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(input_elements), cl::NullRange, NULL, &prof_event);
+    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(input_elements), cl::NDRange(Local_Size), NULL, &prof_event);
+    // queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(input_elements), cl::NullRange, NULL, &prof_event);
 
     // Step 6: Setup prof Event
     cl::Event prof_event2;
