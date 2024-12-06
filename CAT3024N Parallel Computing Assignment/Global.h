@@ -17,11 +17,9 @@ typedef enum SORT_ORDER
     DESCENDING
 };
 
-
-
 // Switches, comment or uncomment to enable or disable
-// #define SERIAL_PLOT // Enable to plot the histogram using Python for serial
-// #define PARALLEL_PLOT // Enable to plot the histogram using Python for parallel
+#define SERIAL_PLOT   // Enable to plot the histogram using Python for serial
+#define PARALLEL_PLOT // Enable to plot the histogram using Python for parallel
 
 // Sorting Algorithms
 typedef enum SORT_ALGORITHM

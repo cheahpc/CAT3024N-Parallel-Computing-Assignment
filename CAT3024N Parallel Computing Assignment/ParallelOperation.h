@@ -40,7 +40,7 @@ void parallel_Calculate(vector<float> &values, bool displayQuartile, SORT_ALGORI
     vector<float> temperature = values; // Copy the values to vector
 
     // Sorting
-    if (sortAlgorithm == MERGE)                                                                     // Check the sorting algorithm
+    if (sortAlgorithm == MERGE)                                                                         // Check the sorting algorithm
         pStats.bitonicSort(temperature, sortLocalSize, context, queue, program, prof_event, ASCENDING); // Perform merge sort
     else if (sortAlgorithm == SELECTION)
         pStats.selectionSort(temperature, sortLocalSize, context, queue, program, prof_event, ASCENDING); // Perform selection sort
@@ -567,7 +567,7 @@ void parallel_Histogram_By_Year(vector<float> &temp, vector<int> &year, int binS
         vector<float> temperatures = entry.second;
 
         displayInfo_ByX_Header(currentYear);
-        string outputFileName = "Serial_Histogram_In_Year_" + currentYear + ".csv";
+        string outputFileName = "Serial_Histogram_In_Year_" + currentYear + " (Bin Size = " + to_string(binSize) + ").csv";
         parallel_Histogram(temperatures, outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
     }
     return;
@@ -586,7 +586,7 @@ void parallel_Histogram_By_Month(vector<float> &temperature, vector<int> &month,
     for (int i = 0; i < tempVar.size(); i++)
     {
         displayInfo_ByX_Header(MONTH_LIST[i]);
-        string outputFileName = "Parallel_Histogram_In_" + MONTH_LIST[i] + ".csv ";
+        string outputFileName = "Parallel_Histogram_In_" + MONTH_LIST[i] + " (Bin Size = " + to_string(binSize) + ").csv";
         parallel_Histogram(tempVar[i], outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
     }
     return;
@@ -609,7 +609,7 @@ void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationN
         {
             // Print and process the current station's data
             displayInfo_ByX_Header(currentStation);
-            outputFileName = "Parallel_Histogram_By_" + currentStation + ".csv ";
+            outputFileName = "Parallel_Histogram_By_" + currentStation + " (Bin Size = " + to_string(binSize) + ").csv";
             parallel_Histogram(tempVar, outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
             tempVar.clear();
 
@@ -621,7 +621,7 @@ void parallel_Histogram_By_Station(vector<float> &temp, vector<string> &stationN
 
     // Process the last station's data
     displayInfo_ByX_Header(currentStation);
-    outputFileName = "Parallel_Histogram_By_" + currentStation + ".csv";
+    outputFileName = "Parallel_Histogram_By_" + currentStation + " (Bin Size = " + to_string(binSize) + ").csv";
     parallel_Histogram(tempVar, outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
 
     return;
@@ -646,7 +646,7 @@ void parallel_Histogram_By_Year_All_Station(vector<float> &temp, vector<int> &ye
         for (const auto &station : uniqueStation) // For each station
         {
             displayInfo_ByX_Header(to_string(currentYear), station);
-            string outputFileName = "Parallel_Histogram_In_Year_" + to_string(currentYear) + "_For_" + station + ".csv";
+            string outputFileName = "Parallel_Histogram_In_Year_" + to_string(currentYear) + "_For_" + station + " (Bin Size = " + to_string(binSize) + ").csv";
             parallel_Histogram(stationData[station], outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
         }
     }
@@ -691,7 +691,7 @@ void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string>
                 {
                     // Print and process the current station's data
                     displayInfo_ByX_Header(MONTH_LIST[i], currentStation);
-                    parallel_Histogram(tempData, outputFileName + currentStation + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+                    parallel_Histogram(tempData, outputFileName + currentStation + " (Bin Size = " + to_string(binSize) + ").csv", binSize, sortAlgorithm, context, queue, program, prof_event);
                     tempData.clear();
                     copiedUniqueStation.erase(currentStation);
 
@@ -703,14 +703,14 @@ void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string>
 
             // Process the last station's data
             displayInfo_ByX_Header(MONTH_LIST[i], currentStation);
-            parallel_Histogram(tempData, outputFileName + currentStation + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+            parallel_Histogram(tempData, outputFileName + currentStation + " (Bin Size = " + to_string(binSize) + ").csv", binSize, sortAlgorithm, context, queue, program, prof_event);
             copiedUniqueStation.erase(currentStation);
         }
 
         for (const auto &station : copiedUniqueStation)
         {
             displayInfo_ByX_Header(MONTH_LIST[i], station);
-            parallel_Histogram(tempData, outputFileName + station + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+            parallel_Histogram(tempData, outputFileName + station + " (Bin Size = " + to_string(binSize) + ").csv", binSize, sortAlgorithm, context, queue, program, prof_event);
         }
     }
 }
@@ -733,7 +733,7 @@ void parallel_Histogram_By_Station_All_Year(vector<float> &temp, vector<int> &ye
             vector<float> temperatures = year.second; // The temperature data
 
             displayInfo_ByX_Header(currentStation, to_string(year.first));
-            string outputFileName = "Parallel_Histogram_For_" + currentStation + "_In_Year_" + to_string(year.first) + ".csv";
+            string outputFileName = "Parallel_Histogram_For_" + currentStation + "_In_Year_" + to_string(year.first) + " (Bin Size = " + to_string(binSize) + ").csv";
             parallel_Histogram(temperatures, outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
         }
     }
@@ -762,7 +762,7 @@ void parallel_Histogram_By_Station_All_Month(vector<float> &temp, vector<string>
             for (int j = 0; j < 12; j++)
             {
                 displayInfo_ByX_Header(currentStation, MONTH_LIST[j]);
-                parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+                parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + " (Bin Size = " + to_string(binSize) + ").csv", binSize, sortAlgorithm, context, queue, program, prof_event);
             }
             tempData.clear();
             tempData.resize(12);
@@ -776,7 +776,7 @@ void parallel_Histogram_By_Station_All_Month(vector<float> &temp, vector<string>
     for (int j = 0; j < 12; j++)
     {
         displayInfo_ByX_Header(currentStation, MONTH_LIST[j]);
-        parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + ".csv", binSize, sortAlgorithm, context, queue, program, prof_event);
+        parallel_Histogram(tempData[j], outputFileName + "_For_" + MONTH_LIST[j] + " (Bin Size = " + to_string(binSize) + ").csv", binSize, sortAlgorithm, context, queue, program, prof_event);
     }
 }
 
