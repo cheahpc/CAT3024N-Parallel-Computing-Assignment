@@ -417,7 +417,7 @@ buildProgram:
 			// Process sorting method
 			SORT_ALGORITHM sortAlgorithm;
 			setSortingAlgorithm(sortAlgorithm, mainMenuChoice); // Set the sorting algorithm
-
+			string fileName;
 			// Main Menu Choice
 			switch (mainMenuChoice)
 			{
@@ -465,7 +465,7 @@ buildProgram:
 			case 51: // Serial Histogram Overall
 			case 61: // Serial Histogram Overall
 			case 71: // Serial Histogram Overall
-				string fileName = "Serial_Histogram_Overall" + "_(Bin_Size_=_" + to_string(binSize) + ").csv";
+				fileName = "Serial_Histogram_Overall_(Bin_Size_=_" + to_string(binSize) + ").csv";
 				serial_Histogram(temps, fileName, binSize, sortAlgorithm);
 				break;
 			case 52: // Serial Histogram By Year
@@ -548,7 +548,7 @@ buildProgram:
 			case 151: // Parallel Histogram Overall
 			case 161: // Parallel Histogram Overall
 			case 171: // Parallel Histogram Overall
-				string fileName = "Parallel_Histogram_Overall" + "_(Bin_Size_=_" + to_string(binSize) + ").csv";
+				fileName = "Parallel_Histogram_Overall_(Bin_Size_=_" + to_string(binSize) + ").csv";
 				parallel_Histogram(temps, fileName, binSize, sortAlgorithm, context, queue, program, prof_event);
 				break;
 			case 152: // Parallel Histogram By Year
