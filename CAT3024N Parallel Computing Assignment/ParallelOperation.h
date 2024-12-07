@@ -567,7 +567,7 @@ void parallel_Histogram_By_Year(vector<float> &temp, vector<int> &year, int binS
         vector<float> temperatures = entry.second;
 
         displayInfo_ByX_Header(currentYear);
-        string outputFileName = "Serial_Histogram_In_Year_" + currentYear + "_(Bin_Size_=_" + to_string(binSize) + ").csv";
+        string outputFileName = "Parallel_Histogram_In_Year_" + currentYear + "_(Bin_Size_=_" + to_string(binSize) + ").csv";
         parallel_Histogram(temperatures, outputFileName, binSize, sortAlgorithm, context, queue, program, prof_event); // Calculate and display the temperature data
     }
     return;
@@ -672,7 +672,7 @@ void parallel_Histogram_By_Month_All_Station(vector<float> &temp, vector<string>
     for (int i = 0; i < 12; i++)
     {
         println();
-        string outputFileName = "Serial_Histogram_In_" + MONTH_LIST[i] + "_For_";
+        string outputFileName = "Parallel_Histogram_In_" + MONTH_LIST[i] + "_For_";
         println();
 
         unordered_set<string> copiedUniqueStation = uniqueStation; // Copy the unique station

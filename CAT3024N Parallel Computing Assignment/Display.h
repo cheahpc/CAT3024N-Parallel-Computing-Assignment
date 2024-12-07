@@ -227,7 +227,7 @@ void displayInfo_Operation(int operation)
     case 156:
     case 157:
     case 158:
-        print("Parallel Selection SortOperation] - Histogram ");
+        print("Parallel Selection Sort Operation] - Histogram ");
         break;
     case 161:
     case 162:
